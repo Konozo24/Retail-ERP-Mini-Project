@@ -6,7 +6,9 @@
 @config "../tailwind.config.js";
 
 /* @custom-variant dark (&:where(.dark, .dark *)); */
-
+/* git command 
+how to quite merge commit message: :wq [enter]
+*/
 @theme {
   --background: 0 0% 93.3%;
   --foreground: 240 10% 3.9%;
