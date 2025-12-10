@@ -126,3 +126,31 @@
     @apply bg-background text-foreground;
 }
 }
+
+/* Custom Scrollbar Styles */
+@layer utilities {
+  /* Chrome, Safari, Edge, Opera */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 5px;               
+    height: 5px;             
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;  /* Invisible track */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.2); /* Subtle grey */
+    border-radius: 20px;       /* Fully rounded pills */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground) / 0.5); /* Darker on hover */
+  }
+
+  /* Firefox */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.2) transparent;
+  }
+}
