@@ -4,6 +4,7 @@ import Layout from "./components/Layout";
 import Products from "./pages/Products";
 import CreateProduct from "./pages/CreateProduct";
 import LowStocks from "./pages/LowStocks";
+import Category from "./pages/Category";
 
 // Placeholder Components for Routes (Testing Only)
 
@@ -11,8 +12,6 @@ import LowStocks from "./pages/LowStocks";
 const Dashboard = () => <div className="p-4 text-2xl font-bold">Dashboard Overview</div>;
 
 // Inventory
-
-const Category = () => <div className="p-4 text-2xl font-bold">Product Categories</div>;
 const PrintBarcode = () => <div className="p-4 text-2xl font-bold">Print Barcodes</div>;
 
 // Stock
