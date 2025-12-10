@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
+// Capybara Page Loader Component
+
 const PageLoader = () => {
   return (
     <StyledWrapper>

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DataTable from "../components/ui/DataTable";
+import DeleteModal from "../components/ui/DeleteModal"; // Import Delete Modal
+import Toast from "../components/ui/Toast"; // Import Toast
 import { Plus, Search, Filter } from "lucide-react";
 import { productsData as initialData } from "../data/mockData";
 
@@ -15,11 +17,31 @@ const Products = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
 
+    // --- NEW: Modal & Toast State ---
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [productToDelete, setProductToDelete] = useState(null);
+    const [toast, setToast] = useState(null);
+
     // --- HANDLERS ---
-    const handleDelete = (row) => {
-        if (window.confirm(`Are you sure you want to delete ${row.name}?`)) {
-            setProducts(products.filter((item) => item.id !== row.id));
+
+    // 1. Trigger Delete Modal (Replaces window.confirm)
+    const handleDeleteClick = (row) => {
+        setProductToDelete(row);
+        setIsDeleteModalOpen(true);
+    };
+
+    // 2. Confirm Delete Action (Executes deletion)
+    const confirmDelete = () => {
+        if (productToDelete) {
+            setProducts(products.filter((item) => item.id !== productToDelete.id));
+            showToast(`Deleted ${productToDelete.name} successfully.`, "success");
+            setProductToDelete(null);
         }
+    };
+
+    // 3. Helper for Toast
+    const showToast = (message, type) => {
+        setToast({ message, type });
     };
 
     const handleEdit = (row) => {
@@ -81,7 +103,25 @@ const Products = () => {
     ];
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 relative">
+
+            {/* Toast Notification */}
+            {toast && (
+                <Toast 
+                    message={toast.message} 
+                    type={toast.type} 
+                    onClose={() => setToast(null)} 
+                />
+            )}
+
+            {/* Delete Confirmation Modal */}
+            <DeleteModal 
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDelete}
+                title="Delete Product"
+                message={`Are you sure you want to delete ${productToDelete?.name}?`}
+            />
 
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -140,9 +180,9 @@ const Products = () => {
             <DataTable
                 columns={columns}
                 data={currentData}
-                showNumber={true} // Enables the # column
+                showNumber={true}
                 onEdit={handleEdit}
-                onDelete={handleDelete}
+                onDelete={handleDeleteClick} // Pass the new handler logic
 
                 // Pagination Props
                 currentPage={currentPage}

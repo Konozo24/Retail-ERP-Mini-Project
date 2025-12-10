@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import Products from "./pages/Products";
 import CreateProduct from "./pages/CreateProduct";
+import LowStocks from "./pages/LowStocks";
 
 // Placeholder Components for Routes (Testing Only)
 
@@ -10,7 +11,7 @@ import CreateProduct from "./pages/CreateProduct";
 const Dashboard = () => <div className="p-4 text-2xl font-bold">Dashboard Overview</div>;
 
 // Inventory
-const LowStocks = () => <div className="p-4 text-2xl font-bold">Low Stock Alerts</div>;
+
 const Category = () => <div className="p-4 text-2xl font-bold">Product Categories</div>;
 const PrintBarcode = () => <div className="p-4 text-2xl font-bold">Print Barcodes</div>;
 
