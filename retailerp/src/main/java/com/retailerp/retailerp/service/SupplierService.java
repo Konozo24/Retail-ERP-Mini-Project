@@ -1,0 +1,66 @@
+package com.retailerp.retailerp.service;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.retailerp.retailerp.dto.supplier.SupplierDTO;
+import com.retailerp.retailerp.dto.supplier.SupplierRequestDTO;
+import com.retailerp.retailerp.model.Supplier;
+import com.retailerp.retailerp.repository.SupplierRepository;
+
+import lombok.RequiredArgsConstructor;
+
+
+@Service
+@RequiredArgsConstructor
+public class SupplierService {
+    
+    private final SupplierRepository supplierRepository;
+
+    @Transactional(readOnly = true)
+    public List<SupplierDTO> getSuppliers() {
+        return supplierRepository.findAll()
+            .stream()
+            .map(SupplierDTO::fromEntity)
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public SupplierDTO getSupplier(Long supplierId) {
+        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
+            () -> new NoSuchElementException(supplierId + ". deosnt exist!")
+        );
+        return SupplierDTO.fromEntity(supplier);
+    }
+
+    public SupplierDTO createSupplier(SupplierRequestDTO request) {
+        Supplier newSupplier = supplierRepository.save(
+            new Supplier(request.getName(), request.getPhone(), request.getEmail(), request.getAddress())
+        );
+        return SupplierDTO.fromEntity(newSupplier);
+    }
+
+    @Transactional
+    public void updateSupplier(Long supplierId, SupplierRequestDTO request) {
+        Supplier existing = supplierRepository.findById(supplierId).orElseThrow(
+            () -> new NoSuchElementException(supplierId + ". deosnt exist!")
+        );
+
+        existing.setName(request.getName());
+        existing.setPhone(request.getPhone());
+        existing.setEmail(request.getEmail());
+        existing.setAddress(request.getAddress());
+        supplierRepository.save(existing);
+    }
+
+    @Transactional
+    public void removeSupplier(Long supplierId) {
+        supplierRepository.findById(supplierId).orElseThrow(
+            () -> new NoSuchElementException(supplierId + ". deosnt exist!")
+        );
+        supplierRepository.deleteById(supplierId);
+    }
+}

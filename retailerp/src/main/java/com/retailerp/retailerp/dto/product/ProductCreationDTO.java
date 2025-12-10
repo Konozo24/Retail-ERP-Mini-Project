@@ -1,0 +1,38 @@
+package com.retailerp.retailerp.dto.product;
+
+import java.math.BigDecimal;
+
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+
+@Getter
+public class ProductCreationDTO {
+
+    @NotBlank
+    private String sku;
+
+    @NotBlank
+    @Max(150)
+    private String name;
+
+    @NotBlank
+    @Max(100)
+    private String category;
+
+    @NotNull
+    @Digits(integer = 8, fraction = 2)
+    private BigDecimal unitPrice;
+
+    @NotNull
+    @Digits(integer = 8, fraction = 2)
+    private BigDecimal costPrice;
+
+    @NotNull
+    @Min(0)
+    private Integer reorderLevel;
+    
+}

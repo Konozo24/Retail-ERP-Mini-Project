@@ -1,9 +1,11 @@
 package com.retailerp.retailerp.repository;
 
-import com.retailerp.retailerp.model.PurchaseOrder;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import java.util.List;
+
+import com.retailerp.retailerp.model.PurchaseOrder;
 
 @Repository
 public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, Long> {
@@ -13,4 +15,5 @@ public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, Lo
     
     // Find all orders from a specific supplier
     List<PurchaseOrder> findBySupplierId(Long supplierId);
+
 }

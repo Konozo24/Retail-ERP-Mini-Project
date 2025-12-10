@@ -1,93 +1,55 @@
 package com.retailerp.retailerp.model;
 
-import java.io.Serializable;
-import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
-@Table(name = "TB_PURCHASE_ORDER_ITEM")
-public class PurchaseOrderItem implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+@Table(name = "PURCHASE_ORDER_ITEM")
+@NoArgsConstructor
+@Getter
+@Setter
+@ToString
+public class PurchaseOrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "POI_ID") // Prefix POI_
+    @Column(name = "POI_ID")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PO_ID", referencedColumnName = "PO_ID", nullable = false)
     private PurchaseOrder purchaseOrder;
 
-    @ManyToOne
-    @JoinColumn(name = "P_ID", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROD_ID", referencedColumnName = "PROD_ID", nullable = false)
     private Product product;
 
-    @Column(name = "POI_QUANTITY")
+    @Column(name = "QUANTITY", nullable = false)
     private Integer quantity;
 
-    @Column(name = "POI_UNIT_COST")
-    private Double unitCost;
+    @Column(name = "UNIT_COST", nullable = false, precision = 10, scale = 2)
+    private BigDecimal unitCost;
 
-    @Column(name = "POI_SUBTOTAL")
-    private Double subtotal;
-
-    public static long getSerialversionuid() {
-        return serialVersionUID;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public PurchaseOrder getPurchaseOrder() {
-        return purchaseOrder;
-    }
-
-    public void setPurchaseOrder(PurchaseOrder purchaseOrder) {
-        this.purchaseOrder = purchaseOrder;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public Double getUnitCost() {
-        return unitCost;
-    }
-
-    public void setUnitCost(Double unitCost) {
-        this.unitCost = unitCost;
-    }
-
-    public Double getSubtotal() {
-        return subtotal;
-    }
-
-    public void setSubtotal(Double subtotal) {
-        this.subtotal = subtotal;
-    }
-
-    @Override
-    public String toString() {
-        return "PurchaseOrderItem [id=" + id + ", purchaseOrder=" + purchaseOrder + ", product=" + product
-                + ", quantity=" + quantity + ", unitCost=" + unitCost + ", subtotal=" + subtotal + "]";
-    }
-
+    @Column(name = "SUBTOTAL", nullable = false, precision = 12, scale = 2)
+    private BigDecimal subtotal;
     
+    // Require calling setProduct(), default subtotal = unitCost * quantity
+    public PurchaseOrderItem(Integer quantity, BigDecimal unitCost) {
+        this.quantity = quantity;
+        this.unitCost = unitCost;
+        this.subtotal = unitCost.multiply(BigDecimal.valueOf(quantity));
+    }
 }
