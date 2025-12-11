@@ -1,83 +1,116 @@
+// src/components/Topbar.jsx
+
 import React from "react";
 import {
-    Search,
-    ChevronsLeft,
-    ChevronsRight,
-    Monitor,
-    Maximize,
-    Bell,
-    Settings,
-    Globe,
+    Search,
+    ChevronsLeft,
+    ChevronsRight,
+    Monitor, // POS Icon
+    Maximize,
+    Bell,
+    Settings,
+    Globe, // Dashboard Icon
 } from "lucide-react";
 
-const Topbar = ({ sidebarOpen, setSidebarOpen }) => {
-    return (
-        <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 sm:px-6 gap-4">
+// Add navigate and currentPath as props
+const Topbar = ({ sidebarOpen, setSidebarOpen, navigate, currentPath }) => {
+    
+    // Helper function to determine if a path is active
+    const isActive = (path) => {
+        // Special case for Dashboard (root path)
+        if (path === '/' && currentPath === '/') return true;
+        // Check if the current path starts with the given path (useful for nested routes like /pos/new)
+        return currentPath.startsWith(path) && path !== '/'; 
+    };
 
-            {/* LEFT SECTION: Toggle & Search */}
-            <div className="flex items-center gap-4 flex-1">
+    // Define styles for active vs. inactive buttons
+    const activeStyle = "bg-[#0B1E3D] text-white hover:bg-[#0B1E3D]/90 transition-colors";
+    const inactiveStyle = "bg-muted text-foreground hover:bg-muted/80 transition-colors";
 
-                {/* Sidebar Toggle Button (Orange) */}
-                <button
-                    onClick={() => setSidebarOpen(!sidebarOpen)}
-                    className="flex items-center justify-center w-8 h-8 rounded-full bg-accent hover:bg-accent/90 transition-colors shadow-sm shrink-0"
+    return (
+        <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 sm:px-6 gap-4 shrink-0">
+
+            {/* LEFT SECTION: Toggle & Search */}
+            <div className="flex items-center gap-4 flex-1">
+
+                {/* Sidebar Toggle Button (Orange) */}
+                <button
+                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                    className="flex items-center justify-center w-8 h-8 rounded-full bg-accent hover:bg-accent/90 transition-colors shadow-sm shrink-0"
+                >
+                    {sidebarOpen ? (
+                        <ChevronsLeft className="w-5 h-5 text-white" />
+                    ) : (
+                        <ChevronsRight className="w-5 h-5 text-white" />
+                    )}
+                </button>
+
+                {/* Search Bar */}
+                <div className="relative w-full max-w-md hidden sm:block">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                        type="text"
+                        placeholder="Search"
+                        className="w-full h-10 pl-10 pr-4 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 placeholder:text-muted-foreground"
+                    />
+                </div>
+            </div>
+
+            {/* RIGHT SECTION: Actions & Profile */}
+            <div className="flex items-center gap-3 sm:gap-4">
+                
+                {/* 🚀 NEW: Dashboard Button */}
+                <button 
+                    onClick={() => navigate('/')} // <-- Navigate to the root path
+                    className={`hidden sm:flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium ${
+                        isActive('/') ? activeStyle : inactiveStyle // <-- Apply active/inactive style
+                    }`}
                 >
-                    {sidebarOpen ? (
-                        <ChevronsLeft className="w-5 h-5 text-white" />
-                    ) : (
-                        <ChevronsRight className="w-5 h-5 text-white" />
-                    )}
-                </button>
-
-                {/* Search Bar */}
-                <div className="relative w-full max-w-md hidden sm:block">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <input
-                        type="text"
-                        placeholder="Search"
-                        className="w-full h-10 pl-10 pr-4 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 placeholder:text-muted-foreground"
-                    />
-                </div>
-            </div>
-
-            {/* RIGHT SECTION: Actions & Profile */}
-            <div className="flex items-center gap-3 sm:gap-4">
-
-                {/* POS Button (Dark Blue) */}
-                <button className="hidden sm:flex items-center gap-2 bg-[#0B1E3D] text-white px-4 py-2 rounded-md hover:bg-[#0B1E3D]/90 transition-colors text-sm font-medium">
-                    <Monitor className="w-4 h-4" />
-                    <span>POS</span>
-                </button>
+                    <Globe className="w-4 h-4" />
+                    <span>Dashboard</span>
+                </button>
 
 
-                {/* Fullscreen */}
-                <button className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors hidden sm:block">
-                    <Maximize className="w-5 h-5" />
-                </button>
+                {/* 🚀 MODIFIED: POS Button (Dark Blue) */}
+                <button 
+                    onClick={() => navigate('/pos')} // <-- Navigate to the POS path
+                    className={`hidden sm:flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium ${
+                        isActive('/pos') ? activeStyle : inactiveStyle // <-- Apply active/inactive style
+                    }`}
+                >
+                    <Monitor className="w-4 h-4" />
+                    <span>POS</span>
+                </button>
 
-                {/* Notifications */}
-                <button className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors relative">
-                    <Bell className="w-5 h-5" />
-                    {/* Notification Dot */}
-                    <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full border-2 border-card"></span>
-                </button>
 
-                {/* Settings */}
-                <button className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors">
-                    <Settings className="w-5 h-5" />
-                </button>
+                {/* Fullscreen */}
+                <button className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors hidden sm:block">
+                    <Maximize className="w-5 h-5" />
+                </button>
 
-                {/* User Profile */}
-                <div className="ml-2 w-9 h-9 rounded-lg overflow-hidden border border-border cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all">
-                    <img
-                        src="https://github.com/shadcn.png"
-                        alt="User"
-                        className="w-full h-full object-cover"
-                    />
-                </div>
-            </div>
-        </header>
-    );
+                {/* Notifications */}
+                <button className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors relative">
+                    <Bell className="w-5 h-5" />
+                    {/* Notification Dot */}
+                    <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full border-2 border-card"></span>
+                </button>
+
+                {/* Settings */}
+                <button className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors">
+                    <Settings className="w-5 h-5" />
+                </button>
+
+                {/* User Profile */}
+                <div className="ml-2 w-9 h-9 rounded-lg overflow-hidden border border-border cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all">
+                    <img
+                        src="https://github.com/shadcn.png"
+                        alt="User"
+                        className="w-full h-full object-cover"
+                    />
+                </div>
+            </div>
+        </header>
+    );
 };
 
 export default Topbar;

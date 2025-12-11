@@ -9,6 +9,10 @@ import CreateProduct from "./pages/CreateProduct";
 import LowStocks from "./pages/LowStocks";
 import Category from "./pages/Category";
 import PrintBarcode from "./pages/PrintBarcode";
+import POS from "./Pages/POS";
+import ManageStock from "./Pages/ManageStock";
+import EditManageStock from "./Pages/EditManageStock";
+import PurchaseOrder from "./Pages/PurchaseOrder";
 
 // Placeholder Components for Routes (Testing Only)
 
@@ -17,8 +21,6 @@ const Dashboard = () => <div className="p-4 text-2xl font-bold">Dashboard Overvi
 
 
 // Stock
-const ManageStock = () => <div className="p-4 text-2xl font-bold">Manage Stock Adjustments</div>;
-const PurchaseOrder = () => <div className="p-4 text-2xl font-bold">Purchase Orders</div>;
 
 // Sales
 const Sales = () => <div className="p-4 text-2xl font-bold">Sales History</div>;
@@ -57,6 +59,9 @@ function App() {
           {/* --- Peoples --- */}
           <Route path="/customers" element={<Customers />} />
           <Route path="/suppliers" element={<Suppliers />} />
+
+          {/* --- POS --- */}
+          <Route path="/pos" element={<POS/>} />
 
         </Route>
 

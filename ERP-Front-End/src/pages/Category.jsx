@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import DataTable from "../components/ui/DataTable";
-import CategoryModal from "../components/ui/CategoryModel";
+import CategoryModal from "../components/ui/CategoryModal";
 import DeleteModal from "../components/ui/DeleteModal";
 import Toast from "../components/ui/Toast";
 import { Plus, Search, Filter } from "lucide-react";
