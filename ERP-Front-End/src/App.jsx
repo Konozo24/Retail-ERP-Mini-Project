@@ -63,9 +63,9 @@ function App() {
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
+            {/* Admin layout routes */}
             <Route element={<Layout />}>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/products" element={<Products />} />
               <Route path="/create-product" element={<CreateProduct />} />
@@ -78,6 +78,9 @@ function App() {
               <Route path="/customers" element={<Customers />} />
               <Route path="/suppliers" element={<Suppliers />} />
             </Route>
+
+            {/* Fullscreen POS (no sidebar/header layout) */}
+            <Route path="/pos" element={<POS />} />
           </Route>
 
         </Routes>
