@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
+import LoginPage from "./pages/LoginPage";
 
 // Placeholder Components for Routes (Testing Only)
 
@@ -30,6 +31,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/login" element={<LoginPage />} />
         <Route element={<Layout />}>
           
           {/* Default redirect to dashboard */}
