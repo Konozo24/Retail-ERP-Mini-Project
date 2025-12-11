@@ -10,25 +10,10 @@ import Products from "./pages/Products";
 import CreateProduct from "./pages/CreateProduct";
 import LowStocks from "./pages/LowStocks";
 import Category from "./pages/Category";
+import Dashboard from "./pages/Dashboard";
 
 // --- Placeholder Components ---
-const Dashboard = () => {
-  const { logout } = useAuth(); // Get the logout function
 
-  return (
-    <div className="p-4">
-      <div className="text-2xl font-bold mb-4">Dashboard Overview</div>
-      
-      {/* Temporary Logout Button */}
-      <button 
-        onClick={logout} 
-        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-      >
-        Test Logout
-      </button>
-    </div>
-  );
-};
 const PrintBarcode = () => <div className="p-4 text-2xl font-bold">Print Barcodes</div>;
 const ManageStock = () => <div className="p-4 text-2xl font-bold">Manage Stock Adjustments</div>;
 const PurchaseOrder = () => <div className="p-4 text-2xl font-bold">Purchase Orders</div>;
