@@ -15,7 +15,9 @@ import LowStocks from "./pages/LowStocks";
 import Category from "./pages/Category";
 import PrintBarcode from "./pages/PrintBarcode";
 import POS from "./pages/POS";
+import PurchaseOrderHistory from "./pages/PurchaseOrderHistory";
 import ManageStock from "./Pages/ManageStock";
+import Dashboard from "./pages/Dashboard";
 import EditManageStock from "./Pages/EditManageStock";
 import PurchaseOrder from "./Pages/PurchaseOrder";
 
@@ -60,15 +62,15 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          
+
           {/* Public Route: Login */}
-          <Route 
-            path="/login" 
+          <Route
+            path="/login"
             element={
               <PublicRoute>
                 <LoginPage />
               </PublicRoute>
-            } 
+            }
           />
 
           {/* Protected Routes */}
@@ -84,6 +86,7 @@ function App() {
               <Route path="/print-barcode" element={<PrintBarcode />} />
               <Route path="/manage-stock" element={<ManageStock />} />
               <Route path="/purchase-order" element={<PurchaseOrder />} />
+              <Route path="/purchase-order-history" element={<PurchaseOrderHistory />} />
               <Route path="/sales" element={<Sales />} />
               <Route path="/customers" element={<Customers />} />
               <Route path="/suppliers" element={<Suppliers />} />
