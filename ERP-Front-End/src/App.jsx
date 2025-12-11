@@ -5,14 +5,13 @@ import Products from "./pages/Products";
 import CreateProduct from "./pages/CreateProduct";
 import LowStocks from "./pages/LowStocks";
 import Category from "./pages/Category";
+import PrintBarcode from "./pages/PrintBarcode";
 
 // Placeholder Components for Routes (Testing Only)
 
 // Main
 const Dashboard = () => <div className="p-4 text-2xl font-bold">Dashboard Overview</div>;
 
-// Inventory
-const PrintBarcode = () => <div className="p-4 text-2xl font-bold">Print Barcodes</div>;
 
 // Stock
 const ManageStock = () => <div className="p-4 text-2xl font-bold">Manage Stock Adjustments</div>;
