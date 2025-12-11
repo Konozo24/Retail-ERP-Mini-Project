@@ -2,6 +2,7 @@
 
 
 import React from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { AuthProvider, useAuth } from './contexts/AuthContext'; // Import the new Context
 
@@ -36,71 +37,73 @@ const Sales = () => <div className="p-4 text-2xl font-bold">Sales History</div>;
 
 // --- Protection Logic ---
 const ProtectedRoute = () => {
-  const { user } = useAuth(); // Use the context hook
+    const { user } = useAuth(); // Use the context hook
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
+    if (!user) {
+        return <Navigate to="/login" replace />;
+    }
 
-  return <Outlet />;
+    return <Outlet />;
 };
 
 // --- Public Route Logic ---
 // Redirects to dashboard if user tries to access /login while already logged in
 const PublicRoute = ({ children }) => {
-  const { user } = useAuth();
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
-  }
-  return children;
+    const { user } = useAuth();
+    if (user) {
+        return <Navigate to="/dashboard" replace />;
+    }
+    return children;
 };
 
-
+const queryClient = new QueryClient();
 
 function App() {
-  return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
+    return (
+        <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+                <BrowserRouter>
+                    <Routes>
 
-          {/* Public Route: Login */}
-          <Route
-            path="/login"
-            element={
-              <PublicRoute>
-                <LoginPage />
-              </PublicRoute>
-            }
-          />
+                        {/* Public Route: Login */}
+                        <Route
+                            path="/login"
+                            element={
+                                <PublicRoute>
+                                    <LoginPage />
+                                </PublicRoute>
+                            }
+                        />
 
-          {/* Protected Routes */}
-          <Route element={<ProtectedRoute />}>
-            {/* Admin layout routes */}
-            <Route element={<Layout />}>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/create-product" element={<CreateProduct />} />
-              <Route path="/low-stocks" element={<LowStocks />} />
-              <Route path="/category" element={<Category />} />
-              <Route path="/print-barcode" element={<PrintBarcode />} />
-              <Route path="/manage-stock" element={<ManageStock />} />
-              <Route path="/purchase-order" element={<PurchaseOrder />} />
-              <Route path="/purchase-order-history" element={<PurchaseOrderHistory />} />
-              <Route path="/sales" element={<Sales />} />
-              <Route path="/customers" element={<Customers />} />
-              <Route path="/suppliers" element={<Suppliers />} />
-              <Route path="/create-supplier" element={<CreateSupplier />} />
-            </Route>
+                        {/* Protected Routes */}
+                        <Route element={<ProtectedRoute />}>
+                            {/* Admin layout routes */}
+                            <Route element={<Layout />}>
+                                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                                <Route path="/dashboard" element={<Dashboard />} />
+                                <Route path="/products" element={<Products />} />
+                                <Route path="/create-product" element={<CreateProduct />} />
+                                <Route path="/low-stocks" element={<LowStocks />} />
+                                <Route path="/category" element={<Category />} />
+                                <Route path="/print-barcode" element={<PrintBarcode />} />
+                                <Route path="/manage-stock" element={<ManageStock />} />
+                                <Route path="/purchase-order" element={<PurchaseOrder />} />
+                                <Route path="/purchase-order-history" element={<PurchaseOrderHistory />} />
+                                <Route path="/sales" element={<Sales />} />
+                                <Route path="/customers" element={<Customers />} />
+                                <Route path="/suppliers" element={<Suppliers />} />
+                                <Route path="/create-supplier" element={<CreateSupplier />} />
+                            </Route>
 
-            {/* Fullscreen POS (no sidebar/header layout) */}
-            <Route path="/pos" element={<POS />} />
-          </Route>
+                            {/* Fullscreen POS (no sidebar/header layout) */}
+                            <Route path="/pos" element={<POS />} />
+                        </Route>
 
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
-  );
+                    </Routes>
+                </BrowserRouter>
+            </AuthProvider>
+        </QueryClientProvider>
+    );
 }
 
 export default App;

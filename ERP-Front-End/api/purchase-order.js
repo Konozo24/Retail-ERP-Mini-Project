@@ -1,54 +1,52 @@
-import API from "./axios";
-
-// CREATE PURCHASE ORDER (POST /purchase-order)
-export const createPurchaseOrderAPI = async (purchaseOrderData) => {
-    try {
-        const response = await API.post(`/purchase-order`, purchaseOrderData);
-        return response.data;
-    } catch (error) {
-        return Promise.reject(error.response?.data || error);
-    }
-};
+import API from "./api";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 // GET ALL PURCHASE ORDERS (GET /purchase-order)
-export const getPurchaseOrdersAPI = async () => {
-    try {
-        const response = await API.get(`/purchase-order`);
-        return response.data;
-    } catch (error) {
-        return Promise.reject(error.response?.data || error);
-    }
-};
+export function getPurchaseOrdersAPI() {
+  return useQuery({
+    queryKey: ['purchaseOrders'],
+    queryFn: () => API.get(`/purchase-order`),
+  });
+}
 
 // GET PURCHASE ORDER BY ID (GET /purchase-order/{purchaseOrderId})
-export const getPurchaseOrderByIdAPI = async (purchaseOrderId) => {
-    try {
-        const response = await API.get(`/purchase-order/${purchaseOrderId}`);
-        return response.data;
-    } catch (error) {
-        return Promise.reject(error.response?.data || error);
-    }
-};
+export function getPurchaseOrderAPI(purchaseOrderId) {
+  return useQuery({
+    queryKey: ['purchaseOrder', purchaseOrderId],
+    queryFn: () => API.get(`/purchase-order/${purchaseOrderId}`),
+    enabled: !!purchaseOrderId,
+  });
+}
+
+// CREATE PURCHASE ORDER (POST /purchase-order)
+export function addPurchaseOrderAPI() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => API.post(`/purchase-order`, payload),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['purchaseOrders'] }),
+  });
+}
 
 // UPDATE PURCHASE ORDER (PUT /purchase-order/{purchaseOrderId})
-export const updatePurchaseOrderAPI = async (purchaseOrderId, updatedData) => {
-    try {
-        const response = await API.put(
-            `/purchase-order/${purchaseOrderId}`,
-            updatedData
-        );
-        return response.data;
-    } catch (error) {
-        return Promise.reject(error.response?.data || error);
-    }
-};
+export function updatePurchaseOrderAPI(purchaseOrderId) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => API.put(`/purchase-order/${purchaseOrderId}`, payload),
+    onSuccess: () => {
+        qc.invalidateQueries({ queryKey: ['purchaseOrders'] });
+        qc.invalidateQueries({ queryKey: ['purchaseOrder', purchaseOrderId] });
+    },
+  });
+}
 
 // DELETE PURCHASE ORDER (DELETE /purchase-order/{purchaseOrderId})
-export const deletePurchaseOrderAPI = async (purchaseOrderId) => {
-    try {
-        const response = await API.delete(`/purchase-order/${purchaseOrderId}`);
-        return response.data;
-    } catch (error) {
-        return Promise.reject(error.response?.data || error);
-    }
-};
+export function deletePurchaseOrderAPI(purchaseOrderId) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => API.delete(`/purchase-order/${purchaseOrderId}`),
+    onSuccess: () => {
+        qc.invalidateQueries({ queryKey: ['purchaseOrders'] });
+        qc.invalidateQueries({ queryKey: ['purchaseOrder', purchaseOrderId] });
+    },
+  });
+}
