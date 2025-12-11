@@ -5,6 +5,8 @@ import Products from "./pages/Products";
 import CreateProduct from "./pages/CreateProduct";
 import LowStocks from "./pages/LowStocks";
 import Category from "./pages/Category";
+import Suppliers from "./pages/Suppliers";
+import CreateSupplier from "./pages/CreateSupplier";
 // Placeholder Components for Routes (Testing Only)
 
 // Main
@@ -22,7 +24,6 @@ const Sales = () => <div className="p-4 text-2xl font-bold">Sales History</div>;
 
 // Peoples
 const Customers = () => <div className="p-4 text-2xl font-bold">Customer List</div>;
-const Suppliers = () => <div className="p-4 text-2xl font-bold">Supplier List</div>;
 
 import { useEffect } from "react";
 import { loginAPI, registerAPI, getUserByIdAPI } from "../api/users";
@@ -98,6 +99,7 @@ function App() {
                     {/* --- Peoples --- */}
                     <Route path="/customers" element={<Customers />} />
                     <Route path="/suppliers" element={<Suppliers />} />
+                    <Route path="/create-supplier" element={<CreateSupplier />} />
 
                 </Route>
 
