@@ -1,3 +1,6 @@
+// src/App.jsx
+
+
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { AuthProvider, useAuth } from './contexts/AuthContext'; // Import the new Context
@@ -12,7 +15,9 @@ import LowStocks from "./pages/LowStocks";
 import Category from "./pages/Category";
 import PrintBarcode from "./pages/PrintBarcode";
 import POS from "./pages/POS";
-import Dashboard from "./pages/Dashboard";
+import ManageStock from "./Pages/ManageStock";
+import EditManageStock from "./Pages/EditManageStock";
+import PurchaseOrder from "./Pages/PurchaseOrder";
 
 // --- Placeholder Components ---
 import Suppliers from "./pages/Suppliers";
@@ -20,8 +25,10 @@ import CreateSupplier from "./pages/CreateSupplier";
 // Placeholder Components for Routes (Testing Only)
 
 
-const ManageStock = () => <div className="p-4 text-2xl font-bold">Manage Stock Adjustments</div>;
-const PurchaseOrder = () => <div className="p-4 text-2xl font-bold">Purchase Orders</div>;
+
+// Stock
+
+// Sales
 const Sales = () => <div className="p-4 text-2xl font-bold">Sales History</div>;
 
 
