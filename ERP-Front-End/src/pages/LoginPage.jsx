@@ -1,27 +1,21 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext'; // Import hook
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuth();
+  const { login } = useAuth(); // Get login function from context
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState({});
-
-  // Redirect if already logged in
-  React.useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard');
-    }
-  }, [isAuthenticated, navigate]);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Add loading state for button
 
   const validateForm = () => {
     const newErrors = {};
-    
     if (!email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
@@ -38,16 +32,22 @@ export default function LoginPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async (e) => {
+    // Check if e exists (it might not if called via Enter key manually)
+    if (e) e.preventDefault();
+    
     if (validateForm()) {
-      // Call the login function from AuthContext
-      const success = login(email, password);
-      
-      if (success) {
-        // Redirect to dashboard
+      setIsSubmitting(true);
+      try {
+        // Call the context login function
+        await login(email, password);
+        console.log('Login successful');
         navigate('/dashboard');
-      } else {
-        setErrors({ ...errors, general: 'Invalid credentials' });
+      } catch (error) {
+        console.error("Login failed", error);
+        setErrors({ form: "Invalid email or password" }); // Global form error
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
@@ -62,6 +62,13 @@ export default function LoginPage() {
           <h1 className="text-3xl font-bold text-foreground">Welcome Back</h1>
           <p className="text-muted-foreground mt-2">Sign in to your account</p>
         </div>
+
+        {/* Display General Error if API fails */}
+        {errors.form && (
+          <div className="mb-4 p-3 bg-red-100 text-red-600 rounded-lg text-sm text-center">
+            {errors.form}
+          </div>
+        )}
 
         <div className="space-y-6">
           <div>
@@ -137,9 +144,10 @@ export default function LoginPage() {
 
           <button
             onClick={handleSubmit}
-            className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:bg-primary/90 transform hover:scale-[1.02] transition duration-200 shadow-lg"
+            disabled={isSubmitting}
+            className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:bg-primary/90 transform hover:scale-[1.02] transition duration-200 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            Sign In
+            {isSubmitting ? 'Signing In...' : 'Sign In'}
           </button>
         </div>
 
