@@ -15,6 +15,9 @@ import POS from "./pages/POS";
 import Dashboard from "./pages/Dashboard";
 
 // --- Placeholder Components ---
+import Suppliers from "./pages/Suppliers";
+import CreateSupplier from "./pages/CreateSupplier";
+// Placeholder Components for Routes (Testing Only)
 
 
 const ManageStock = () => <div className="p-4 text-2xl font-bold">Manage Stock Adjustments</div>;
