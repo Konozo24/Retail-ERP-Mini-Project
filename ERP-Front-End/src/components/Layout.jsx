@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, useNavigate} from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Topbar from "./TopBar";
 import PageLoader from "./ui/PageLoader";
@@ -8,6 +8,7 @@ const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // 1. Trigger loading when URL changes
@@ -48,7 +49,12 @@ const Layout = () => {
 
       <div className="flex flex-col flex-1 h-full overflow-hidden">
         
-        <Topbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <Topbar 
+        sidebarOpen={sidebarOpen} 
+        setSidebarOpen={setSidebarOpen}
+        navigate={navigate}
+        currentPath={location.pathname}
+        />
 
         <main className="flex-1 overflow-y-auto p-6 bg-background">
            {/* Add a subtle fade-in animation to the content once revealed */}

@@ -1,114 +1,106 @@
+// src/App.jsx
+
+
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { AuthProvider, useAuth } from './contexts/AuthContext'; // Import the new Context
+
+// Components
 import Layout from "./components/Layout";
+import LoginPage from "./pages/LoginPage";
+import Customers from "./pages/Customers";
 import Products from "./pages/Products";
 import CreateProduct from "./pages/CreateProduct";
 import LowStocks from "./pages/LowStocks";
 import Category from "./pages/Category";
+import PrintBarcode from "./pages/PrintBarcode";
+import POS from "./pages/POS";
+import PurchaseOrderHistory from "./pages/PurchaseOrderHistory";
+import ManageStock from "./Pages/ManageStock";
+import Dashboard from "./pages/Dashboard";
+import EditManageStock from "./Pages/EditManageStock";
+import PurchaseOrder from "./Pages/PurchaseOrder";
+
+// --- Placeholder Components ---
 import Suppliers from "./pages/Suppliers";
 import CreateSupplier from "./pages/CreateSupplier";
 // Placeholder Components for Routes (Testing Only)
 
-// Main
-const Dashboard = () => <div className="p-4 text-2xl font-bold">Dashboard Overview</div>;
 
-// Inventory
-const PrintBarcode = () => <div className="p-4 text-2xl font-bold">Print Barcodes</div>;
 
 // Stock
-const ManageStock = () => <div className="p-4 text-2xl font-bold">Manage Stock Adjustments</div>;
-const PurchaseOrder = () => <div className="p-4 text-2xl font-bold">Purchase Orders</div>;
 
 // Sales
 const Sales = () => <div className="p-4 text-2xl font-bold">Sales History</div>;
 
-// Peoples
-const Customers = () => <div className="p-4 text-2xl font-bold">Customer List</div>;
 
-import { useEffect } from "react";
-import { loginAPI, registerAPI, getUserByIdAPI } from "../api/users";
-const callApi = async () => {
-  try {
-    let token;
+// --- Protection Logic ---
+const ProtectedRoute = () => {
+  const { user } = useAuth(); // Use the context hook
 
-    // Check if token exists
-    const existingToken = localStorage.getItem("token");
-
-    if (existingToken) {
-      // Token exists → login
-      const loginRes = await loginAPI({
-        username: "string",
-        rawPassword: "string"
-      });
-      token = loginRes.access_token;
-      console.log("Logged in successfully");
-    } else {
-      // No token → register
-      const registerRes = await registerAPI({
-        username: "string",
-        rawPassword: "string"
-      });
-      token = registerRes.access_token;
-      localStorage.setItem("token", token);
-      console.log("Registered and saved token");
-    }
-
-    // Fetch user info
-    try {
-      const userRes = await getUserByIdAPI(1);
-      console.warn("User info:", JSON.stringify(userRes, null, 2));
-    } catch (error) {
-      console.error("Failed to fetch user:", error);
-    }
-
-  } catch (error) {
-    console.error("API call failed:", error);
+  if (!user) {
+    return <Navigate to="/login" replace />;
   }
+
+  return <Outlet />;
 };
 
+// --- Public Route Logic ---
+// Redirects to dashboard if user tries to access /login while already logged in
+const PublicRoute = ({ children }) => {
+  const { user } = useAuth();
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  return children;
+};
+
+
+
 function App() {
-       useEffect(() => {
-        callApi()
-    }, [])
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
 
-    return (
-        <BrowserRouter>
-            <Routes>
-                <Route element={<Layout />}>
+          {/* Public Route: Login */}
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
+            }
+          />
 
-                    {/* Default redirect to dashboard */}
-                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          {/* Protected Routes */}
+          <Route element={<ProtectedRoute />}>
+            {/* Admin layout routes */}
+            <Route element={<Layout />}>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/create-product" element={<CreateProduct />} />
+              <Route path="/low-stocks" element={<LowStocks />} />
+              <Route path="/category" element={<Category />} />
+              <Route path="/print-barcode" element={<PrintBarcode />} />
+              <Route path="/manage-stock" element={<ManageStock />} />
+              <Route path="/purchase-order" element={<PurchaseOrder />} />
+              <Route path="/purchase-order-history" element={<PurchaseOrderHistory />} />
+              <Route path="/sales" element={<Sales />} />
+              <Route path="/customers" element={<Customers />} />
+              <Route path="/suppliers" element={<Suppliers />} />
+              <Route path="/create-supplier" element={<CreateSupplier />} />
+            </Route>
 
-                    {/* --- Main --- */}
-                    <Route path="/dashboard" element={<Dashboard />} />
+            {/* Fullscreen POS (no sidebar/header layout) */}
+            <Route path="/pos" element={<POS />} />
+          </Route>
 
-                    {/* --- Inventory --- */}
-                    <Route path="/products" element={<Products />} />
-                    <Route path="/create-product" element={<CreateProduct />} />
-                    <Route path="/low-stocks" element={<LowStocks />} />
-                    <Route path="/category" element={<Category />} />
-                    <Route path="/print-barcode" element={<PrintBarcode />} />
-
-                    {/* --- Stock --- */}
-                    <Route path="/manage-stock" element={<ManageStock />} />
-                    <Route path="/purchase-order" element={<PurchaseOrder />} />
-
-                    {/* --- Sales --- */}
-                    <Route path="/sales" element={<Sales />} />
-
-                    {/* --- Peoples --- */}
-                    <Route path="/customers" element={<Customers />} />
-                    <Route path="/suppliers" element={<Suppliers />} />
-                    <Route path="/create-supplier" element={<CreateSupplier />} />
-
-                </Route>
-
-                {/* Login Page (No Sidebar) */}
-                <Route path="/login" element={<div className="flex items-center justify-center h-screen">Login Page</div>} />
-
-            </Routes>
-        </BrowserRouter>
-    );
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
 }
 
 export default App;
