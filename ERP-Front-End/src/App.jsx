@@ -6,6 +6,7 @@ import CreateProduct from "./pages/CreateProduct";
 import LowStocks from "./pages/LowStocks";
 import Category from "./pages/Category";
 import PrintBarcode from "./pages/PrintBarcode";
+import POS from "./pages/POS";
 
 // Placeholder Components for Routes (Testing Only)
 
@@ -56,6 +57,9 @@ function App() {
           <Route path="/suppliers" element={<Suppliers />} />
 
         </Route>
+
+        {/* Fullscreen POS (no dashboard layout) */}
+        <Route path="/pos" element={<POS />} />
 
         {/* Login Page (No Sidebar) */}
         <Route path="/login" element={<div className="flex items-center justify-center h-screen">Login Page</div>} />
