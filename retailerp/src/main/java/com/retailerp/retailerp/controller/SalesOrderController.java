@@ -15,7 +15,7 @@ import com.retailerp.retailerp.dto.sales.SalesOrderCreationDTO;
 import com.retailerp.retailerp.dto.sales.SalesOrderDTO;
 import com.retailerp.retailerp.service.SalesOrderService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ public class SalesOrderController {
     private final SalesOrderService salesOrderService;
 
     @GetMapping
-    public ResponseEntity<List<SalesOrderDTO>> getSalesOrder() {
+    public ResponseEntity<List<SalesOrderDTO>> getSalesOrders() {
         List<SalesOrderDTO> dtoList = salesOrderService.getSalesOrders();
         return ResponseEntity.ok(dtoList);
     }

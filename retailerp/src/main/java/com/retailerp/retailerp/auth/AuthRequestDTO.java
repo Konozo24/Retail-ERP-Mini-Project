@@ -14,7 +14,6 @@ import lombok.Setter;
 public class AuthRequestDTO {
 
     @NotBlank
-    @Email
     private String username;
 
     @NotBlank

@@ -19,12 +19,11 @@ import com.retailerp.retailerp.dto.user.UserDTO;
 import com.retailerp.retailerp.dto.user.UserRequestDTO;
 import com.retailerp.retailerp.service.UserService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-@SecurityRequirement(name = "JWTAuth")
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -33,12 +32,14 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
+    @SecurityRequirement(name = "JWTAuth")
     public ResponseEntity<List<UserDTO>> getUsers() {
         List<UserDTO> dtoList = userService.getUsers();
         return ResponseEntity.ok(dtoList);
     }
 
     @GetMapping("/{userId}")
+    @SecurityRequirement(name = "JWTAuth")
     public ResponseEntity<UserDTO> getUser(
         @PathVariable Long userId
     ) {
@@ -47,6 +48,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
+    @SecurityRequirement(name = "JWTAuth")
     public ResponseEntity<Void> updateUser(
         @PathVariable Long userId,
         @Valid @RequestBody UserRequestDTO request
@@ -56,6 +58,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
+    @SecurityRequirement(name = "JWTAuth")
     public ResponseEntity<Void> removeUser(
         @PathVariable Long userId
     ) {

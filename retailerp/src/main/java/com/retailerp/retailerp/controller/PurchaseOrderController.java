@@ -17,7 +17,7 @@ import com.retailerp.retailerp.dto.purchases.PurchaseOrderUpdateDTO;
 import com.retailerp.retailerp.dto.purchases.PurchaseOrderCreationDTO;
 import com.retailerp.retailerp.service.PurchaseOrderService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class PurchaseOrderController {
     private final PurchaseOrderService purchaseOrderService;
 
     @GetMapping
-    public ResponseEntity<List<PurchaseOrderDTO>> getPurchaseOrder() {
+    public ResponseEntity<List<PurchaseOrderDTO>> getPurchaseOrders() {
         List<PurchaseOrderDTO> dtoList = purchaseOrderService.getPurchaseOrders();
         return ResponseEntity.ok(dtoList);
     }

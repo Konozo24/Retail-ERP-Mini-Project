@@ -16,7 +16,7 @@ import com.retailerp.retailerp.dto.supplier.SupplierDTO;
 import com.retailerp.retailerp.dto.supplier.SupplierRequestDTO;
 import com.retailerp.retailerp.service.SupplierService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
