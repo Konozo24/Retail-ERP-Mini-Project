@@ -1,14 +1,23 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { login, isAuthenticated } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState({});
+
+  // Redirect if already logged in
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -31,77 +40,80 @@ export default function LoginPage() {
 
   const handleSubmit = () => {
     if (validateForm()) {
-      console.log('Login submitted:', { email, password, rememberMe });
-      alert('Login successful! (Add your authentication logic here)');
+      // Call the login function from AuthContext
+      const success = login(email, password);
       
-      // TODO: Add your authentication logic here
-      // After successful authentication, redirect:
-      // navigate('/dashboard');
+      if (success) {
+        // Redirect to dashboard
+        navigate('/dashboard');
+      } else {
+        setErrors({ ...errors, general: 'Invalid credentials' });
+      }
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+    <div className="min-h-screen bg-gradient-to-br from-primary via-primary/80 to-accent/60 flex items-center justify-center p-4">
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md p-8 border border-border">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mb-4">
-            <Lock className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-full mb-4">
+            <Lock className="w-8 h-8 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-800">Welcome Back</h1>
-          <p className="text-gray-500 mt-2">Sign in to your account</p>
+          <h1 className="text-3xl font-bold text-foreground">Welcome Back</h1>
+          <p className="text-muted-foreground mt-2">Sign in to your account</p>
         </div>
 
         <div className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
               Email Address
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
               <input
                 type="email"
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
-                className={`w-full pl-10 pr-4 py-3 border ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
-                } rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition`}
+                className={`w-full pl-10 pr-4 py-3 bg-background border ${
+                  errors.email ? 'border-destructive' : 'border-input'
+                } rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition text-foreground placeholder:text-muted-foreground`}
                 placeholder="you@example.com"
               />
             </div>
             {errors.email && (
-              <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+              <p className="mt-1 text-sm text-destructive">{errors.email}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
-                className={`w-full pl-10 pr-12 py-3 border ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
-                } rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition`}
+                className={`w-full pl-10 pr-12 py-3 bg-background border ${
+                  errors.password ? 'border-destructive' : 'border-input'
+                } rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition text-foreground placeholder:text-muted-foreground`}
                 placeholder="Enter your password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
             {errors.password && (
-              <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+              <p className="mt-1 text-sm text-destructive">{errors.password}</p>
             )}
           </div>
 
@@ -112,29 +124,29 @@ export default function LoginPage() {
                 id="remember"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                className="w-4 h-4 text-primary border-input rounded focus:ring-ring cursor-pointer"
               />
-              <label htmlFor="remember" className="ml-2 text-sm text-gray-700">
+              <label htmlFor="remember" className="ml-2 text-sm text-foreground cursor-pointer">
                 Remember me
               </label>
             </div>
-            <a href="#" className="text-sm text-indigo-600 hover:text-indigo-800">
+            <a href="#" className="text-sm text-primary hover:text-primary/80 transition">
               Forgot password?
             </a>
           </div>
 
           <button
             onClick={handleSubmit}
-            className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-indigo-600 hover:to-purple-700 transform hover:scale-[1.02] transition duration-200 shadow-lg"
+            className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:bg-primary/90 transform hover:scale-[1.02] transition duration-200 shadow-lg"
           >
             Sign In
           </button>
         </div>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-600 text-sm">
+          <p className="text-muted-foreground text-sm">
             Don't have an account?{' '}
-            <a href="#" className="text-indigo-600 hover:text-indigo-800 font-semibold">
+            <a href="#" className="text-primary hover:text-primary/80 font-semibold transition">
               Sign up
             </a>
           </p>
