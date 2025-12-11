@@ -5,7 +5,6 @@ import Products from "./pages/Products";
 import CreateProduct from "./pages/CreateProduct";
 import LowStocks from "./pages/LowStocks";
 import Category from "./pages/Category";
-
 // Placeholder Components for Routes (Testing Only)
 
 // Main
@@ -25,45 +24,89 @@ const Sales = () => <div className="p-4 text-2xl font-bold">Sales History</div>;
 const Customers = () => <div className="p-4 text-2xl font-bold">Customer List</div>;
 const Suppliers = () => <div className="p-4 text-2xl font-bold">Supplier List</div>;
 
+import { useEffect } from "react";
+import { loginAPI, registerAPI, getUserByIdAPI } from "../api/users";
+const callApi = async () => {
+  try {
+    let token;
+
+    // Check if token exists
+    const existingToken = localStorage.getItem("token");
+
+    if (existingToken) {
+      // Token exists → login
+      const loginRes = await loginAPI({
+        username: "string",
+        rawPassword: "string"
+      });
+      token = loginRes.access_token;
+      console.log("Logged in successfully");
+    } else {
+      // No token → register
+      const registerRes = await registerAPI({
+        username: "string",
+        rawPassword: "string"
+      });
+      token = registerRes.access_token;
+      localStorage.setItem("token", token);
+      console.log("Registered and saved token");
+    }
+
+    // Fetch user info
+    try {
+      const userRes = await getUserByIdAPI(1);
+      console.warn("User info:", JSON.stringify(userRes, null, 2));
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+    }
+
+  } catch (error) {
+    console.error("API call failed:", error);
+  }
+};
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
+       useEffect(() => {
+        callApi()
+    }, [])
 
-          {/* Default redirect to dashboard */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route element={<Layout />}>
 
-          {/* --- Main --- */}
-          <Route path="/dashboard" element={<Dashboard />} />
+                    {/* Default redirect to dashboard */}
+                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-          {/* --- Inventory --- */}
-          <Route path="/products" element={<Products />} />
-          <Route path="/create-product" element={<CreateProduct />} />
-          <Route path="/low-stocks" element={<LowStocks />} />
-          <Route path="/category" element={<Category />} />
-          <Route path="/print-barcode" element={<PrintBarcode />} />
+                    {/* --- Main --- */}
+                    <Route path="/dashboard" element={<Dashboard />} />
 
-          {/* --- Stock --- */}
-          <Route path="/manage-stock" element={<ManageStock />} />
-          <Route path="/purchase-order" element={<PurchaseOrder />} />
+                    {/* --- Inventory --- */}
+                    <Route path="/products" element={<Products />} />
+                    <Route path="/create-product" element={<CreateProduct />} />
+                    <Route path="/low-stocks" element={<LowStocks />} />
+                    <Route path="/category" element={<Category />} />
+                    <Route path="/print-barcode" element={<PrintBarcode />} />
 
-          {/* --- Sales --- */}
-          <Route path="/sales" element={<Sales />} />
+                    {/* --- Stock --- */}
+                    <Route path="/manage-stock" element={<ManageStock />} />
+                    <Route path="/purchase-order" element={<PurchaseOrder />} />
 
-          {/* --- Peoples --- */}
-          <Route path="/customers" element={<Customers />} />
-          <Route path="/suppliers" element={<Suppliers />} />
+                    {/* --- Sales --- */}
+                    <Route path="/sales" element={<Sales />} />
 
-        </Route>
+                    {/* --- Peoples --- */}
+                    <Route path="/customers" element={<Customers />} />
+                    <Route path="/suppliers" element={<Suppliers />} />
 
-        {/* Login Page (No Sidebar) */}
-        <Route path="/login" element={<div className="flex items-center justify-center h-screen">Login Page</div>} />
+                </Route>
 
-      </Routes>
-    </BrowserRouter>
-  );
+                {/* Login Page (No Sidebar) */}
+                <Route path="/login" element={<div className="flex items-center justify-center h-screen">Login Page</div>} />
+
+            </Routes>
+        </BrowserRouter>
+    );
 }
 
 export default App;
