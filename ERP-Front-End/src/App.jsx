@@ -23,7 +23,7 @@ import CreateSupplier from "./pages/CreateSupplier";
 const ManageStock = () => <div className="p-4 text-2xl font-bold">Manage Stock Adjustments</div>;
 const PurchaseOrder = () => <div className="p-4 text-2xl font-bold">Purchase Orders</div>;
 const Sales = () => <div className="p-4 text-2xl font-bold">Sales History</div>;
-const Suppliers = () => <div className="p-4 text-2xl font-bold">Supplier List</div>;
+
 
 // --- Protection Logic ---
 const ProtectedRoute = () => {
@@ -80,6 +80,7 @@ function App() {
               <Route path="/sales" element={<Sales />} />
               <Route path="/customers" element={<Customers />} />
               <Route path="/suppliers" element={<Suppliers />} />
+              <Route path="/create-supplier" element={<CreateSupplier />} />
             </Route>
 
             {/* Fullscreen POS (no sidebar/header layout) */}
