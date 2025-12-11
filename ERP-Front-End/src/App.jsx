@@ -2,7 +2,7 @@
 
 // 1. Only import React/Hooks if you are using them (useState is now removed)
 // 2. Import the main page component that contains the application's layout
-import Products from './Pages/Products';
+import POS from './Pages/POS';
 import './App.css'
 
 function App() {
@@ -10,7 +10,7 @@ function App() {
   
   // Return the Products component to render the RetailFlow interface
   return (
-    <Products />
+    <POS />
   )
 }
 
