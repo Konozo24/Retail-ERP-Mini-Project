@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 export function useLoginUser() {
 //   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload) => API.post(`/users/auth/login`, payload),
+    mutationFn: (payload) => API.post(`/auth/login`, payload),
     //onSuccess: () => qc.invalidateQueries({ queryKey: ['users'] }),
   });
 }
@@ -14,7 +14,7 @@ export function useLoginUser() {
 // export function useRegisterUser() {
 //   const qc = useQueryClient();
 //   return useMutation({
-//     mutationFn: (payload) => API.post(`/users/auth/register`, payload),
+//     mutationFn: (payload) => API.post(`/auth/register`, payload),
 //     onSuccess: () => qc.invalidateQueries({ queryKey: ['users'] }),
 //   });
 // }

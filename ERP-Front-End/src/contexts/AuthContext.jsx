@@ -14,8 +14,8 @@ export const AuthProvider = ({ children }) => {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
             const userData = JSON.parse(storedUser);
-            if (userData.username !== null && userData.rawPassword !== null) {
-                //login(userData.username, userData.rawPassword, true);
+            if (userData.email !== null && userData.rawPassword !== null) {
+                //login(userData.email, userData.rawPassword, true);
             }
         }
     }, []);
@@ -23,14 +23,14 @@ export const AuthProvider = ({ children }) => {
     const aa = async () => true;
     
     // 2. Login Function
-    const login = async (username, password, rememberMe) => {
+    const login = async (email, password, rememberMe) => {
         setErrors({})
         const data = await loginUser({
-            username: username,
+            email: email,
             rawPassword: password
         });
         const userData = {
-            username: rememberMe && username || null,
+            email: rememberMe && email || null,
             rawPassword: rememberMe && 123457 || null,
             token: data.access_token,
         }

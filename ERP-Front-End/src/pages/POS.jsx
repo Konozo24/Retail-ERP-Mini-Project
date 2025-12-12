@@ -1,5 +1,3 @@
-// src/pages/POS.jsx
-
 import React, { useState } from 'react';
 import { 
   Search, Bell, Settings, User, ShoppingCart, Truck, Package, 

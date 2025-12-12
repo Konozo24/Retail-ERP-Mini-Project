@@ -19,7 +19,6 @@ import POS from "./pages/POS";
 import PurchaseOrderHistory from "./pages/PurchaseOrderHistory";
 import ManageStock from "./pages/ManageStock";
 import Dashboard from "./pages/Dashboard";
-import EditManageStock from "./pages/EditManageStock";
 import PurchaseOrder from "./pages/PurchaseOrder";
 
 // --- Placeholder Components ---

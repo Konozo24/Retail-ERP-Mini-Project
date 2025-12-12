@@ -44,8 +44,7 @@ export default function LoginPage() {
     console.log('Login successful');
     // navigate('/dashboard');
   } catch (err) {
-    console.error('Login error caught in handleSubmit:', err);
-    setErrors({ form: err.message || 'Something went wrong' });
+    setErrors({ form: err?.response?.data?.message || err?.response?.data || 'Something went wrong' });
   }
 };
 
