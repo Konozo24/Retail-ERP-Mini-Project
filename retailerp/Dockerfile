@@ -1,13 +1,8 @@
 # Use Maven + JDK for building and running
-FROM maven:3.9.3-eclipse-temurin-17
+FROM maven:3.9-eclipse-temurin-21-alpine
 
 WORKDIR /app
-
-# Copy only pom.xml first to cache dependencies
 COPY pom.xml .
+COPY src ./src
 
-# Expose Spring Boot default port
-EXPOSE 8080
-
-# Default command to run Spring Boot app
-CMD ["mvn", "spring-boot:run"]
+CMD ["mvn", "-Dspring.devtools.restart.enabled=false", "spring-boot:run"]
