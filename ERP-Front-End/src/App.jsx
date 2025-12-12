@@ -8,7 +8,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'; // Import the ne
 
 // Components
 import Layout from "./components/Layout";
-import LoginPage from "./pages/LoginPage";
+import LoginPage from './pages/LoginPage'
 import Customers from "./pages/Customers";
 import Products from "./pages/Products";
 import CreateProduct from "./pages/CreateProduct";
@@ -17,10 +17,10 @@ import Category from "./pages/Category";
 import PrintBarcode from "./pages/PrintBarcode";
 import POS from "./pages/POS";
 import PurchaseOrderHistory from "./pages/PurchaseOrderHistory";
-import ManageStock from "./Pages/ManageStock";
+import ManageStock from "./pages/ManageStock";
 import Dashboard from "./pages/Dashboard";
-import EditManageStock from "./Pages/EditManageStock";
-import PurchaseOrder from "./Pages/PurchaseOrder";
+import EditManageStock from "./pages/EditManageStock";
+import PurchaseOrder from "./pages/PurchaseOrder";
 
 // --- Placeholder Components ---
 import Suppliers from "./pages/Suppliers";
@@ -97,7 +97,7 @@ function App() {
 
                             {/* Fullscreen POS (no sidebar/header layout) */}
                             <Route path="/pos" element={<POS />} />
-                        </Route>
+                        </Route> 
 
                     </Routes>
                 </BrowserRouter>

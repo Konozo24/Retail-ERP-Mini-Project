@@ -1,4 +1,5 @@
 import React from "react";
+import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from "react-router-dom";
 import {
     Search,
@@ -13,6 +14,8 @@ import {
 
 const Topbar = ({ sidebarOpen, setSidebarOpen }) => {
     const navigate = useNavigate();
+
+    const { logout } = useAuth();
 
     return (
         <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 sm:px-6 gap-4">
@@ -74,13 +77,16 @@ const Topbar = ({ sidebarOpen, setSidebarOpen }) => {
                 </button>
 
                 {/* User Profile */}
-                <div className="ml-2 w-9 h-9 rounded-lg overflow-hidden border border-border cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all">
+                <button 
+                    onClick={logout}
+                    className="ml-2 w-9 h-9 rounded-lg overflow-hidden border border-border cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all"
+                >
                     <img
                         src="https://github.com/shadcn.png"
                         alt="User"
                         className="w-full h-full object-cover"
                     />
-                </div>
+                </button>
             </div>
         </header>
     );

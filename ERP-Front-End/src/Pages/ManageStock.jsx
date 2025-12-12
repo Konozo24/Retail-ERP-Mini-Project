@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import DataTable from "../components/ui/DataTable";
 import DeleteModal from "../components/ui/DeleteModal"; 
 import Toast from "../components/ui/Toast"; 
-import EditManageStock from "../Pages/EditManageStock"; // 🚀 UPDATED IMPORT PATH
+import EditManageStock from "./EditManageStock"; // 🚀 UPDATED IMPORT PATH
 import { Plus, Search, Filter, Package, Upload, Download, Edit } from "lucide-react"; 
 import { productsData as initialProductData } from "../data/mockData";
 
