@@ -6,11 +6,11 @@ import { useAuth } from '../contexts/AuthContext'; // Import hook
 export default function LoginPage() {
     const navigate = useNavigate();
 
-    const { login, isPending, errors, setErrors } = useAuth();
+    const { user, login, isPending, errors, setErrors } = useAuth();
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [rememberMe, setRememberMe] = useState(false);
+    const [email, setEmail] = useState(user !== null ? user.email : '');
+    const [password, setPassword] = useState(user !== null ? user.rawPassword :'');
+    const [rememberMe, setRememberMe] = useState(user !== null);
 
     const [showPassword, setShowPassword] = useState(false);
 
@@ -42,7 +42,7 @@ export default function LoginPage() {
   try {
     await login(email, password, rememberMe);
     console.log('Login successful');
-    // navigate('/dashboard');
+    navigate('/dashboard');
   } catch (err) {
     setErrors({ form: err?.response?.data?.message || err?.response?.data || 'Something went wrong' });
   }

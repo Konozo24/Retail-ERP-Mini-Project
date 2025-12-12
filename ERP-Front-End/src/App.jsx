@@ -36,9 +36,9 @@ const Sales = () => <div className="p-4 text-2xl font-bold">Sales History</div>;
 
 // --- Protection Logic ---
 const ProtectedRoute = () => {
-    const { user } = useAuth(); // Use the context hook
+    const { isloggedIn } = useAuth(); // Use the context hook
 
-    if (!user) {
+    if (!isloggedIn) {
         return <Navigate to="/login" replace />;
     }
 
@@ -48,8 +48,8 @@ const ProtectedRoute = () => {
 // --- Public Route Logic ---
 // Redirects to dashboard if user tries to access /login while already logged in
 const PublicRoute = ({ children }) => {
-    const { user } = useAuth();
-    if (user) {
+    const { isloggedIn } = useAuth();
+    if (isloggedIn) {
         return <Navigate to="/dashboard" replace />;
     }
     return children;
