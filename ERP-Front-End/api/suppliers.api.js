@@ -2,7 +2,7 @@ import API from "./api";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 // GET ALL SUPPLIERS (GET /suppliers)
-export function getSuppliersAPI() {
+export function getSuppliers() {
   return useQuery({
     queryKey: ['suppliers'],
     queryFn: () => API.get(`/suppliers`),
@@ -10,7 +10,7 @@ export function getSuppliersAPI() {
 }
 
 // GET SUPPLIER BY ID (GET /suppliers/{supplierId})
-export function getSupplierAPI(supplierId) {
+export function getSupplier(supplierId) {
   return useQuery({
     queryKey: ['supplier', supplierId],
     queryFn: () => API.get(`/suppliers/${supplierId}`),
@@ -19,7 +19,7 @@ export function getSupplierAPI(supplierId) {
 }
 
 // CREATE SUPPLIER (POST /suppliers)
-export function addSupplierAPI() {
+export function addSupplier() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload) => API.post(`/suppliers`, payload),
@@ -28,7 +28,7 @@ export function addSupplierAPI() {
 }
 
 // UPDATE SUPPLIER (PUT /suppliers/{supplierId})
-export function updateSupplierAPI(supplierId) {
+export function updateSupplier(supplierId) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload) => API.put(`/suppliers/${supplierId}`, payload),
@@ -40,7 +40,7 @@ export function updateSupplierAPI(supplierId) {
 }
 
 // DELETE SUPPLIER (DELETE /suppliers/{supplierId})
-export function deleteSupplierAPI(supplierId) {
+export function deleteSupplier(supplierId) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: () => API.delete(`/suppliers/${supplierId}`),

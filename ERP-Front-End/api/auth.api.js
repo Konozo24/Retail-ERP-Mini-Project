@@ -2,7 +2,7 @@ import API from "./api";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 // LOGIN USER (POST /users/login)
-export function loginUserAPI() {
+export function loginUser() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload) => API.post(`/users/login`, payload),
@@ -11,7 +11,7 @@ export function loginUserAPI() {
 }
 
 // REGISTER USER (POST /users/register)
-export function RegisterUserAPI() {
+export function RegisterUser() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload) => API.post(`/users/register`, payload),
