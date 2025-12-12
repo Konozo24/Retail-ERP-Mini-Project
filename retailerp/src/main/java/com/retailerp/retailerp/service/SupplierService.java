@@ -1,8 +1,9 @@
 package com.retailerp.retailerp.service;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,11 +22,9 @@ public class SupplierService {
     private final SupplierRepository supplierRepository;
 
     @Transactional(readOnly = true)
-    public List<SupplierDTO> getSuppliers() {
-        return supplierRepository.findAll()
-            .stream()
-            .map(SupplierDTO::fromEntity)
-            .toList();
+    public Page<SupplierDTO> getSuppliers(Pageable pageable) {
+        return supplierRepository.findAll(pageable)
+            .map(SupplierDTO::fromEntity);
     }
 
     @Transactional(readOnly = true)

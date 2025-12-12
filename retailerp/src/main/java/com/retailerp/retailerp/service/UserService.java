@@ -1,19 +1,19 @@
 package com.retailerp.retailerp.service;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import javax.security.auth.login.LoginException;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.retailerp.retailerp.auth.AuthRequestDTO;
-import com.retailerp.retailerp.auth.AuthResponseDTO;
 import com.retailerp.retailerp.auth.JwtUtil;
+import com.retailerp.retailerp.dto.auth.AuthRequestDTO;
+import com.retailerp.retailerp.dto.auth.AuthResponseDTO;
 import com.retailerp.retailerp.dto.user.UserDTO;
-import com.retailerp.retailerp.dto.user.UserRequestDTO;
 import com.retailerp.retailerp.model.User;
 import com.retailerp.retailerp.repository.UserRepository;
 
@@ -29,11 +29,9 @@ public class UserService {
     private final JwtUtil jwtUtil;
 
     @Transactional(readOnly = true)
-    public List<UserDTO> getUsers() {
-        return userRepository.findAll()
-                .stream()
-                .map(UserDTO::fromEntity)
-                .toList();
+    public Page<UserDTO> getUsers(Pageable pageable) {
+        return userRepository.findAll(pageable)
+                .map(UserDTO::fromEntity);
     }
 
     @Transactional(readOnly = true)
@@ -45,13 +43,13 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUser(Long userId, UserRequestDTO request) {
+    public void updateUser(Long userId, AuthRequestDTO request) {
         User existing = userRepository.findById(userId).orElseThrow(
             () -> new NoSuchElementException(userId + ". deosnt exist!")
         );
 
         String cipherText = passwordEncoder.encode(request.getRawPassword());
-        existing.setUsername(request.getUsername());
+        existing.setEmail(request.getEmail());
         existing.setCipherText(cipherText);
         userRepository.save(existing);
     }
@@ -68,7 +66,7 @@ public class UserService {
     //| USER AUTH SECTION
     //--------------------------------------------------
     public AuthResponseDTO loginUser(AuthRequestDTO request) throws LoginException {
-        User user = userRepository.findByUsername(request.getUsername())
+        User user = userRepository.findByEmail(request.getEmail())
             .orElseThrow(() -> new LoginException("Invalid login credentials"));
 
         if (passwordEncoder.matches(request.getRawPassword(), user.getCipherText())) {
@@ -83,13 +81,13 @@ public class UserService {
     }
 
     public AuthResponseDTO registerUser(AuthRequestDTO request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new EntityExistsException("Username already been registered before");
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new EntityExistsException("Email already been registered before");
         }
         String cipherText = passwordEncoder.encode(request.getRawPassword());
 
         User newUser = userRepository.save(
-            new User(request.getUsername(), cipherText)
+            new User(request.getEmail(), cipherText)
         );
 
         String token = jwtUtil.generateToken(newUser.getId());

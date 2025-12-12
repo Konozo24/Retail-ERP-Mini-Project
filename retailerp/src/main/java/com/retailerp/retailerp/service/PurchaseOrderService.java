@@ -1,8 +1,9 @@
 package com.retailerp.retailerp.service;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,11 +33,9 @@ public class PurchaseOrderService {
     private final JwtUtil jwtUtil;
 
     @Transactional(readOnly = true)
-    public List<PurchaseOrderDTO> getPurchaseOrders() {
-        return purchaseOrderRepository.findAll()
-            .stream()
-            .map(PurchaseOrderDTO::fromEntity)
-            .toList();
+    public Page<PurchaseOrderDTO> getPurchaseOrders(Pageable pageable) {
+        return purchaseOrderRepository.findAll(pageable)
+            .map(PurchaseOrderDTO::fromEntity);
     }
 
     @Transactional(readOnly = true)

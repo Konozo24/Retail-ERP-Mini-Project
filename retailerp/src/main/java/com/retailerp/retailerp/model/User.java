@@ -28,8 +28,8 @@ public class User {
     @Column(name = "USER_ID")
     private Long id;
 
-    @Column(name = "USERNAME", nullable = false, unique = true, length = 20)
-    private String username;
+    @Column(name = "EMAIL", nullable = false, unique = true)
+    private String email;
     
     // TODO: Only got one role, cashier
     // @Enumerated(EnumType.STRING)
@@ -47,8 +47,8 @@ public class User {
     @Column(name = "CREATED_AT", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
-    public User(String username, String cipherText) {
-        this.username = username;
+    public User(String email, String cipherText) {
+        this.email = email;
         this.cipherText = cipherText;
     }
 }

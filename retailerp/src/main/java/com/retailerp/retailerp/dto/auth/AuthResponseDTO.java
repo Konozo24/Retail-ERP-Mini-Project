@@ -1,4 +1,4 @@
-package com.retailerp.retailerp.auth;
+package com.retailerp.retailerp.dto.auth;
 
 import lombok.Builder;
 import lombok.Getter;

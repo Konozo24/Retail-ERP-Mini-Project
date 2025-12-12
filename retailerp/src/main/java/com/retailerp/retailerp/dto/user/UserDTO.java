@@ -12,13 +12,13 @@ import lombok.Getter;
 public class UserDTO {
     
     private Long id;
-    private String username;
+    private String email;
     private OffsetDateTime createdAt;
 
     public static UserDTO fromEntity(User user) {
         return UserDTO.builder()
             .id(user.getId())
-            .username(user.getUsername())
+            .email(user.getEmail())
             .createdAt(user.getCreatedAt())
             .build();
     }
