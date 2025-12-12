@@ -12,18 +12,20 @@ import com.retailerp.retailerp.model.User;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtil {
 
     private final int TOKEN_LIFETIME = 1000 * 60 * 6; // 1 hour
-    private final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256); //"AOI9D3S2DDSIID3ASDDAPSJDJD41656C6JF22l20Al56E67";
+    //private final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final String SECRET_KEY = "IWANTDRINKMILLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO";
 
     SecretKey getSigningKey() {
-        //byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
-        //return Keys.hmacShaKeyFor(keyBytes);
-        return SECRET_KEY;
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        return Keys.hmacShaKeyFor(keyBytes);
+        //return SECRET_KEY;
     }
 
     public String generateToken(Long userId) {
