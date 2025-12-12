@@ -2,7 +2,7 @@ import API from "./api";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 // GET ALL SALES ORDERS (GET /sales-order)
-export function getSalesOrders() {
+export function useGetSalesOrders() {
   return useQuery({
     queryKey: ['salesOrders'],
     queryFn: () => API.get(`/sales-order`),
@@ -10,7 +10,7 @@ export function getSalesOrders() {
 }
 
 // GET SALES ORDER BY ID (GET /sales-order/{salesOrderId})
-export function getSalesOrder(salesOrderId) {
+export function useGetSalesOrder(salesOrderId) {
   return useQuery({
     queryKey: ['salesOrder', salesOrderId],
     queryFn: () => API.get(`/sales-order/${salesOrderId}`),
@@ -19,7 +19,7 @@ export function getSalesOrder(salesOrderId) {
 }
 
 // CREATE SALES ORDER (POST /sales-order)
-export function addSalesOrder() {
+export function useCreateSalesOrder() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload) => API.post(`/sales-order`, payload),
@@ -28,7 +28,7 @@ export function addSalesOrder() {
 }
 
 // UPDATE SALES ORDER (PUT /sales-order/{salesOrderId})
-export function updateSalesOrder(salesOrderId) {
+export function useUpdateSalesOrder(salesOrderId) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload) => API.put(`/sales-order/${salesOrderId}`, payload),
@@ -40,7 +40,7 @@ export function updateSalesOrder(salesOrderId) {
 }
 
 // DELETE SALES ORDER (DELETE /sales-order/{salesOrderId})
-export function deleteSalesOrder(salesOrderId) {
+export function useDeleteSalesOrder(salesOrderId) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: () => API.delete(`/sales-order/${salesOrderId}`),

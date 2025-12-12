@@ -2,7 +2,7 @@ import API from "./api";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 // GET ALL USERS (GET /users)
-export function getUsers() {
+export function useGetUsers() {
   return useQuery({
     queryKey: ['users'],
     queryFn: () => API.get(`/users`),
@@ -10,7 +10,7 @@ export function getUsers() {
 }
 
 // GET USER BY ID (GET /users/{userId})
-export function getUser(userId) {
+export function useGetUser(userId) {
   return useQuery({
     queryKey: ['user', userId],
     queryFn: () => API.get(`/users/${userId}`),
@@ -19,7 +19,7 @@ export function getUser(userId) {
 }
 
 // UPDATE USER (PUT /users/{userId})
-export function updateUser(userId) {
+export function useUpdateUser(userId) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload) => API.put(`/users/${userId}`, payload),
@@ -31,7 +31,7 @@ export function updateUser(userId) {
 }
 
 // DELETE USER (DELETE /users/{userId})
-export function deleteUser(userId) {
+export function useDeleteUser(userId) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: () => API.delete(`/users/${userId}`),

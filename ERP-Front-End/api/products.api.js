@@ -2,7 +2,7 @@ import API from "./api";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 // GET ALL PRODUCTS (GET /products)
-export function getProducts() {
+export function useGetProducts() {
   return useQuery({
     queryKey: ['products'],
     queryFn: () => API.get(`/products`),
@@ -10,7 +10,7 @@ export function getProducts() {
 }
 
 // GET PRODUCT BY ID (GET /products/{productId})
-export function getProduct(productId) {
+export function useGetProduct(productId) {
   return useQuery({
     queryKey: ['product', productId],
     queryFn: () => API.get(`/products/${productId}`),
@@ -19,7 +19,7 @@ export function getProduct(productId) {
 }
 
 // CREATE PRODUCT (POST /products)
-export function addProduct() {
+export function useCreateProduct() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload) => API.post(`/products`, payload),
@@ -28,7 +28,7 @@ export function addProduct() {
 }
 
 // UPDATE PRODUCT (PUT /products/{productId})
-export function updateProduct(productId) {
+export function useUpdateProduct(productId) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload) => API.put(`/products/${productId}`, payload),
@@ -40,7 +40,7 @@ export function updateProduct(productId) {
 }
 
 // DELETE PRODUCT (DELETE /products/{productId})
-export function deleteProduct(productId) {
+export function useDeleteProduct(productId) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: () => API.delete(`/products/${productId}`),

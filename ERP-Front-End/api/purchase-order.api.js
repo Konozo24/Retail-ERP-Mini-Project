@@ -2,7 +2,7 @@ import API from "./api";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 // GET ALL PURCHASE ORDERS (GET /purchase-order)
-export function getPurchaseOrders() {
+export function useGetPurchaseOrders() {
   return useQuery({
     queryKey: ['purchaseOrders'],
     queryFn: () => API.get(`/purchase-order`),
@@ -10,7 +10,7 @@ export function getPurchaseOrders() {
 }
 
 // GET PURCHASE ORDER BY ID (GET /purchase-order/{purchaseOrderId})
-export function getPurchaseOrder(purchaseOrderId) {
+export function useGetPurchaseOrder(purchaseOrderId) {
   return useQuery({
     queryKey: ['purchaseOrder', purchaseOrderId],
     queryFn: () => API.get(`/purchase-order/${purchaseOrderId}`),
@@ -19,7 +19,7 @@ export function getPurchaseOrder(purchaseOrderId) {
 }
 
 // CREATE PURCHASE ORDER (POST /purchase-order)
-export function addPurchaseOrder() {
+export function useCreatePurchaseOrder() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload) => API.post(`/purchase-order`, payload),
@@ -28,7 +28,7 @@ export function addPurchaseOrder() {
 }
 
 // UPDATE PURCHASE ORDER (PUT /purchase-order/{purchaseOrderId})
-export function updatePurchaseOrder(purchaseOrderId) {
+export function useUpdatePurchaseOrder(purchaseOrderId) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload) => API.put(`/purchase-order/${purchaseOrderId}`, payload),
@@ -40,7 +40,7 @@ export function updatePurchaseOrder(purchaseOrderId) {
 }
 
 // DELETE PURCHASE ORDER (DELETE /purchase-order/{purchaseOrderId})
-export function deletePurchaseOrder(purchaseOrderId) {
+export function useDeletePurchaseOrder(purchaseOrderId) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: () => API.delete(`/purchase-order/${purchaseOrderId}`),

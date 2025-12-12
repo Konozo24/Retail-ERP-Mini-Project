@@ -2,7 +2,7 @@ import API from "./api";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 // GET ALL CUSTOMERS (GET /customers)
-export function getCustomers() {
+export function useGetCustomers() {
   return useQuery({
     queryKey: ['customers'],
     queryFn: () => API.get(`/customers`),
@@ -10,7 +10,7 @@ export function getCustomers() {
 }
 
 // GET CUSTOMER BY ID (GET /customers/{customerId})
-export function getCustomer(customerId) {
+export function useGetCustomer(customerId) {
   return useQuery({
     queryKey: ['customer', customerId],
     queryFn: () => API.get(`/customers/${customerId}`),
@@ -19,7 +19,7 @@ export function getCustomer(customerId) {
 }
 
 // CREATE CUSTOMER (POST /customers)
-export function addCustomer() {
+export function useCreateCustomer() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload) => API.post(`/customers`, payload),
@@ -28,7 +28,7 @@ export function addCustomer() {
 }
 
 // UPDATE CUSTOMER (PUT /customers/{customerId})
-export function updateCustomer(customerId) {
+export function useUpdateCustomer(customerId) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload) => API.put(`/customers/${customerId}`, payload),
@@ -40,7 +40,7 @@ export function updateCustomer(customerId) {
 }
 
 // DELETE CUSTOMER (DELETE /customers/{customerId})
-export function deleteCustomer(customerId) {
+export function useDeleteCustomer(customerId) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: () => API.delete(`/customers/${customerId}`),
