@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
     Search,
     ChevronsLeft,
@@ -11,6 +12,8 @@ import {
 } from "lucide-react";
 
 const Topbar = ({ sidebarOpen, setSidebarOpen }) => {
+    const navigate = useNavigate();
+
     return (
         <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 sm:px-6 gap-4">
 
@@ -44,7 +47,10 @@ const Topbar = ({ sidebarOpen, setSidebarOpen }) => {
             <div className="flex items-center gap-3 sm:gap-4">
 
                 {/* POS Button (Dark Blue) */}
-                <button className="hidden sm:flex items-center gap-2 bg-[#0B1E3D] text-white px-4 py-2 rounded-md hover:bg-[#0B1E3D]/90 transition-colors text-sm font-medium">
+                <button
+                    onClick={() => navigate("/pos")}
+                    className="hidden sm:flex items-center gap-2 bg-[#0B1E3D] text-white px-4 py-2 rounded-md hover:bg-[#0B1E3D]/90 transition-colors text-sm font-medium"
+                >
                     <Monitor className="w-4 h-4" />
                     <span>POS</span>
                 </button>

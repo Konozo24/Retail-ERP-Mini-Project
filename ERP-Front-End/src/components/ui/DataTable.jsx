@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> 231c7fbd589e353b6c8729c9e41472d4e65c1d8e
 import React from "react";
 import { ChevronsUpDown, Edit, Trash2 } from "lucide-react";
 import Pagination from "../Pagination";
@@ -117,4 +120,8 @@ const DataTable = ({
     );
 };
 
+<<<<<<< HEAD
 export default DataTable;
+=======
+export default DataTable;
+>>>>>>> 231c7fbd589e353b6c8729c9e41472d4e65c1d8e
