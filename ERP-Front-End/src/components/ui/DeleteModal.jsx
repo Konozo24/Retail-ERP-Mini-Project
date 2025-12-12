@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-
-=======
->>>>>>> 231c7fbd589e353b6c8729c9e41472d4e65c1d8e
 import React from "react";
 import { Trash2 } from "lucide-react";
 

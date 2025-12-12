@@ -144,9 +144,5 @@ const CategoryModal = ({ isOpen, onClose, onSave, category, isEditMode = false }
   );
 };
 
-<<<<<<< HEAD
-export default CategoryModal;
-=======
 export default CategoryModal;
 
->>>>>>> 231c7fbd589e353b6c8729c9e41472d4e65c1d8e
