@@ -8,8 +8,15 @@
 #   1. Build Docker images for backend and frontend
 #      $ docker compose build
 #
-#   2. Start all services in detached mode (background)
-#      $ docker compose up -d
+#   2. Start all services (Normal or in detached mode):
+#      Normal run:
+#      $ docker compose up
+#
+#      Selected service run:
+#      $ docker compose up <backend / frontend>
+#
+#      Allow it to run in the background (Detached mode):
+#      $ docker compose up -d <backend / frontend>
 #
 #   3. Stop all running services
 #      $ docker compose down
@@ -54,8 +61,3 @@ services:
 
 volumes:
   node_modules: {}
-
-# https://www.docker.com/products/docker-desktop
-# docker compose build
-# docker compose up -d
-# docker compose down
