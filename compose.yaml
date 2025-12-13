@@ -1,17 +1,61 @@
+# =======================================================
+# Quick Start Guide
+# =======================================================
+# Prerequisites:
+#   - Install Docker Desktop: https://www.docker.com/products/docker-desktop
+#
+# First-time setup / running the project:
+#   1. Build Docker images for backend and frontend
+#      $ docker compose build
+#
+#   2. Start all services in detached mode (background)
+#      $ docker compose up -d
+#
+#   3. Stop all running services
+#      $ docker compose down
+#
+# Notes:
+#   - Backend runs on http://localhost:8080
+#   - Frontend runs on http://localhost:5173
+#   - Volumes are mounted for live code changes (hot reload)
+#   - Maven dependencies are cached in ./.m2
+#   - Node dependencies are cached in node_modules volume
+# =======================================================
+
+version: '3.8'
+
 services:
   backend:
     build:
-      context: ./retailerp
+      context: ./backend
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
     volumes:
-      - ./retailerp/src:/app/src
-      - ./retailerp/pom.xml:/app/pom.xml
+      - ./backend:/app
+      - ./.m2:/root/.m2
     environment:
       SPRING_DEVTOOLS_RESTART_ENABLED: "false"
     restart: always
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - node_modules:/app/node_modules
+    command: sh -c "if [ ! -d node_modules ]; then npm install; fi && npm run dev -- --host 0.0.0.0"
+    restart: always
 
+volumes:
+  node_modules: {}
+
+# https://www.docker.com/products/docker-desktop
 # docker compose build
 # docker compose up -d
+# docker compose down

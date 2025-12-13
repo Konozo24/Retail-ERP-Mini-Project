@@ -1,4 +1,45 @@
 {
+    // =========================
+    // Editor behavior
+    // =========================
+    "files.autoSave": "afterDelay",
+    "editor.detectIndentation": false,
+    "editor.minimap.enabled": false,
+    "editor.fontLigatures": false,
+    "diffEditor.ignoreTrimWhitespace": false,
+
+    // For tailwindCSS
+    "editor.quickSuggestions": {
+        "strings": "on"
+    },
+
+    // =========================
+    // Git settings
+    // =========================
+    //"git.enableSmartCommit": true,
+    "git.confirmSync": false,
+    "git.autoStash": true,
+    "git.autofetch": true,
+
+    // =========================
+    // Java (backend)
+    // =========================
     "java.compile.nullAnalysis.mode": "disabled",
     "java.configuration.updateBuildConfiguration": "automatic",
+    "java.inlayHints.parameterNames.enabled": "none",
+
+    // =========================
+    // Tailwind CSS (frontend)
+    // =========================
+    "files.associations": {
+        "*.css": "tailwindcss"
+    },
+    "tailwindCSS.includeLanguages": {
+        "plaintext": "html",
+        "javascript": "javascript",
+        "javascriptreact": "html",
+        "typescript": "typescript",
+        "typescriptreact": "html"
+    },
+    "tailwindCSS.emmetCompletions": true
 }
