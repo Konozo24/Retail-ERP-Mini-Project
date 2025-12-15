@@ -1,11 +1,17 @@
 import API from "./api";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 
 // GET ALL PURCHASE ORDERS (GET /purchase-order)
-export function useGetPurchaseOrders() {
+export function useGetPurchaseOrders(pageNum, pageSize) {
   return useQuery({
-    queryKey: ['purchaseOrders'],
-    queryFn: () => API.get(`/purchase-order`),
+    queryKey: ['purchaseOrders', pageNum, pageSize],
+    queryFn: () => API.get(`/purchase-order`, {
+        params: {
+            page: pageNum,
+            size: pageSize,
+        }
+    }),
+    placeholderData: keepPreviousData
   });
 }
 

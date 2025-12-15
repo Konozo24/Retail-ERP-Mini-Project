@@ -21,7 +21,13 @@ API.interceptors.request.use(
         }
         return config;
     },
-    (error) => Promise.reject(error)
+    (error) => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('user');
+            // TODO: Redirect user afterwards
+        }
+        return Promise.reject(error);
+    }
 );
 
 export default API;

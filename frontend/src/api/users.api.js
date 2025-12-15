@@ -1,11 +1,17 @@
 import API from "./api";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 
 // GET ALL USERS (GET /users)
-export function useGetUsers() {
+export function useGetUsers(pageNum, pageSize) {
   return useQuery({
-    queryKey: ['users'],
-    queryFn: () => API.get(`/users`),
+    queryKey: ['users', pageNum, pageSize],
+    queryFn: () => API.get(`/users`, {
+        params: {
+            page: pageNum,
+            size: pageSize,
+        }
+    }),
+    placeholderData: keepPreviousData
   });
 }
 
