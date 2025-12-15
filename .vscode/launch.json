@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-RetailerpApplication<retailerp>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.retailerp.retailerp.RetailerpApplication",
+            "projectName": "retailerp",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
