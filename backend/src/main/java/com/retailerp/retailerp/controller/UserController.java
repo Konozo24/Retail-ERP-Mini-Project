@@ -31,11 +31,12 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<Page<UserDTO>> getUsers(
+        @RequestParam(defaultValue = "") String search,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<UserDTO> dtoPage = userService.getUsers(pageable);
+        Page<UserDTO> dtoPage = userService.getUsers(search, pageable);
         return ResponseEntity.ok(dtoPage);
     }
 

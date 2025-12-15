@@ -33,11 +33,12 @@ public class SalesOrderController {
 
     @GetMapping
     public ResponseEntity<Page<SalesOrderDTO>> getSalesOrders(
+        @RequestParam(defaultValue = "") String search,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<SalesOrderDTO> dtoPage = salesOrderService.getSalesOrders(pageable);
+        Page<SalesOrderDTO> dtoPage = salesOrderService.getSalesOrders(search, pageable);
         return ResponseEntity.ok(dtoPage);
     }
 

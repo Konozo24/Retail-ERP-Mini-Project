@@ -34,11 +34,12 @@ public class SupplierController {
 
     @GetMapping
     public ResponseEntity<Page<SupplierDTO>> getSuppliers(
+        @RequestParam(defaultValue = "") String search,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<SupplierDTO> dtoPage = supplierService.getSuppliers(pageable);
+        Page<SupplierDTO> dtoPage = supplierService.getSuppliers(search, pageable);
         return ResponseEntity.ok(dtoPage);
     }
 

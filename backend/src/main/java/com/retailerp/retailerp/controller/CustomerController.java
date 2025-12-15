@@ -34,11 +34,12 @@ public class CustomerController {
 
     @GetMapping
     public ResponseEntity<Page<CustomerDTO>> getCustomers(
+        @RequestParam(defaultValue = "") String search,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<CustomerDTO> dtoPage = customerService.getCustomers(pageable);
+        Page<CustomerDTO> dtoPage = customerService.getCustomers(search, pageable);
         return ResponseEntity.ok(dtoPage);
     }
 

@@ -6,6 +6,7 @@ import javax.security.auth.login.LoginException;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import com.retailerp.retailerp.dto.auth.AuthResponseDTO;
 import com.retailerp.retailerp.dto.user.UserDTO;
 import com.retailerp.retailerp.model.User;
 import com.retailerp.retailerp.repository.UserRepository;
+import com.retailerp.retailerp.repository.spec.UserSpec;
 
 import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +31,9 @@ public class UserService {
     private final JwtUtil jwtUtil;
 
     @Transactional(readOnly = true)
-    public Page<UserDTO> getUsers(Pageable pageable) {
-        return userRepository.findAll(pageable)
+    public Page<UserDTO> getUsers(String search, Pageable pageable) {
+        Specification<User> spec = UserSpec.getSpecification(search);
+        return userRepository.findAll(spec, pageable)
                 .map(UserDTO::fromEntity);
     }
 
