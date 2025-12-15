@@ -18,15 +18,15 @@ public class UserSpec {
         return new Specification<User>() {
             @Override
             public Predicate toPredicate(Root<User> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-                if (search.isEmpty()) {
-                    criteriaBuilder.conjunction();
+                if (search == null || search.isEmpty()) {
+                    return criteriaBuilder.conjunction();
                 }
                 
                 List<Predicate> list = new ArrayList<>();
                 list.add(
                     criteriaBuilder.like(
                         criteriaBuilder.lower(root.get("name")), 
-                        search.toLowerCase() + "%"
+                        "%" + search.toLowerCase() + "%"
                     )
                 );
 

@@ -18,15 +18,15 @@ public class SalesOrderSpec {
         return new Specification<SalesOrder>() {
             @Override
             public Predicate toPredicate(Root<SalesOrder> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-                if (search.isEmpty()) {
-                    criteriaBuilder.conjunction();
+                if (search == null || search.isEmpty()) {
+                    return criteriaBuilder.conjunction();
                 }
                 
                 List<Predicate> list = new ArrayList<>();
                 list.add(
                     criteriaBuilder.like(
                         criteriaBuilder.lower(root.get("name")), 
-                        search.toLowerCase() + "%"
+                        "%" + search.toLowerCase() + "%"
                     )
                 );
 

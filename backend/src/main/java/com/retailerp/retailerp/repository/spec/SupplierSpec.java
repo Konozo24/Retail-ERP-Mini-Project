@@ -18,15 +18,21 @@ public class SupplierSpec {
         return new Specification<Supplier>() {
             @Override
             public Predicate toPredicate(Root<Supplier> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-                if (search.isEmpty()) {
-                    criteriaBuilder.conjunction();
+                if (search == null || search.isEmpty()) {
+                    return criteriaBuilder.conjunction();
                 }
                 
                 List<Predicate> list = new ArrayList<>();
                 list.add(
                     criteriaBuilder.like(
                         criteriaBuilder.lower(root.get("name")), 
-                        search.toLowerCase() + "%"
+                        "%" + search.toLowerCase() + "%"
+                    )
+                );
+                list.add(
+                    criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("email")), 
+                        "%" + search.toLowerCase() + "%"
                     )
                 );
 
