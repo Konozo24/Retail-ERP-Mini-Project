@@ -35,11 +35,11 @@ export function useCreateSalesOrder() {
 }
 
 // UPDATE SALES ORDER (PUT /sales-order/{salesOrderId})
-export function useUpdateSalesOrder(salesOrderId) {
+export function useUpdateSalesOrder() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload) => API.put(`/sales-order/${salesOrderId}`, payload),
-    onSuccess: () => {
+    mutationFn: ({salesOrderId, payload}) => API.put(`/sales-order/${salesOrderId}`, payload),
+    onSuccess: (_, {salesOrderId}) => {
         qc.invalidateQueries({ queryKey: ['salesOrders'] });
         qc.invalidateQueries({ queryKey: ['salesOrder', salesOrderId] });
     },
@@ -47,11 +47,11 @@ export function useUpdateSalesOrder(salesOrderId) {
 }
 
 // DELETE SALES ORDER (DELETE /sales-order/{salesOrderId})
-export function useDeleteSalesOrder(salesOrderId) {
+export function useDeleteSalesOrder() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: () => API.delete(`/sales-order/${salesOrderId}`),
-    onSuccess: () => {
+    mutationFn: (salesOrderId) => API.delete(`/sales-order/${salesOrderId}`),
+    onSuccess: (_, salesOrderId) => {
         qc.invalidateQueries({ queryKey: ['salesOrders'] });
         qc.invalidateQueries({ queryKey: ['salesOrder', salesOrderId] });
     },

@@ -35,11 +35,11 @@ export function useCreatePurchaseOrder() {
 }
 
 // UPDATE PURCHASE ORDER (PUT /purchase-order/{purchaseOrderId})
-export function useUpdatePurchaseOrder(purchaseOrderId) {
+export function useUpdatePurchaseOrder() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload) => API.put(`/purchase-order/${purchaseOrderId}`, payload),
-    onSuccess: () => {
+    mutationFn: ({purchaseOrderId, payload}) => API.put(`/purchase-order/${purchaseOrderId}`, payload),
+    onSuccess: (_, {purchaseOrderId}) => {
         qc.invalidateQueries({ queryKey: ['purchaseOrders'] });
         qc.invalidateQueries({ queryKey: ['purchaseOrder', purchaseOrderId] });
     },
@@ -47,11 +47,11 @@ export function useUpdatePurchaseOrder(purchaseOrderId) {
 }
 
 // DELETE PURCHASE ORDER (DELETE /purchase-order/{purchaseOrderId})
-export function useDeletePurchaseOrder(purchaseOrderId) {
+export function useDeletePurchaseOrder() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: () => API.delete(`/purchase-order/${purchaseOrderId}`),
-    onSuccess: () => {
+    mutationFn: (purchaseOrderId) => API.delete(`/purchase-order/${purchaseOrderId}`),
+    onSuccess: (_, purchaseOrderId) => {
         qc.invalidateQueries({ queryKey: ['purchaseOrders'] });
         qc.invalidateQueries({ queryKey: ['purchaseOrder', purchaseOrderId] });
     },

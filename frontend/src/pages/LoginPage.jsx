@@ -8,11 +8,19 @@ export default function LoginPage() {
 
     const { user, login, isPending, errors, setErrors } = useAuth();
 
-    const [email, setEmail] = useState(user !== null ? user.email : '');
-    const [password, setPassword] = useState(user !== null ? user.rawPassword :'');
-    const [rememberMe, setRememberMe] = useState(user !== null);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
 
     const [showPassword, setShowPassword] = useState(false);
+
+    useEffect(() => {
+        if (user) {
+            setEmail(user.email || '');
+            setPassword(user.rawPassword || '');
+            setRememberMe(!!user.email && !!user.rawPassword);
+        }
+    }, [user]);
 
     const validateForm = () => {
         const newErrors = {};

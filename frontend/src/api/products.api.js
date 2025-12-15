@@ -35,11 +35,11 @@ export function useCreateProduct() {
 }
 
 // UPDATE PRODUCT (PUT /products/{productId})
-export function useUpdateProduct(productId) {
+export function useUpdateProduct() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload) => API.put(`/products/${productId}`, payload),
-    onSuccess: () => {
+    mutationFn: ({productId, payload}) => API.put(`/products/${productId}`, payload),
+    onSuccess: (_, {productId}) => {
         qc.invalidateQueries({ queryKey: ['products'] });
         qc.invalidateQueries({ queryKey: ['product', productId] });
     },
@@ -47,11 +47,11 @@ export function useUpdateProduct(productId) {
 }
 
 // DELETE PRODUCT (DELETE /products/{productId})
-export function useDeleteProduct(productId) {
+export function useDeleteProduct() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: () => API.delete(`/products/${productId}`),
-    onSuccess: () => {
+    mutationFn: (productId) => API.delete(`/products/${productId}`),
+    onSuccess: (_, productId) => {
         qc.invalidateQueries({ queryKey: ['products'] });
         qc.invalidateQueries({ queryKey: ['product', productId] });
     },

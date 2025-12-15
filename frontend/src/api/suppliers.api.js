@@ -35,11 +35,11 @@ export function useCreateSupplier() {
 }
 
 // UPDATE SUPPLIER (PUT /suppliers/{supplierId})
-export function useUpdateSupplier(supplierId) {
+export function useUpdateSupplier() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload) => API.put(`/suppliers/${supplierId}`, payload),
-    onSuccess: () => {
+    mutationFn: ({supplierId, payload}) => API.put(`/suppliers/${supplierId}`, payload),
+    onSuccess: (_, {supplierId}) => {
         qc.invalidateQueries({ queryKey: ['suppliers'] });
         qc.invalidateQueries({ queryKey: ['supplier', supplierId] });
     },
@@ -47,11 +47,11 @@ export function useUpdateSupplier(supplierId) {
 }
 
 // DELETE SUPPLIER (DELETE /suppliers/{supplierId})
-export function useDeleteSupplier(supplierId) {
+export function useDeleteSupplier() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: () => API.delete(`/suppliers/${supplierId}`),
-    onSuccess: () => {
+    mutationFn: (supplierId) => API.delete(`/suppliers/${supplierId}`),
+    onSuccess: (_, supplierId) => {
         qc.invalidateQueries({ queryKey: ['suppliers'] });
         qc.invalidateQueries({ queryKey: ['supplier', supplierId] });
     },

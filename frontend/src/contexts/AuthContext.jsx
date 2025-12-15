@@ -13,12 +13,11 @@ export const AuthProvider = ({ children }) => {
     // 1. Check if user is already logged in on initial page load
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
-        if (storedUser) {
+        const storedToken = localStorage.getItem('user_token');
+        if (storedUser && storedToken) {
             const userData = JSON.parse(storedUser);
-            if (userData.email !== null && userData.rawPassword !== null) {
-                setUser(userData);
-                //login(userData.email, userData.rawPassword, true);
-            }
+            setUser(userData);
+            setIsLoggedIn(true);
         }
     }, []);
 
@@ -31,25 +30,41 @@ export const AuthProvider = ({ children }) => {
             rawPassword: password
         });
         const userData = {
-            email: rememberMe && email || null,
-            rawPassword: rememberMe && password || null,
-            token: data.access_token,
+            email: email,
+            rawPassword: password,
         }
 
         setUser(userData);
+
+        if (rememberMe) {
+            localStorage.setItem('user', JSON.stringify(userData))
+        } else {
+            localStorage.removeItem('user');
+        }
+
         setIsLoggedIn(true);
-        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('user_token', data.access_token);
     };
 
     // 3. Logout Function
     const logout = () => {
         localStorage.removeItem('user');
+        localStorage.removeItem('user_token');
         setUser(null);
         setIsLoggedIn(false);
     };
 
+    // 3. Refresh Token Function
+    const refreshToken = async () => {
+        if (user) {
+            login(user.email, user.rawPassword, true);
+        } else {
+            logout();
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ user, isloggedIn, login, logout, isPending, errors, setErrors }}>
+        <AuthContext.Provider value={{ user, isloggedIn, login, logout, refreshToken, isPending, errors, setErrors }}>
             {children}
         </AuthContext.Provider>
     );

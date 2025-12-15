@@ -35,11 +35,11 @@ export function useCreateCustomer() {
 }
 
 // UPDATE CUSTOMER (PUT /customers/{customerId})
-export function useUpdateCustomer(customerId) {
+export function useUpdateCustomer() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload) => API.put(`/customers/${customerId}`, payload),
-    onSuccess: () => {
+    mutationFn: ({customerId, payload}) => API.put(`/customers/${customerId}`, payload),
+    onSuccess: (_, {customerId}) => {
         qc.invalidateQueries({ queryKey: ['customers'] });
         qc.invalidateQueries({ queryKey: ['customer', customerId] });
     },
@@ -47,11 +47,11 @@ export function useUpdateCustomer(customerId) {
 }
 
 // DELETE CUSTOMER (DELETE /customers/{customerId})
-export function useDeleteCustomer(customerId) {
+export function useDeleteCustomer() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: () => API.delete(`/customers/${customerId}`),
-    onSuccess: () => {
+    mutationFn: (customerId) => API.delete(`/customers/${customerId}`),
+    onSuccess: (_, customerId) => {
         qc.invalidateQueries({ queryKey: ['customers'] });
         qc.invalidateQueries({ queryKey: ['customer', customerId] });
     },

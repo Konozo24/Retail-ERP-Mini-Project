@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useAuth } from '../contexts/AuthContext'; // Import hook
 
 const API = axios.create({
     baseURL: 'http://localhost:8080',
@@ -8,26 +9,23 @@ const API = axios.create({
 // Allow axios to always return data instead full Axios response
 API.interceptors.response.use(
     (response) => response.data,
-    (error) => Promise.reject(error)
+    (error) => {
+        const { refreshToken } = useAuth();
+        if (error.response?.status === 401) {
+            refreshToken();
+        }
+        return Promise.reject(error);
+    }
 );
 
 // Optional: JWT token
 API.interceptors.request.use(
     (config) => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            const userData = JSON.parse(storedUser);
-            if (userData && userData.token !== null) config.headers.Authorization = `Bearer ${userData.token}`;
-        }
+        const token = localStorage.getItem('user_token');
+        if (token) config.headers.Authorization = `Bearer ${token}`;
         return config;
     },
-    (error) => {
-        if (error.response?.status === 401) {
-            localStorage.removeItem('user');
-            // TODO: Redirect user afterwards
-        }
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
 export default API;
