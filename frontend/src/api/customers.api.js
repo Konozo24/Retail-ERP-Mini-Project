@@ -2,11 +2,12 @@ import API from "./api";
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 
 // GET ALL CUSTOMERS (GET /customers)
-export function useGetCustomers(pageNum, pageSize) {
+export function useGetCustomersPage(searchQuery, pageNum, pageSize) {
   return useQuery({
-    queryKey: ['customers', pageNum, pageSize],
+    queryKey: ['customers', searchQuery, pageNum, pageSize],
     queryFn: () => API.get(`/customers`, {
         params: {
+            search: searchQuery,
             page: pageNum,
             size: pageSize,
         }

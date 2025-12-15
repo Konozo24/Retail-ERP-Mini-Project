@@ -2,11 +2,12 @@ import API from "./api";
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 
 // GET ALL PRODUCTS (GET /products)
-export function useGetProducts(pageNum, pageSize) {
+export function useGetProductsPage(searchQuery, pageNum, pageSize) {
   return useQuery({
-    queryKey: ['products', pageNum, pageSize],
+    queryKey: ['products', searchQuery, pageNum, pageSize],
     queryFn: () => API.get(`/products`, {
         params: {
+            search: searchQuery,
             page: pageNum,
             size: pageSize,
         }
