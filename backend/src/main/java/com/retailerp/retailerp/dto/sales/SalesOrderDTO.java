@@ -27,7 +27,7 @@ public class SalesOrderDTO {
             .user(order.getUser().getEmail())
             .customer(order.getCustomer().getName())
             .totalAmount(order.getTotalAmount())
-            .paymentMethod(order.getPaymentMethod())
+            .paymentMethod(order.getPaymentMethod().name())
             .createdAt(order.getCreatedAt())
             .items(SalesOrderItemDTO.fromEntities(order.getItems()))
             .build();

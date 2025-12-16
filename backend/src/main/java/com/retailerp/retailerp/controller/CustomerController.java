@@ -61,19 +61,19 @@ public class CustomerController {
     }
 
     @PutMapping("/{customerId}")
-    public ResponseEntity<Void> updateCustomer(
+    public ResponseEntity<String> updateCustomer(
         @PathVariable Long customerId,
         @Valid @RequestBody CustomerRequestDTO request
     ) {
         customerService.updateCustomer(customerId, request);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Update was succesful");
     }
 
     @DeleteMapping("/{customerId}")
-    public ResponseEntity<Void> removeCustomer(
+    public ResponseEntity<String> removeCustomer(
         @PathVariable Long customerId
     ) {
         customerService.removeCustomer(customerId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Delete was succesful");
     }
 }

@@ -49,12 +49,12 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<Void> updateUser(
+    public ResponseEntity<String> updateUser(
         @PathVariable Long userId,
         @Valid @RequestBody AuthRequestDTO request
     ) {
         userService.updateUser(userId, request);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Update was succesful");
     }
 
     @DeleteMapping("/{userId}")

@@ -61,19 +61,19 @@ public class PurchaseOrderController {
     }
 
     @PutMapping("/{purchaseOrderId}")
-    public ResponseEntity<Void> updatePurchaseOrder(
+    public ResponseEntity<String> updatePurchaseOrder(
         @PathVariable Long purchaseOrderId,
         @Valid @RequestBody PurchaseOrderUpdateDTO request
     ) {
         purchaseOrderService.updatePurchaseOrder(purchaseOrderId, request);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Update was succesful");
     }
 
     // @DeleteMapping("/{purchaseOrderId}")
-    // public ResponseEntity<Void> removePurchaseOrder(
+    // public ResponseEntity<String> removePurchaseOrder(
     //     @PathVariable Long purchaseOrderId
     // ) {
     //     purchaseOrderService.removePurchaseOrder(purchaseOrderId);
-    //     return ResponseEntity.noContent().build();
+    //     return ResponseEntity.ok("Delete was succesful");
     // }
 }

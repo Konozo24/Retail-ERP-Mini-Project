@@ -61,19 +61,19 @@ public class SupplierController {
     }
 
     @PutMapping("/{supplierId}")
-    public ResponseEntity<Void> updateSupplier(
+    public ResponseEntity<String> updateSupplier(
         @PathVariable Long supplierId,
         @Valid @RequestBody SupplierRequestDTO request
     ) {
         supplierService.updateSupplier(supplierId, request);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Update was succesful");
     }
 
     @DeleteMapping("/{supplierId}")
-    public ResponseEntity<Void> removeSupplier(
+    public ResponseEntity<String> removeSupplier(
         @PathVariable Long supplierId
     ) {
         supplierService.removeSupplier(supplierId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Delete was succesful");
     }
 }

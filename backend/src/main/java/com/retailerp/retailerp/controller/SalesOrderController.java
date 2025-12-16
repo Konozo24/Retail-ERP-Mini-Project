@@ -59,10 +59,10 @@ public class SalesOrderController {
     }
 
     // @DeleteMapping("/{salesOrderId}")
-    // public ResponseEntity<Void> removeSalesOrder(
+    // public ResponseEntity<String> removeSalesOrder(
     //     @PathVariable Long salesOrderId
     // ) {
     //     salesOrderService.removeSalesOrder(salesOrderId);
-    //     return ResponseEntity.noContent().build();
+    //     return ResponseEntity.ok().build("Delete was succesful");
     // }
 }

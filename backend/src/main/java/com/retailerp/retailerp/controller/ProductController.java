@@ -62,19 +62,19 @@ public class ProductController {
     }
 
     @PutMapping("/{productId}")
-    public ResponseEntity<Void> updateProduct(
+    public ResponseEntity<String> updateProduct(
         @PathVariable Long productId,
         @Valid @RequestBody ProductUpdateDTO request
     ) {
         productService.updateProduct(productId, request);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Update was succesful");
     }
 
     @DeleteMapping("/{productId}")
-    public ResponseEntity<Void> removeProduct(
+    public ResponseEntity<String> removeProduct(
         @PathVariable Long productId
     ) {
         productService.removeProduct(productId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Delete was succesful");
     }
 }
