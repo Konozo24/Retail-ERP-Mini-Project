@@ -13,14 +13,15 @@ export const AuthProvider = ({ children }) => {
     
     // 1. Check if user is already logged in on initial page load
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        const storedToken = localStorage.getItem('access_token');
+        const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
+        const storedToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
         if (storedUser && storedToken) {
-            const userData = JSON.parse(storedUser);
-            setUser(userData);
+            setUser(JSON.parse(storedUser));
             setIsLoggedIn(true);
         }
     }, []);
+
 
     // 2. Login Function
     const login = async (email, password, rememberMe) => {
@@ -36,20 +37,24 @@ export const AuthProvider = ({ children }) => {
 
         if (rememberMe) {
             localStorage.setItem('user', JSON.stringify(userData))
+            localStorage.setItem('access_token', data.access_token);
         } else {
-            localStorage.removeItem('user');
+            sessionStorage.setItem('user', JSON.stringify(userData));
+            sessionStorage.setItem('access_token', data.access_token);
         }
 
         setIsLoggedIn(true);
-        localStorage.setItem('access_token', data.access_token);
     };
 
     // 3. Logout Function
     const logout = async () => {
         await logoutUser();
-        
+
         localStorage.removeItem('user');
         localStorage.removeItem('access_token');
+        sessionStorage.removeItem('user');
+        sessionStorage.removeItem('access_token');
+        
         setUser(null);
         setIsLoggedIn(false);
     };

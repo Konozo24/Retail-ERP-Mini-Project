@@ -50,7 +50,6 @@ const Suppliers = () => {
         }
     };
 
-
     // 3. Helper for Toast
     const showToast = (message, type) => {
         setToast({ message, type });
