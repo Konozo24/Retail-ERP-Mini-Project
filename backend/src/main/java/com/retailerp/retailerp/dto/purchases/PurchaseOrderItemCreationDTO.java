@@ -3,8 +3,8 @@ package com.retailerp.retailerp.dto.purchases;
 import java.math.BigDecimal;
 
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 @Getter
@@ -14,7 +14,7 @@ public class PurchaseOrderItemCreationDTO {
     private Long productId;
 
     @NotNull
-    @Size(min = 1)
+    @Min(1)
     private Integer quantity;
 
     @NotNull

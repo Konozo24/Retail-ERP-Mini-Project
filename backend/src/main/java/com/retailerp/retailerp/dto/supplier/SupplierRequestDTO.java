@@ -1,7 +1,6 @@
 package com.retailerp.retailerp.dto.supplier;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -10,7 +9,7 @@ import lombok.Getter;
 public class SupplierRequestDTO {
     
     @NotBlank
-    @Max(100)
+    @Size(max = 100)
     private String name;
 
     @NotBlank
@@ -22,7 +21,7 @@ public class SupplierRequestDTO {
     private String email;
 
     @NotBlank
-    @Max(60)
+    @Size(max = 60)
     private String address;
 
 }

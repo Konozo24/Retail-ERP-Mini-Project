@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 @Getter
@@ -17,11 +18,11 @@ public class ProductUpdateDTO {
     private String sku;
 
     @NotBlank
-    @Max(150)
+    @Size(max = 150)
     private String name;
 
     @NotBlank
-    @Max(100)
+    @Size(max = 100)
     private String category;
 
     @NotNull
