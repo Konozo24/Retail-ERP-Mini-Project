@@ -47,6 +47,9 @@ public class User {
     @Column(name = "CREATED_AT", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
+    @Column(name = "INACTIVE", nullable = false)
+    private boolean inactive = false;
+    
     public User(String email, String cipherText) {
         this.email = email;
         this.cipherText = cipherText;

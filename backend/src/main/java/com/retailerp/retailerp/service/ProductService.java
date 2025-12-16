@@ -76,9 +76,13 @@ public class ProductService {
 
     @Transactional
     public void removeProduct(Long productId) {
-        productRepository.findById(productId).orElseThrow(
+        Product existing = productRepository.findById(productId).orElseThrow(
             () -> new NoSuchElementException(productId + ". deosnt exist!")
         );
-        productRepository.deleteById(productId);
+        
+        if (!existing.isInactive()) {
+            existing.setInactive(true);
+            productRepository.save(existing);
+        }
     }
 }

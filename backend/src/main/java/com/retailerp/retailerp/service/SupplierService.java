@@ -60,9 +60,13 @@ public class SupplierService {
 
     @Transactional
     public void removeSupplier(Long supplierId) {
-        supplierRepository.findById(supplierId).orElseThrow(
+        Supplier existing = supplierRepository.findById(supplierId).orElseThrow(
             () -> new NoSuchElementException(supplierId + ". deosnt exist!")
         );
-        supplierRepository.deleteById(supplierId);
+        
+        if (!existing.isInactive()) {
+            existing.setInactive(true);
+            supplierRepository.save(existing);
+        }
     }
 }

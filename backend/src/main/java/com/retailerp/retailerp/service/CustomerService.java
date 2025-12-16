@@ -59,9 +59,13 @@ public class CustomerService {
 
     @Transactional
     public void removeCustomer(Long customerId) {
-        customerRepository.findById(customerId).orElseThrow(
+        Customer existing = customerRepository.findById(customerId).orElseThrow(
             () -> new NoSuchElementException(customerId + ". deosnt exist!")
         );
-        customerRepository.deleteById(customerId);
+        
+        if (!existing.isInactive()) {
+            existing.setInactive(true);
+            customerRepository.save(existing);
+        }
     }
 }

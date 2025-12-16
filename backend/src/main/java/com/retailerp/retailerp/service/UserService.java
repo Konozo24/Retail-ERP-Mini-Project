@@ -62,10 +62,14 @@ public class UserService {
 
     @Transactional
     public void removeUser(Long userId) {
-        userRepository.findById(userId).orElseThrow(
+        User existing = userRepository.findById(userId).orElseThrow(
             () -> new NoSuchElementException(userId + ". deosnt exist!")
         );
-        userRepository.deleteById(userId);
+        
+        if (!existing.isInactive()) {
+            existing.setInactive(true);
+            userRepository.save(existing);
+        }
     }
 
     //--------------------------------------------------

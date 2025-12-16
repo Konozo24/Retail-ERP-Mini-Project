@@ -1,9 +1,6 @@
 package com.retailerp.retailerp.repository.spec;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.data.jpa.domain.Specification;
 
 import com.retailerp.retailerp.model.Product;
@@ -18,19 +15,20 @@ public class ProductSpec {
         return new Specification<Product>() {
             @Override
             public Predicate toPredicate(Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-                if (search == null || search.isEmpty()) {
-                    return criteriaBuilder.conjunction();
-                }
-                
-                List<Predicate> list = new ArrayList<>();
-                list.add(
-                    criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("name")), 
-                        "%" + search.toLowerCase() + "%"
-                    )
-                );
+                Predicate activePredicate = criteriaBuilder.isFalse(root.get("inactive"));
 
-                return criteriaBuilder.or(list.toArray(new Predicate[0]));
+                Predicate searchPredicate = null;
+                if (search != null && !search.isEmpty()) {
+                    String pattern = "%" + search.toLowerCase() + "%";
+                    Predicate nameLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), pattern);
+                    searchPredicate = criteriaBuilder.or(nameLike);
+                }
+
+                if (searchPredicate != null) {
+                    return criteriaBuilder.and(activePredicate, searchPredicate);
+                } else {
+                    return activePredicate;
+                }
             }
         };
     }

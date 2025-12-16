@@ -1,9 +1,6 @@
 package com.retailerp.retailerp.repository.spec;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.data.jpa.domain.Specification;
 
 import com.retailerp.retailerp.model.Supplier;
@@ -18,25 +15,22 @@ public class SupplierSpec {
         return new Specification<Supplier>() {
             @Override
             public Predicate toPredicate(Root<Supplier> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-                if (search == null || search.isEmpty()) {
-                    return criteriaBuilder.conjunction();
-                }
-                
-                List<Predicate> list = new ArrayList<>();
-                list.add(
-                    criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("name")), 
-                        "%" + search.toLowerCase() + "%"
-                    )
-                );
-                list.add(
-                    criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("email")), 
-                        "%" + search.toLowerCase() + "%"
-                    )
-                );
+                                Predicate activePredicate = criteriaBuilder.isFalse(root.get("inactive"));
 
-                return criteriaBuilder.or(list.toArray(new Predicate[0]));
+                Predicate searchPredicate = null;
+                if (search != null && !search.isEmpty()) {
+                    String pattern = "%" + search.toLowerCase() + "%";
+                    Predicate nameLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), pattern);
+                    Predicate emailLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("email")), pattern);
+
+                    searchPredicate = criteriaBuilder.or(nameLike, emailLike);
+                }
+
+                if (searchPredicate != null) {
+                    return criteriaBuilder.and(activePredicate, searchPredicate);
+                } else {
+                    return activePredicate;
+                }
             }
         };
     }

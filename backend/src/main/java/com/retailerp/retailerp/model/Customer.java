@@ -41,6 +41,9 @@ public class Customer {
     @Column(name = "CREATED_AT", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
     
+    @Column(name = "INACTIVE", nullable = false)
+    private boolean inactive = false;
+    
     public Customer(String name, String phone, String email) {
         this.name = name;
         this.phone = phone;
