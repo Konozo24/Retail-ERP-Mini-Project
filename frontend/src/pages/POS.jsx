@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { 
   Search, Bell, Settings, User, ShoppingCart, Truck, Package, 
   Users, ShoppingBag, ArrowUp, X, RefreshCcw, Pause, ChevronRight, 
@@ -6,48 +6,49 @@ import {
   Headphones, Smartphone, Watch, Laptop, LayoutGrid, RotateCw, RefreshCw, 
   LayoutList, ChevronDown
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { productsData } from '../data/mockData';
 
-// --- MOCK PRODUCT DATA: Apple Products ---
-const PRODUCTS = [
-  // 🚀 UPDATED: Using specific placeholder URLs for visibility
-  { id: 1, name: "iPhone 16 Pro Max", price: 1199.00, qty: 12, desc: "A18 Bionic", 
-    image: 'https://images.unsplash.com/photo-1591337676757-9d7e6c38210e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1NjEyMzJ8MHwxfHNlYXJjaHwxNXx8aXBob25lfGVufDB8fHx8MTcwMjIxMDYwN3ww&ixlib=rb-4.0.3&q=80&w=400', 
-    category: 'Mobiles' 
-},
-  { id: 2, name: "AirPods Pro (2nd)", price: 249.00, qty: 54, desc: "ANC, MagSafe", 
-    image: 'https://images.unsplash.com/photo-1620898510842-ad06b3fa2d7d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1NjEyMzJ8MHwxfHNlYXJjaHwxMHx8YWlycG9kc3xlbnwwfHx8fDE3MDIyMTA2NTR8MA&ixlib=rb-4.0.3&q=80&w=400', 
-    category: 'Headset' 
-},
-  { id: 3, name: "MacBook Pro 14\"", price: 1999.00, qty: 8, desc: "M3 Pro Chip", 
-    image: 'https://images.unsplash.com/photo-1541801842426-38101a1d95f9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1NjEyMzJ8MHwxfHNlYXJjaHw3fHxtYWNib29rfGVufDB8fHx8MTcwMjIxMDY5MHww&ixlib=rb-4.0.3&q=80&w=400', 
-    category: 'Laptops' 
-},
-  { id: 4, name: "Apple Watch Ultra", price: 799.00, qty: 15, desc: "Titanium Case", 
-    image: 'https://images.unsplash.com/photo-1601002360810-61d07c080036?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1NjEyMzJ8MHwxfHNlYXJjaHwxMnx8YXBwbGUlMjB3YXRjaHxlbnwwfHx8fDE3MDIyMTA3NjF8MA&ixlib=rb-4.0.3&q=80&w=400', 
-    category: 'Watches' 
-},
-  { id: 5, name: "iPad Air M2", price: 599.00, qty: 22, desc: "11-inch Display", 
-    image: 'https://images.unsplash.com/photo-1623910702845-f0cc754db149?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1NjEyMzJ8MHwxfHNlYXJjaHw1fHxpcGFkfGVufDB8fHx8MTcwMjIxMDc4NHww&ixlib=rb-4.0.3&q=80&w=400', 
-    category: 'Mobiles' 
-},
-  { id: 6, name: "HomePod Mini", price: 99.00, qty: 30, desc: "Smart Speaker", 
-    image: 'https://images.unsplash.com/photo-1634567227546-34a17951a822?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1NjEyMzJ8MHwxfHNlYXJjaHwxMHx8aG9tZXBvZHxlbnwwfHx8fDE3MDIyMTA4MTh8MA&ixlib=rb-4.0.3&q=80&w=400', 
-    category: 'Headset' 
-},
-  { id: 7, name: "Mac Studio", price: 1999.00, qty: 4, desc: "M2 Max", 
-    image: 'https://images.unsplash.com/photo-1614742512140-5232773d4d44?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1NjEyMzJ8MHwxfHNlYXJjaHwzfHxtYWMlMjBzdHVkaW98ZW58MHx8fHwxNzAyMjEwODM3fDA&ixlib=rb-4.0.3&q=80&w=400', 
-    category: 'Computer' 
-},
-  { id: 8, name: "Studio Display", price: 1599.00, qty: 6, desc: "5K Retina", 
-    image: 'https://images.unsplash.com/photo-1667086053303-34e2c8172968?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1NjEyMzJ8MHwxfHNlYXJjaHw3fHxhcHBsZSUyMGRpc3BsYXl8ZW58MHx8fHwxNzAyMjEwODU0fDA&ixlib=rb-4.0.3&q=80&w=400', 
-    category: 'Computer' 
-},
-];
+// --- HELPERS: Map backend data into POS card items ---
+const mapProductToPosItem = (product) => {
+  if (!product) return null;
+
+  // `unit_price` may be a number or formatted string like "1,099.00"
+  const rawPrice = product.unit_price ?? product.price ?? 0;
+  const numericPrice =
+    typeof rawPrice === 'number'
+      ? rawPrice
+      : parseFloat(rawPrice.toString().replace(/,/g, '')) || 0;
+
+  return {
+    id: product.id,
+    name: product.name,
+    price: numericPrice,
+    qty: product.stock_qty ?? product.qty ?? 0,
+    desc: product.description ?? product.desc ?? '',
+    image:
+      product.image ||
+      product.image_url ||
+      'https://images.unsplash.com/photo-1512499617640-c2f999098c01?auto=format&fit=crop&w=400&q=80',
+    category: product.category || 'Others',
+  };
+};
+
+const getCategoryIcon = (category) => {
+  const name = (category || '').toLowerCase();
+  if (name.includes('phone') || name.includes('mobile')) return Smartphone;
+  if (name.includes('head') || name.includes('audio') || name.includes('ear'))
+    return Headphones;
+  if (name.includes('watch') || name.includes('wear')) return Watch;
+  if (name.includes('laptop') || name.includes('notebook')) return Laptop;
+  if (name.includes('desktop') || name.includes('pc')) return Package;
+  return ShoppingBag;
+};
 
 // --- COMPONENTS ---
 
-// 🚀 REVISED: New simple header matching the "Sales History" (second) image
-const SimpleHeader = ({ search, setSearch }) => (
+// 🚀 REVISED: New simple header matching the POS screenshot
+const SimpleHeader = ({ search, setSearch, onDashboardClick }) => (
   <header className="h-16 bg-card border-b border-border flex items-center justify-between px-6 shrink-0">
     {/* Left: Logo and Search Bar */}
     <div className="flex items-center gap-6 w-3/4">
@@ -68,12 +69,14 @@ const SimpleHeader = ({ search, setSearch }) => (
       </div>
     </div>
 
-    {/* Right: Icons (POS, Settings, Bell, User) */}
+    {/* Right: Icons (Dashboard, Settings, Bell, User) */}
     <div className="flex items-center gap-3">
-      
-      {/* POS Button (Prominent) */}
-      <button className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors shadow-md font-medium text-sm">
-        <ShoppingCart size={20} /> POS
+      {/* Dashboard Button (Prominent) */}
+      <button
+        onClick={onDashboardClick}
+        className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors shadow-md font-medium text-sm"
+      >
+        <LayoutDashboard size={20} /> Dashboard
       </button>
 
       {/* Settings */}
@@ -95,71 +98,45 @@ const SimpleHeader = ({ search, setSearch }) => (
   </header>
 );
 
-// 🚀 REVISED: New wider sidebar matching the "Sales History" (second) image
-const WideSidebar = () => {
-  const sections = [
-    { 
-      title: "MAIN", 
-      items: [
-        { name: "Dashboard", icon: LayoutDashboard, active: false, path: "/dashboard" },
-      ]
-    },
-    { 
-      title: "INVENTORY", 
-      items: [
-        { name: "Products", icon: Package, active: false, path: "/products" },
-        { name: "Create Product", icon: ShoppingBag, active: false, path: "/products/create" },
-        { name: "Low Stocks", icon: ArrowUp, active: false, path: "/low-stocks" },
-        { name: "Category", icon: LayoutList, active: false, path: "/category" },
-        { name: "Print Barcode", icon: Printer, active: false, path: "/barcode" },
-      ]
-    },
-    { 
-      title: "STOCK", 
-      items: [
-        { name: "Manage Stock", icon: RefreshCw, active: false, path: "/manage-stock" },
-        { name: "Purchase Order", icon: Truck, active: false, path: "/purchase-order" },
-      ]
-    },
-    { 
-      title: "SALES", 
-      items: [
-        { name: "Sales History", icon: ShoppingCart, active: true, path: "/sales" }, // Active for POS context
-      ]
-    },
-    { 
-      title: "PEOPLES", 
-      items: [
-        { name: "Customers", icon: Users, active: false, path: "/customers" },
-      ]
-    },
-  ];
+// 🚀 New left category sidebar (matches POS screenshot)
+const CategorySidebar = ({ categories, selectedCategory, onSelectCategory }) => {
+  const allButton = {
+    key: 'All',
+    label: 'All',
+    icon: LayoutGrid,
+  };
 
-  return (
-    <aside className="w-60 bg-card border-r border-border flex flex-col shrink-0 h-full overflow-y-auto pt-4 pb-8">
-      {sections.map((section) => (
-        <div key={section.title} className="px-4 mb-4">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-2 ml-4 mt-2">{section.title}</h3>
-          <nav className="space-y-1">
-            {section.items.map((item) => (
-              <a 
-                key={item.name}
-                href={item.path}
-                className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
-                  item.active 
-                    ? 'bg-primary/10 text-primary font-semibold' 
-                    : 'text-foreground hover:bg-muted font-medium'
-                }`}
-              >
-                <item.icon size={20} />
-                <span className="text-sm">{item.name}</span>
-              </a>
-            ))}
-          </nav>
-        </div>
-      ))}
-    </aside>
-  );
+  const items = [
+    allButton,
+    ...categories.map((cat) => ({
+      key: cat,
+      label: cat,
+      icon: getCategoryIcon(cat),
+    })),
+  ];
+
+  return (
+    <aside className="w-24 bg-card border-r border-border flex flex-col items-center py-4 gap-3 shrink-0 h-full">
+      {items.map((item) => {
+        const isActive = selectedCategory === item.key || (!selectedCategory && item.key === 'All');
+        const Icon = item.icon;
+        return (
+          <button
+            key={item.key}
+            onClick={() => onSelectCategory(item.key === 'All' ? 'All' : item.key)}
+            className={`flex flex-col items-center justify-center w-20 py-3 rounded-xl border text-xs font-medium transition-all ${
+              isActive
+                ? 'bg-primary text-primary-foreground border-primary shadow-md'
+                : 'bg-background text-muted-foreground border-border hover:bg-muted'
+            }`}
+          >
+            <Icon size={20} className="mb-1" />
+            <span className="truncate max-w-[4.5rem]">{item.label}</span>
+          </button>
+        );
+      })}
+    </aside>
+  );
 };
 
 
@@ -167,10 +144,15 @@ const WideSidebar = () => {
 // const Sidebar = () => { ... }
 
 
-const ProductGrid = ({ search, setSearch }) => {
-  const filtered = PRODUCTS.filter(p => 
-    p.name.toLowerCase().includes(search.toLowerCase())
-  );
+const ProductGrid = ({ products, search, setSearch, selectedCategory }) => {
+  const filtered = products.filter((p) => {
+    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory =
+      !selectedCategory ||
+      selectedCategory === 'All' ||
+      p.category?.toLowerCase() === selectedCategory.toLowerCase();
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="flex-1 bg-background p-6 overflow-hidden flex flex-col">
@@ -193,7 +175,7 @@ const ProductGrid = ({ search, setSearch }) => {
 
       {/* Grid */}
       <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-5 overflow-y-auto pr-2 pb-20">
-        {filtered.map((product) => (
+        {filtered.map((product) => (
           <div key={product.id} className="bg-card border border-border rounded-xl p-4 hover:shadow-lg hover:border-primary/50 transition-all group cursor-pointer">
             <div className="aspect-[4/3] bg-muted rounded-lg mb-3 relative overflow-hidden">
               <img 
@@ -222,27 +204,18 @@ const ProductGrid = ({ search, setSearch }) => {
 };
 
 
-const getCartItemsWithImages = () => {
-    const cartItems = [
-        { id: 1, qty: 1 },
-        { id: 2, qty: 2 },
-        { id: 6, qty: 1 }
-    ];
-
-    return cartItems.map(cartItem => {
-        const productData = PRODUCTS.find(p => p.id === cartItem.id);
-        if (productData) {
-            return {
-                ...productData,
-                qty: cartItem.qty
-            };
-        }
-        return null; 
-    }).filter(item => item !== null);
+// Simple demo cart: use the first few products from backend
+const getCartItemsWithImages = (products) => {
+  if (!products || products.length === 0) return [];
+  const base = products.slice(0, 3);
+  return base.map((p, index) => ({
+    ...p,
+    qty: index + 1,
+  }));
 };
 
 
-const OrderDetails = () => (
+const OrderDetails = ({ products }) => (
   <aside className="w-[400px] bg-card border-l border-border flex flex-col shrink-0 h-full">
     <div className="p-6 border-b border-border">
       <div className="flex justify-between items-center mb-6">
@@ -269,7 +242,7 @@ const OrderDetails = () => (
 
     {/* Cart Items */}
     <div className="flex-1 overflow-y-auto p-6 space-y-4">
-      {getCartItemsWithImages().map((item, idx) => (
+      {getCartItemsWithImages(products).map((item, idx) => (
         <div key={idx} className="flex gap-4 group">
           <div className="w-16 h-16 bg-muted rounded-lg shrink-0 overflow-hidden">
             <img src={item.image} className="w-full h-full object-cover rounded-lg" alt={item.name} />
@@ -324,18 +297,47 @@ const OrderDetails = () => (
 // --- MAIN LAYOUT ---
 
 const POS = () => {
-  const [search, setSearch] = useState("");
+  const navigate = useNavigate();
+  const [search, setSearch] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
-  return (
-    <div className="h-screen w-full bg-background flex flex-col overflow-hidden text-foreground">
-      <SimpleHeader search={search} setSearch={setSearch} /> {/* 1. New Simple Header */}
-      <div className="flex flex-1 overflow-hidden">
-        <WideSidebar /> {/* 2. New Wide Sidebar */}
-        <ProductGrid search={search} setSearch={setSearch} /> 
-        <OrderDetails />
-      </div>
-    </div>
-  );
+  const products = useMemo(() => {
+    return productsData.map(mapProductToPosItem).filter(Boolean);
+  }, []);
+
+  const categories = useMemo(
+    () => Array.from(new Set(products.map((p) => p.category).filter(Boolean))),
+    [products]
+  );
+
+  return (
+    <div className="h-screen w-full bg-background flex flex-col overflow-hidden text-foreground">
+      <SimpleHeader
+        search={search}
+        setSearch={setSearch}
+        onDashboardClick={() => navigate('/dashboard')}
+      />
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left product category sidebar */}
+        <CategorySidebar
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
+        />
+
+        {/* Center product grid */}
+        <ProductGrid
+          products={products}
+          search={search}
+          setSearch={setSearch}
+          selectedCategory={selectedCategory}
+        />
+
+        {/* Right order details (cart) */}
+        <OrderDetails products={products} />
+      </div>
+    </div>
+  );
 };
 
 export default POS;

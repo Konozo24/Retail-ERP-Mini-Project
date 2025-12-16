@@ -20,18 +20,9 @@ import PurchaseOrderHistory from "./pages/PurchaseOrderHistory";
 import ManageStock from "./pages/ManageStock";
 import Dashboard from "./pages/Dashboard";
 import PurchaseOrder from "./pages/PurchaseOrder";
-
-// --- Placeholder Components ---
 import Suppliers from "./pages/Suppliers";
 import CreateSupplier from "./pages/CreateSupplier";
-// Placeholder Components for Routes (Testing Only)
-
-
-
-// Stock
-
-// Sales
-const Sales = () => <div className="p-4 text-2xl font-bold">Sales History</div>;
+import Sales from "./pages/Sales";
 
 
 // --- Protection Logic ---

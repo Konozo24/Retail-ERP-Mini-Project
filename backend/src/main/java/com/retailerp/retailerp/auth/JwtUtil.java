@@ -18,7 +18,7 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtUtil {
 
-    private static final long TOKEN_LIFETIME = 1000 * 60 * 1; // 1o minutes
+    private static final long TOKEN_LIFETIME = 1000 * 60 * 60; // 1 hour
     private static final long REFRESH_TOKEN_LIFETIME = 1000L * 60 * 60 * 24 * 7; // 7 days
 
     //private final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
