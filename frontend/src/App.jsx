@@ -20,26 +20,16 @@ import PurchaseOrderHistory from "./pages/PurchaseOrderHistory";
 import ManageStock from "./pages/ManageStock";
 import Dashboard from "./pages/Dashboard";
 import PurchaseOrder from "./pages/PurchaseOrder";
-
-// --- Placeholder Components ---
 import Suppliers from "./pages/Suppliers";
 import CreateSupplier from "./pages/CreateSupplier";
-
-// Placeholder Components for Routes (Testing Only)
-
-
-
-// Stock
-
-// Sales
 import Sales from "./pages/Sales";
 
 
 // --- Protection Logic ---
 const ProtectedRoute = () => {
-    const { isloggedIn } = useAuth(); // Use the context hook
+    const { isLoggedIn } = useAuth(); // Use the context hook
 
-    if (!isloggedIn) {
+    if (!isLoggedIn) {
         return <Navigate to="/login" replace />;
     }
 
@@ -49,8 +39,8 @@ const ProtectedRoute = () => {
 // --- Public Route Logic ---
 // Redirects to dashboard if user tries to access /login while already logged in
 const PublicRoute = ({ children }) => {
-    const { isloggedIn } = useAuth();
-    if (isloggedIn) {
+    const { isLoggedIn } = useAuth();
+    if (isLoggedIn) {
         return <Navigate to="/dashboard" replace />;
     }
     return children;

@@ -1,11 +1,18 @@
 import API from "./api";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 
 // GET ALL SALES ORDERS (GET /sales-order)
-export function useGetSalesOrders() {
+export function useGetSalesOrdersPage(searchQuery, pageNum, pageSize) {
   return useQuery({
-    queryKey: ['salesOrders'],
-    queryFn: () => API.get(`/sales-order`),
+    queryKey: ['salesOrders', searchQuery, pageNum, pageSize],
+    queryFn: () => API.get(`/sales-order`, {
+        params: {
+            search: searchQuery,
+            page: pageNum,
+            size: pageSize,
+        }
+    }),
+    placeholderData: keepPreviousData
   });
 }
 
@@ -28,11 +35,11 @@ export function useCreateSalesOrder() {
 }
 
 // UPDATE SALES ORDER (PUT /sales-order/{salesOrderId})
-export function useUpdateSalesOrder(salesOrderId) {
+export function useUpdateSalesOrder() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload) => API.put(`/sales-order/${salesOrderId}`, payload),
-    onSuccess: () => {
+    mutationFn: ({salesOrderId, payload}) => API.put(`/sales-order/${salesOrderId}`, payload),
+    onSuccess: (_, {salesOrderId}) => {
         qc.invalidateQueries({ queryKey: ['salesOrders'] });
         qc.invalidateQueries({ queryKey: ['salesOrder', salesOrderId] });
     },
@@ -40,11 +47,11 @@ export function useUpdateSalesOrder(salesOrderId) {
 }
 
 // DELETE SALES ORDER (DELETE /sales-order/{salesOrderId})
-export function useDeleteSalesOrder(salesOrderId) {
+export function useDeleteSalesOrder() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: () => API.delete(`/sales-order/${salesOrderId}`),
-    onSuccess: () => {
+    mutationFn: (salesOrderId) => API.delete(`/sales-order/${salesOrderId}`),
+    onSuccess: (_, salesOrderId) => {
         qc.invalidateQueries({ queryKey: ['salesOrders'] });
         qc.invalidateQueries({ queryKey: ['salesOrder', salesOrderId] });
     },

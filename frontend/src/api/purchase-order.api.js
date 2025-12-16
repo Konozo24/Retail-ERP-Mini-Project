@@ -1,11 +1,18 @@
 import API from "./api";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 
 // GET ALL PURCHASE ORDERS (GET /purchase-order)
-export function useGetPurchaseOrders() {
+export function useGetPurchaseOrdersPage(searchQuery, pageNum, pageSize) {
   return useQuery({
-    queryKey: ['purchaseOrders'],
-    queryFn: () => API.get(`/purchase-order`),
+    queryKey: ['purchaseOrders', searchQuery, pageNum, pageSize],
+    queryFn: () => API.get(`/purchase-order`, {
+        params: {
+            search: searchQuery,
+            page: pageNum,
+            size: pageSize,
+        }
+    }),
+    placeholderData: keepPreviousData
   });
 }
 
@@ -28,11 +35,11 @@ export function useCreatePurchaseOrder() {
 }
 
 // UPDATE PURCHASE ORDER (PUT /purchase-order/{purchaseOrderId})
-export function useUpdatePurchaseOrder(purchaseOrderId) {
+export function useUpdatePurchaseOrder() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload) => API.put(`/purchase-order/${purchaseOrderId}`, payload),
-    onSuccess: () => {
+    mutationFn: ({purchaseOrderId, payload}) => API.put(`/purchase-order/${purchaseOrderId}`, payload),
+    onSuccess: (_, {purchaseOrderId}) => {
         qc.invalidateQueries({ queryKey: ['purchaseOrders'] });
         qc.invalidateQueries({ queryKey: ['purchaseOrder', purchaseOrderId] });
     },
@@ -40,11 +47,11 @@ export function useUpdatePurchaseOrder(purchaseOrderId) {
 }
 
 // DELETE PURCHASE ORDER (DELETE /purchase-order/{purchaseOrderId})
-export function useDeletePurchaseOrder(purchaseOrderId) {
+export function useDeletePurchaseOrder() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: () => API.delete(`/purchase-order/${purchaseOrderId}`),
-    onSuccess: () => {
+    mutationFn: (purchaseOrderId) => API.delete(`/purchase-order/${purchaseOrderId}`),
+    onSuccess: (_, purchaseOrderId) => {
         qc.invalidateQueries({ queryKey: ['purchaseOrders'] });
         qc.invalidateQueries({ queryKey: ['purchaseOrder', purchaseOrderId] });
     },

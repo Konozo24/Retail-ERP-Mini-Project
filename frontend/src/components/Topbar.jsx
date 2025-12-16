@@ -15,7 +15,7 @@ import {
 const Topbar = ({ sidebarOpen, setSidebarOpen }) => {
     const navigate = useNavigate();
 
-    const { logout } = useAuth();
+    const {logout} = useAuth();
 
     return (
         <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 sm:px-6 gap-4">

@@ -1,24 +1,24 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useLoginUser } from '../api/auth.api';
+import { useLoginUser, useLogoutUser } from '../api/auth.api';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [isloggedIn, setIsLoggedIn] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [errors, setErrors] = useState({});
 
     const { mutateAsync: loginUser, isPending } = useLoginUser();
-
+    const { mutateAsync: logoutUser } = useLogoutUser();
+    
     // 1. Check if user is already logged in on initial page load
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
-        if (storedUser) {
+        const storedToken = localStorage.getItem('access_token');
+        if (storedUser && storedToken) {
             const userData = JSON.parse(storedUser);
-            if (userData.email !== null && userData.rawPassword !== null) {
-                setUser(userData);
-                //login(userData.email, userData.rawPassword, true);
-            }
+            setUser(userData);
+            setIsLoggedIn(true);
         }
     }, []);
 
@@ -26,30 +26,36 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password, rememberMe) => {
         setErrors({})
 
-        const data = await loginUser({
-            email: email,
-            rawPassword: password
-        });
         const userData = {
-            email: rememberMe && email || null,
-            rawPassword: rememberMe && password || null,
-            token: data.access_token,
+            email: email,
+            rawPassword: password,
         }
+        const data = await loginUser(userData);
 
         setUser(userData);
+
+        if (rememberMe) {
+            localStorage.setItem('user', JSON.stringify(userData))
+        } else {
+            localStorage.removeItem('user');
+        }
+
         setIsLoggedIn(true);
-        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('access_token', data.access_token);
     };
 
     // 3. Logout Function
-    const logout = () => {
+    const logout = async () => {
+        await logoutUser();
+        
         localStorage.removeItem('user');
+        localStorage.removeItem('access_token');
         setUser(null);
         setIsLoggedIn(false);
     };
 
     return (
-        <AuthContext.Provider value={{ user, isloggedIn, login, logout, isPending, errors, setErrors }}>
+        <AuthContext.Provider value={{ user, isLoggedIn, login, logout, isPending, errors, setErrors }}>
             {children}
         </AuthContext.Provider>
     );

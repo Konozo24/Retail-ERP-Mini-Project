@@ -4,6 +4,7 @@ import java.util.NoSuchElementException;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,7 @@ import com.retailerp.retailerp.dto.product.ProductUpdateDTO;
 import com.retailerp.retailerp.model.Product;
 import com.retailerp.retailerp.model.User;
 import com.retailerp.retailerp.repository.ProductRepository;
+import com.retailerp.retailerp.repository.spec.ProductSpec;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,8 +28,9 @@ public class ProductService {
     private final JwtUtil jwtUtil;
 
     @Transactional(readOnly = true)
-    public Page<ProductDTO> getProducts(Pageable pageable) {
-        return productRepository.findAll(pageable)
+    public Page<ProductDTO> getProducts(String search, Pageable pageable) {
+        Specification<Product> spec = ProductSpec.getSpecification(search);
+        return productRepository.findAll(spec, pageable)
             .map(ProductDTO::fromEntity);
     }
 
@@ -73,9 +76,13 @@ public class ProductService {
 
     @Transactional
     public void removeProduct(Long productId) {
-        productRepository.findById(productId).orElseThrow(
+        Product existing = productRepository.findById(productId).orElseThrow(
             () -> new NoSuchElementException(productId + ". deosnt exist!")
         );
-        productRepository.deleteById(productId);
+        
+        if (!existing.isInactive()) {
+            existing.setInactive(true);
+            productRepository.save(existing);
+        }
     }
 }

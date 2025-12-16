@@ -4,6 +4,7 @@ import java.util.NoSuchElementException;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import com.retailerp.retailerp.model.User;
 import com.retailerp.retailerp.repository.ProductRepository;
 import com.retailerp.retailerp.repository.PurchaseOrderRepository;
 import com.retailerp.retailerp.repository.SupplierRepository;
+import com.retailerp.retailerp.repository.spec.PurchaseOrderSpec;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,8 +35,9 @@ public class PurchaseOrderService {
     private final JwtUtil jwtUtil;
 
     @Transactional(readOnly = true)
-    public Page<PurchaseOrderDTO> getPurchaseOrders(Pageable pageable) {
-        return purchaseOrderRepository.findAll(pageable)
+    public Page<PurchaseOrderDTO> getPurchaseOrders(String search, Pageable pageable) {
+        Specification<PurchaseOrder> spec = PurchaseOrderSpec.getSpecification(search);
+        return purchaseOrderRepository.findAll(spec, pageable)
             .map(PurchaseOrderDTO::fromEntity);
     }
 

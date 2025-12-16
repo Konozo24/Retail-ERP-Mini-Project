@@ -18,7 +18,9 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtUtil {
 
-    private final int TOKEN_LIFETIME = 1000 * 60 * 6; // 1 hour
+    private static final long TOKEN_LIFETIME = 1000 * 60 * 60; // 1 hour
+    private static final long REFRESH_TOKEN_LIFETIME = 1000L * 60 * 60 * 24 * 7; // 7 days
+
     //private final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private final String SECRET_KEY = "IWANTDRINKMILLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO";
 
@@ -28,11 +30,20 @@ public class JwtUtil {
         //return SECRET_KEY;
     }
 
-    public String generateToken(Long userId) {
+    public String generateAccessToken(Long userId) {
         return Jwts.builder()
                 .setSubject(userId.toString())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + TOKEN_LIFETIME))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(Long userId) {
+        return Jwts.builder()
+                .setSubject(userId.toString())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_LIFETIME))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -46,6 +57,17 @@ public class JwtUtil {
                 .getBody()
                 .getSubject()
         );
+    }
+
+    public User getUserTokens() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal() instanceof String) {
+            throw new UnauthorizedException("User is not authenticated");
+        }
+
+        AuthUser authUser = (AuthUser) auth.getPrincipal();
+        return authUser.getUser();
     }
 
     public User getAuthenticatedUser() {

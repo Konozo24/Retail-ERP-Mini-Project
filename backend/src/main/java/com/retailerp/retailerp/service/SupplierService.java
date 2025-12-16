@@ -4,6 +4,7 @@ import java.util.NoSuchElementException;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +12,7 @@ import com.retailerp.retailerp.dto.supplier.SupplierDTO;
 import com.retailerp.retailerp.dto.supplier.SupplierRequestDTO;
 import com.retailerp.retailerp.model.Supplier;
 import com.retailerp.retailerp.repository.SupplierRepository;
+import com.retailerp.retailerp.repository.spec.SupplierSpec;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,8 +24,9 @@ public class SupplierService {
     private final SupplierRepository supplierRepository;
 
     @Transactional(readOnly = true)
-    public Page<SupplierDTO> getSuppliers(Pageable pageable) {
-        return supplierRepository.findAll(pageable)
+    public Page<SupplierDTO> getSuppliers(String search, Pageable pageable) {
+        Specification<Supplier> spec = SupplierSpec.getSpecification(search);
+        return supplierRepository.findAll(spec, pageable)
             .map(SupplierDTO::fromEntity);
     }
 
@@ -57,9 +60,13 @@ public class SupplierService {
 
     @Transactional
     public void removeSupplier(Long supplierId) {
-        supplierRepository.findById(supplierId).orElseThrow(
+        Supplier existing = supplierRepository.findById(supplierId).orElseThrow(
             () -> new NoSuchElementException(supplierId + ". deosnt exist!")
         );
-        supplierRepository.deleteById(supplierId);
+        
+        if (!existing.isInactive()) {
+            existing.setInactive(true);
+            supplierRepository.save(existing);
+        }
     }
 }

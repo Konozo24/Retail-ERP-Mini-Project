@@ -36,6 +36,9 @@ public class Supplier{
     @Column(name = "ADDRESS", nullable = false, unique = true, length = 60)
     private String address;
     
+    @Column(name = "INACTIVE", nullable = false)
+    private boolean inactive = false;
+
     public Supplier(String name, String phone, String email, String address) {
         this.name = name;
         this.phone = phone;

@@ -66,6 +66,9 @@ public class Product {
     @Column(name = "UPDATED_AT")
     private OffsetDateTime updatedAt;
     
+    @Column(name = "INACTIVE", nullable = false)
+    private boolean inactive = false;
+    
     // Require calling setCreatedBy(), Default stockQty = 0
     public Product(String sku, String name, String category, BigDecimal unitPrice, BigDecimal costPrice, Integer reorderLevel) {
         this.sku = sku;
