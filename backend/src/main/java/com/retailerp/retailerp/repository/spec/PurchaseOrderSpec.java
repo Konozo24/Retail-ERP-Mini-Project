@@ -15,7 +15,7 @@ public class PurchaseOrderSpec {
         return new Specification<PurchaseOrder>() {
             @Override
             public Predicate toPredicate(Root<PurchaseOrder> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-                Predicate activePredicate = criteriaBuilder.isFalse(root.get("inactive"));
+                Predicate activePredicate = criteriaBuilder.conjunction(); //criteriaBuilder.isFalse(root.get("inactive"));
 
                 Predicate searchPredicate = null;
                 if (search != null && !search.isEmpty()) {
