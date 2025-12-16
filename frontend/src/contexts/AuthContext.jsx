@@ -7,20 +7,26 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [errors, setErrors] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
+
 
     const { mutateAsync: loginUser, isPending } = useLoginUser();
     const { mutateAsync: logoutUser } = useLogoutUser();
-    
-    // 1. Check if user is already logged in on initial page load
+
+    // Check if user is already logged in on initial page load
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        const storedToken = localStorage.getItem('access_token');
+        const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
+        const storedToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+
         if (storedUser && storedToken) {
-            const userData = JSON.parse(storedUser);
-            setUser(userData);
+            setUser(JSON.parse(storedUser));
             setIsLoggedIn(true);
         }
+
+        // mark loading as finished after check
+        setIsLoading(false);
     }, []);
+
 
     // 2. Login Function
     const login = async (email, password, rememberMe) => {
@@ -32,30 +38,35 @@ export const AuthProvider = ({ children }) => {
         }
         const data = await loginUser(userData);
 
+        // Update state
         setUser(userData);
+        setIsLoggedIn(true);
 
         if (rememberMe) {
             localStorage.setItem('user', JSON.stringify(userData))
+            localStorage.setItem('access_token', data.access_token);
         } else {
-            localStorage.removeItem('user');
+            sessionStorage.setItem('user', JSON.stringify(userData));
+            sessionStorage.setItem('access_token', data.access_token);
         }
 
-        setIsLoggedIn(true);
-        localStorage.setItem('access_token', data.access_token);
     };
 
     // 3. Logout Function
     const logout = async () => {
         await logoutUser();
-        
+
         localStorage.removeItem('user');
         localStorage.removeItem('access_token');
+        sessionStorage.removeItem('user');
+        sessionStorage.removeItem('access_token');
+
         setUser(null);
         setIsLoggedIn(false);
     };
 
     return (
-        <AuthContext.Provider value={{ user, isLoggedIn, login, logout, isPending, errors, setErrors }}>
+        <AuthContext.Provider value={{ user, isLoggedIn, isLoading, login, logout, isPending, errors, setErrors }}>
             {children}
         </AuthContext.Provider>
     );

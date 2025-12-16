@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 export function useLoginUser() {
 //   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload) => API.post(`/auth/login`, payload),
+    mutationFn: (payload) => API.post('/auth/login', payload),
     //onSuccess: () => qc.invalidateQueries({ queryKey: ['users'] }),
   });
 }
@@ -15,7 +15,10 @@ export function useLogoutUser() {
   return useMutation({
     mutationFn: () => API.post('/auth/logout'),
     onSuccess: () => {
-      localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('access_token');
+        sessionStorage.removeItem('user');
+        sessionStorage.removeItem('access_token');
       // optionally, reset React Query cache or redirect user
     },
   });
@@ -25,7 +28,7 @@ export function useLogoutUser() {
 // export function useRegisterUser() {
 //   const qc = useQueryClient();
 //   return useMutation({
-//     mutationFn: (payload) => API.post(`/auth/register`, payload),
+//     mutationFn: (payload) => API.post(/auth/register, payload),
 //     onSuccess: () => qc.invalidateQueries({ queryKey: ['users'] }),
-//   });
-// }
+//   });
+// }

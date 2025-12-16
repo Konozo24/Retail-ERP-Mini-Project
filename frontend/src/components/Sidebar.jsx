@@ -58,7 +58,6 @@ const menuItems = [
 
 const Sidebar = ({ isCollapsed }) => {
     const location = useLocation(); // To track current URL
-    const [activeItem, setActiveItem] = useState("Dashboard");
 
     return (
         <aside className={`h-screen border-r border-sidebar-border bg-sidebar text-sidebar-foreground flex flex-col transition-all duration-300 ${isCollapsed ? "w-[70px]" : "w-64"}`}>
@@ -90,7 +89,7 @@ const Sidebar = ({ isCollapsed }) => {
                         <div className="space-y-1 px-3">
                             {section.items.map((item) => {
                                 // Check if this item is currently active based on URL or state
-                                const isActive = activeItem === item.name || location.pathname === item.path;
+                                const isActive = location.pathname === item.path;
                                 const Icon = item.icon;
 
                                 return (
