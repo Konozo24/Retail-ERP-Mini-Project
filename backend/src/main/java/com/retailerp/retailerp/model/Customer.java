@@ -10,13 +10,26 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "CUSTOMERS")
+@Table(
+    name = "CUSTOMERS",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "UK_CUSTOMER_PHONE",
+            columnNames = "PHONE"
+        ),
+        @UniqueConstraint(
+            name = "UK_CUSTOMER_EMAIL",
+            columnNames = "EMAIL"
+        )
+    }
+)
 @NoArgsConstructor
 @Getter
 @Setter
@@ -31,10 +44,10 @@ public class Customer {
     @Column(name = "NAME", nullable = false, length = 100)
     private String name;
 
-    @Column(name = "PHONE", nullable = false, unique = true, length = 20)
+    @Column(name = "PHONE", nullable = false, length = 20)
     private String phone;
 
-    @Column(name = "EMAIL", nullable = false, unique = true)
+    @Column(name = "EMAIL", nullable = false)
     private String email;
 
     @CreationTimestamp

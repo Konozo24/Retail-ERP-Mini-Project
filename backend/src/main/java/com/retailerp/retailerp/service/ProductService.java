@@ -12,7 +12,10 @@ import com.retailerp.retailerp.auth.JwtUtil;
 import com.retailerp.retailerp.dto.product.ProductCreationDTO;
 import com.retailerp.retailerp.dto.product.ProductDTO;
 import com.retailerp.retailerp.dto.product.ProductUpdateDTO;
+import com.retailerp.retailerp.enums.PurchaseOrderStatus;
 import com.retailerp.retailerp.model.Product;
+import com.retailerp.retailerp.model.PurchaseOrder;
+import com.retailerp.retailerp.model.PurchaseOrderItem;
 import com.retailerp.retailerp.model.User;
 import com.retailerp.retailerp.repository.ProductRepository;
 import com.retailerp.retailerp.repository.spec.ProductSpec;
@@ -27,6 +30,35 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final JwtUtil jwtUtil;
 
+    @Transactional(rollbackFor = Exception.class)
+    public void completePurchaseOrder(PurchaseOrder purchaseOrder) {
+        if (purchaseOrder.getStatus() != PurchaseOrderStatus.COMPLETED) {
+            throw new IllegalStateException("Purchase order is not completed yet.");
+        }
+
+        for (PurchaseOrderItem item : purchaseOrder.getItems()) {
+            Product product = item.getProduct();
+            product.setStockQty(product.getStockQty() + item.getQuantity());
+            productRepository.save(product);
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void checkAndReduceStock(Long productId, int quantity) {
+        Product product = productRepository.findById(productId)
+            .orElseThrow(() -> new NoSuchElementException("Product with id, " + productId + " doesn't exist!"));
+
+        if (product.getStockQty() < quantity) {
+            throw new IllegalArgumentException(
+                "Not enough stock for product " + product.getName() + ". Available: " + product.getStockQty()
+            );
+        }
+
+        product.setStockQty(product.getStockQty() - quantity);
+        productRepository.save(product);
+    }
+
+
     @Transactional(readOnly = true)
     public Page<ProductDTO> getProducts(String search, Pageable pageable) {
         Specification<Product> spec = ProductSpec.getSpecification(search);
@@ -35,13 +67,21 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
+    public Product getProductEntity(Long productId) {
+        return productRepository.findById(productId).orElseThrow(
+            () -> new NoSuchElementException("Product with id, " + productId + " doesn't exist!")
+        );
+    }
+
+    @Transactional(readOnly = true)
     public ProductDTO getProduct(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(
-            () -> new NoSuchElementException(productId + ". deosnt exist!")
+            () -> new NoSuchElementException("Product with id, " + productId + " doesn't exist!")
         );
         return ProductDTO.fromEntity(product);
     }
 
+    @Transactional
     public ProductDTO createProduct(ProductCreationDTO request) {
         Product newProduct = productRepository.save(
             new Product(
@@ -61,7 +101,7 @@ public class ProductService {
     @Transactional
     public void updateProduct(Long productId, ProductUpdateDTO request) {
         Product existing = productRepository.findById(productId).orElseThrow(
-            () -> new NoSuchElementException(productId + ". deosnt exist!")
+            () -> new NoSuchElementException("Product with id, " + productId + " doesn't exist!")
         );
 
         existing.setSku(request.getSku());
@@ -69,7 +109,6 @@ public class ProductService {
         existing.setCategory(request.getCategory());
         existing.setUnitPrice(request.getUnitPrice());
         existing.setCostPrice(request.getCostPrice());
-        existing.setStockQty(request.getStockQty());
         existing.setReorderLevel(request.getReorderLevel());
         productRepository.save(existing);
     }
@@ -77,7 +116,7 @@ public class ProductService {
     @Transactional
     public void removeProduct(Long productId) {
         Product existing = productRepository.findById(productId).orElseThrow(
-            () -> new NoSuchElementException(productId + ". deosnt exist!")
+            () -> new NoSuchElementException("Product with id, " + productId + " doesn't exist!")
         );
         
         if (!existing.isInactive()) {

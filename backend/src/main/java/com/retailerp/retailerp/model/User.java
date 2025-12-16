@@ -10,13 +10,22 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "USERS")
+@Table(
+    name = "USERS",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "UK_USER_EMAIL",
+            columnNames = "EMAIL"
+        )
+    }
+)
 @NoArgsConstructor
 @Getter
 @Setter
@@ -28,7 +37,7 @@ public class User {
     @Column(name = "USER_ID")
     private Long id;
 
-    @Column(name = "EMAIL", nullable = false, unique = true)
+    @Column(name = "EMAIL", nullable = false)
     private String email;
     
     // TODO: Only got one role, cashier
@@ -38,10 +47,6 @@ public class User {
 
 	@Column(name = "PASSWD_CIPHERTEXT", nullable = false)	
 	private String	cipherText;
-
-	// TODO: No need store JWT token in server
-	// @Column(name = "U_TOKEN_VERSION", nullable = false)
-    // private Integer tokenVersion = 0;  // default version is 0
 
     @CreationTimestamp
     @Column(name = "CREATED_AT", nullable = false, updatable = false)

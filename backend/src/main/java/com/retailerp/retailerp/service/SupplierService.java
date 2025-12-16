@@ -33,11 +33,12 @@ public class SupplierService {
     @Transactional(readOnly = true)
     public SupplierDTO getSupplier(Long supplierId) {
         Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
-            () -> new NoSuchElementException(supplierId + ". deosnt exist!")
+            () -> new NoSuchElementException("Supplier with id, " + supplierId + " doesn't exist!")
         );
         return SupplierDTO.fromEntity(supplier);
     }
 
+    @Transactional
     public SupplierDTO createSupplier(SupplierRequestDTO request) {
         Supplier newSupplier = supplierRepository.save(
             new Supplier(request.getName(), request.getPhone(), request.getEmail(), request.getAddress())
@@ -48,7 +49,7 @@ public class SupplierService {
     @Transactional
     public void updateSupplier(Long supplierId, SupplierRequestDTO request) {
         Supplier existing = supplierRepository.findById(supplierId).orElseThrow(
-            () -> new NoSuchElementException(supplierId + ". deosnt exist!")
+            () -> new NoSuchElementException("Supplier with id, " + supplierId + " doesn't exist!")
         );
 
         existing.setName(request.getName());
@@ -61,7 +62,7 @@ public class SupplierService {
     @Transactional
     public void removeSupplier(Long supplierId) {
         Supplier existing = supplierRepository.findById(supplierId).orElseThrow(
-            () -> new NoSuchElementException(supplierId + ". deosnt exist!")
+            () -> new NoSuchElementException("Supplier with id, " + supplierId + " doesn't exist!")
         );
         
         if (!existing.isInactive()) {

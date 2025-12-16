@@ -43,7 +43,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserDTO getUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(
-            () -> new NoSuchElementException(userId + ". deosnt exist!")
+            () -> new NoSuchElementException("User with id, " + userId + " doesn't exist!")
         );
         return UserDTO.fromEntity(user);
     }
@@ -51,7 +51,7 @@ public class UserService {
     @Transactional
     public void updateUser(Long userId, AuthRequestDTO request) {
         User existing = userRepository.findById(userId).orElseThrow(
-            () -> new NoSuchElementException(userId + ". deosnt exist!")
+            () -> new NoSuchElementException("User with id, " + userId + " doesn't exist!")
         );
 
         String cipherText = passwordEncoder.encode(request.getRawPassword());
@@ -63,7 +63,7 @@ public class UserService {
     @Transactional
     public void removeUser(Long userId) {
         User existing = userRepository.findById(userId).orElseThrow(
-            () -> new NoSuchElementException(userId + ". deosnt exist!")
+            () -> new NoSuchElementException("User with id, " + userId + " doesn't exist!")
         );
         
         if (!existing.isInactive()) {

@@ -15,13 +15,26 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "PRODUCTS")
+@Table(
+    name = "PRODUCTS",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "UK_PRODUCT_SKU",
+            columnNames = "SKU"
+        ),
+        @UniqueConstraint(
+            name = "UK_PRODUCT_NAME",
+            columnNames = "NAME"
+        )
+    }
+)
 @NoArgsConstructor
 @Getter
 @Setter
@@ -37,10 +50,10 @@ public class Product {
 	@JoinColumn(name = "CREATED_BY", referencedColumnName = "USER_ID", nullable = false)
     private User createdBy;
 
-    @Column(name = "SKU", nullable = false, unique = true, length = 50)
+    @Column(name = "SKU", nullable = false, length = 50)
     private String sku;
 
-    @Column(name = "NAME", nullable = false, unique = true, length = 150)
+    @Column(name = "NAME", nullable = false, length = 150)
     private String name;
 
     @Column(name = "CATEGORY", length = 100, nullable = false)

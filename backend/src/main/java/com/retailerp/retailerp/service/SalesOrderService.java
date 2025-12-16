@@ -17,7 +17,6 @@ import com.retailerp.retailerp.model.SalesOrder;
 import com.retailerp.retailerp.model.SalesOrderItem;
 import com.retailerp.retailerp.model.User;
 import com.retailerp.retailerp.repository.CustomerRepository;
-import com.retailerp.retailerp.repository.ProductRepository;
 import com.retailerp.retailerp.repository.SalesOrderRepository;
 import com.retailerp.retailerp.repository.spec.SalesOrderSpec;
 
@@ -28,8 +27,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SalesOrderService {
     
+    private final ProductService productService;
+
     private final SalesOrderRepository salesOrderRepository;
-    private final ProductRepository productRepository;
     private final CustomerRepository customerRepository;
     private final JwtUtil jwtUtil;
 
@@ -43,11 +43,12 @@ public class SalesOrderService {
     @Transactional(readOnly = true)
     public SalesOrderDTO getSalesOrder(Long salesOrderId) {
         SalesOrder salesOrder = salesOrderRepository.findById(salesOrderId).orElseThrow(
-            () -> new NoSuchElementException(salesOrderId + ". deosnt exist!")
+            () -> new NoSuchElementException("Sales order with id, " + salesOrderId + " doesn't exist!")
         );
         return SalesOrderDTO.fromEntity(salesOrder);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public SalesOrderDTO createSalesOrder(SalesOrderCreationDTO request) {
         Customer customer = customerRepository.findById(request.getCustomerId()).orElseThrow(
             () -> new IllegalArgumentException("Customer doesnt exist")
@@ -55,26 +56,28 @@ public class SalesOrderService {
 
         User user = jwtUtil.getAuthenticatedUser();
         
-        SalesOrder newSalesOrder = new SalesOrder();
+        SalesOrder newSalesOrder = new SalesOrder(request.getPaymentMethod());
         newSalesOrder.setCustomer(customer);
         newSalesOrder.setUser(user);
         
-        request.getItems().forEach(itemDTO -> {
-            Product product = productRepository.findById(itemDTO.getProductId()).orElseThrow(
-                () -> new NoSuchElementException(itemDTO.getProductId() + ". deosnt exist!")
-            );
+        newSalesOrder = salesOrderRepository.save(newSalesOrder);
 
-            SalesOrderItem newSalesOrderItem = new SalesOrderItem(itemDTO.getQuantity(), itemDTO.getUnitPrice());
-            newSalesOrderItem.setProduct(product);
-            newSalesOrder.addItem(newSalesOrderItem);
-        }); 
-        return SalesOrderDTO.fromEntity(newSalesOrder);
+        for (var itemDTO : request.getItems()) {
+            Product product = productService.getProductEntity(itemDTO.getProductId());
+
+            productService.checkAndReduceStock(itemDTO.getProductId(), itemDTO.getQuantity());
+
+            SalesOrderItem newItem = new SalesOrderItem(itemDTO.getQuantity(), product.getUnitPrice());
+            newItem.setProduct(product);
+            newSalesOrder.addItem(newItem);
+        }
+        return SalesOrderDTO.fromEntity(salesOrderRepository.save(newSalesOrder));
     }
 
     @Transactional
     public void removeSalesOrder(Long salesOrderId) {
         salesOrderRepository.findById(salesOrderId).orElseThrow(
-            () -> new NoSuchElementException(salesOrderId + ". deosnt exist!")
+            () -> new NoSuchElementException("Sales order with id, " + salesOrderId + " doesn't exist!")
         );
         salesOrderRepository.deleteById(salesOrderId);
     }

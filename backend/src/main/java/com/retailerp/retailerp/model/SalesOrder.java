@@ -2,6 +2,7 @@ package com.retailerp.retailerp.model;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -44,7 +45,7 @@ public class SalesOrder {
     private Customer customer;
 
     @Column(name = "TOTAL_AMOUNT", nullable = false, precision = 12, scale = 2)
-    private BigDecimal totalAmount;
+    private BigDecimal totalAmount = BigDecimal.ZERO;
 
     @Column(name = "PAYMENT_METHOD", nullable = false, length = 20)
     private String paymentMethod;
@@ -54,16 +55,16 @@ public class SalesOrder {
     private OffsetDateTime createdAt;
 
     @OneToMany(mappedBy = "salesOrder", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SalesOrderItem> items;
+    private List<SalesOrderItem> items = new ArrayList<>();
     
     // Require calling setUser() setCustomer() addItem()
-    public SalesOrder(BigDecimal totalAmount, String paymentMethod) {
-        this.totalAmount = totalAmount;
+    public SalesOrder(String paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
 
     public void addItem(SalesOrderItem item) {
         this.items.add(item);
         item.setSalesOrder(this);
+        this.totalAmount = this.totalAmount.add(item.getSubtotal());
     }
 }

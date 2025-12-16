@@ -14,9 +14,6 @@ public class PurchaseOrderCreationDTO {
     private Long supplierId;
 
     @NotNull
-    private Long userId;
-
-    @NotNull
     @NotEmpty
     @Valid
     private List<PurchaseOrderItemCreationDTO> items;

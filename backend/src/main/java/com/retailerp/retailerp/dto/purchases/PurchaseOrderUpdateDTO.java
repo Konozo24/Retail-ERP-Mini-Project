@@ -1,14 +1,14 @@
 package com.retailerp.retailerp.dto.purchases;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import com.retailerp.retailerp.enums.PurchaseOrderStatus;
+
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
 public class PurchaseOrderUpdateDTO {
     
-    @NotBlank
-    @Size(max = 20)
-    private String status;
+    @NotNull
+    private PurchaseOrderStatus status;
 
 }

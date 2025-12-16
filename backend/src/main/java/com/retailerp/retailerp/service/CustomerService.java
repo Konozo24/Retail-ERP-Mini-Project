@@ -33,11 +33,12 @@ public class CustomerService {
     @Transactional(readOnly = true)
     public CustomerDTO getCustomer(Long customerId) {
         Customer customer = customerRepository.findById(customerId).orElseThrow(
-            () -> new NoSuchElementException(customerId + ". deosnt exist!")
+            () -> new NoSuchElementException("Customer with id, " + customerId + " doesn't exist!")
         );
         return CustomerDTO.fromEntity(customer);
     }
 
+    @Transactional
     public CustomerDTO createCustomer(CustomerRequestDTO request) {
         Customer newCustomer = customerRepository.save(
             new Customer(request.getName(), request.getPhone(), request.getEmail())
@@ -48,7 +49,7 @@ public class CustomerService {
     @Transactional
     public void updateCustomer(Long customerId, CustomerRequestDTO request) {
         Customer existing = customerRepository.findById(customerId).orElseThrow(
-            () -> new NoSuchElementException(customerId + ". deosnt exist!")
+            () -> new NoSuchElementException("Customer with id, " + customerId + " doesn't exist!")
         );
 
         existing.setName(request.getName());
@@ -60,7 +61,7 @@ public class CustomerService {
     @Transactional
     public void removeCustomer(Long customerId) {
         Customer existing = customerRepository.findById(customerId).orElseThrow(
-            () -> new NoSuchElementException(customerId + ". deosnt exist!")
+            () -> new NoSuchElementException("Customer with id, " + customerId + " doesn't exist!")
         );
         
         if (!existing.isInactive()) {
