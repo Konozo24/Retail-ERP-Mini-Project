@@ -14,7 +14,8 @@ const DataTable = ({
     totalPages = 1,
     onPageChange = () => { },
     itemsPerPage = 10,
-    onItemsPerPageChange = () => { }
+    onItemsPerPageChange = () => { },
+    isLoading = false
 }) => {
     return (
         <div className="w-full bg-card rounded-lg border border-border overflow-hidden shadow-sm flex flex-col">
@@ -44,25 +45,29 @@ const DataTable = ({
 
                     {/* --- TABLE BODY --- */}
                     <tbody className="divide-y divide-border">
-                        {data.length > 0 ? (
+                        {isLoading ? (
+                            <tr>
+                                <td
+                                    colSpan={columns.length + (showNumber ? 1 : 0) + (actions ? 1 : 0)}
+                                    className="p-8 text-center text-muted-foreground"
+                                >
+                                    Loading data...
+                                </td>
+                            </tr>
+                        ) : data.length > 0 ? (
                             data.map((row, rowIndex) => (
                                 <tr key={rowIndex} className="hover:bg-muted/20 transition-colors group">
 
                                     {/* Number Column Cell */}
                                     {showNumber && (
                                         <td className="p-4 text-muted-foreground font-medium">
-                                            {/* Calculate global row number: (Page-1) * Limit + Index + 1 */}
                                             {(currentPage - 1) * itemsPerPage + rowIndex + 1}
                                         </td>
                                     )}
 
                                     {columns.map((col, colIndex) => (
                                         <td key={colIndex} className="p-4 align-middle text-foreground">
-                                            {col.render ? (
-                                                col.render(row)
-                                            ) : (
-                                                <span className="text-foreground/90">{row[col.accessor]}</span>
-                                            )}
+                                            {col.render ? col.render(row) : <span className="text-foreground/90">{row[col.accessor]}</span>}
                                         </td>
                                     ))}
 
@@ -93,9 +98,11 @@ const DataTable = ({
                                 </tr>
                             ))
                         ) : (
-                            // Empty State
                             <tr>
-                                <td colSpan={columns.length + (showNumber ? 1 : 0) + (actions ? 1 : 0)} className="p-8 text-center text-muted-foreground">
+                                <td
+                                    colSpan={columns.length + (showNumber ? 1 : 0) + (actions ? 1 : 0)}
+                                    className="p-8 text-center text-muted-foreground"
+                                >
                                     No data found.
                                 </td>
                             </tr>
