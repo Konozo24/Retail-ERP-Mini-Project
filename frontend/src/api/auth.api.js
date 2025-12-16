@@ -10,6 +10,17 @@ export function useLoginUser() {
   });
 }
 
+// LOGOUT USER (POST /auth/logout)
+export function useLogoutUser() {
+  return useMutation({
+    mutationFn: () => API.post('/auth/logout'),
+    onSuccess: () => {
+      localStorage.removeItem('access_token');
+      // optionally, reset React Query cache or redirect user
+    },
+  });
+}
+
 // REGISTER USER (POST /users/register)
 // export function useRegisterUser() {
 //   const qc = useQueryClient();

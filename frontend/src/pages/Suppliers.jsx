@@ -1,20 +1,28 @@
 import React, { useState } from "react";
+import { useDebounce } from 'use-debounce';
 import { useNavigate } from "react-router-dom";
 import DataTable from "../components/ui/DataTable";
 import DeleteModal from "../components/ui/DeleteModal"; // Import Delete Modal
 import Toast from "../components/ui/Toast"; // Import Toast
 import { Plus, Search } from "lucide-react";
-import { suppliersData as initialData } from "../data/mockData";
+import { useGetSuppliersPage, useDeleteSupplier } from "../api/suppliers.api";
 
 const Suppliers = () => {
     const navigate = useNavigate();
-
+    
     // --- STATE ---
-    const [suppliers, setSuppliers] = useState(initialData);
     const [searchQuery, setSearchQuery] = useState("");
+    const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
+
+    // --- DATA ---
+    const {data: suppliersPage, isLoading} = useGetSuppliersPage(debouncedSearchQuery, currentPage - 1, itemsPerPage);
+    const suppliers = suppliersPage?.content ?? [];
+
+    // --- DATA MUTATIONS ---
+    const {mutateAsync: deleteSupplier} = useDeleteSupplier();
 
     // --- NEW: Modal & Toast State ---
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -30,13 +38,18 @@ const Suppliers = () => {
     };
 
     // 2. Confirm Delete Action (Executes deletion)
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         if (supplierToDelete) {
-            setSuppliers(suppliers.filter((item) => item.id !== supplierToDelete.id));
-            showToast(`Deleted ${supplierToDelete.name} successfully.`, "success");
-            setSupplierToDelete(null);
+            try {
+                await deleteSupplier(supplierToDelete.id);
+                showToast(`Deleted ${supplierToDelete.name} successfully.`, "success");
+                setSupplierToDelete(null);
+            } catch (error) {
+                showToast("Failed to delete supplier.", "error");
+            }
         }
     };
+
 
     // 3. Helper for Toast
     const showToast = (message, type) => {
@@ -47,36 +60,26 @@ const Suppliers = () => {
         navigate("/create-supplier", { state: { supplierToEdit: row } });
     };
 
-    // --- FILTERING ---
-    const filteredSuppliers = suppliers.filter((item) => {
-        const matchesSearch =
-            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.email.toLowerCase().includes(searchQuery.toLowerCase());
-
-        return matchesSearch;
-    });
-
     // --- PAGINATION ---
-    const totalPages = Math.ceil(filteredSuppliers.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentData = filteredSuppliers.slice(startIndex, startIndex + itemsPerPage);
+    const totalPages = suppliersPage?.totalPages ?? 0;
 
     // --- COLUMNS ---
     const columns = [
         {
             header: "Supplier",
             accessor: "name",
+            sortable: true,
             render: (row) => (
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-md border border-border overflow-hidden shrink-0 bg-muted flex items-center justify-center">
-                        <img src={row.image} alt={row.name} className="w-full h-full object-cover" />
+                        <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(row.name)}&background=random`} alt={row.name} className="w-full h-full object-cover" />
                     </div>
                     <span className="font-medium text-foreground">{row.name}</span>
                 </div>
             )
         },
         { header: "Phone", accessor: "phone" },
-        { header: "Email", accessor: "email" },
+        { header: "Email", accessor: "email", sortable: true, },
         { header: "Address", accessor: "address" },
     ];
 
@@ -139,7 +142,8 @@ const Suppliers = () => {
             {/* Table */}
             <DataTable
                 columns={columns}
-                data={currentData}
+                data={suppliers}
+                isLoading={isLoading}
                 showNumber={true}
                 onEdit={handleEdit}
                 onDelete={handleDeleteClick} // Pass the new handler logic
