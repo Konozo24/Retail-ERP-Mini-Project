@@ -8,11 +8,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import com.retailerp.retailerp.auth.JwtUtil;
 import com.retailerp.retailerp.auth.UnauthorizedException;
@@ -24,7 +22,6 @@ import com.retailerp.retailerp.repository.UserRepository;
 import com.retailerp.retailerp.repository.spec.UserSpec;
 
 import jakarta.persistence.EntityExistsException;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 

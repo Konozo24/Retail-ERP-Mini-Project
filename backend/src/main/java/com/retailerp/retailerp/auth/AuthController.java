@@ -14,7 +14,6 @@ import com.retailerp.retailerp.dto.auth.AuthResponseDTO;
 import com.retailerp.retailerp.service.UserService;
 
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
