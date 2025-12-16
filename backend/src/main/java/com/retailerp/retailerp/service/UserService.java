@@ -7,11 +7,15 @@ import javax.security.auth.login.LoginException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import com.retailerp.retailerp.auth.JwtUtil;
+import com.retailerp.retailerp.auth.UnauthorizedException;
 import com.retailerp.retailerp.dto.auth.AuthRequestDTO;
 import com.retailerp.retailerp.dto.auth.AuthResponseDTO;
 import com.retailerp.retailerp.dto.user.UserDTO;
@@ -20,6 +24,8 @@ import com.retailerp.retailerp.repository.UserRepository;
 import com.retailerp.retailerp.repository.spec.UserSpec;
 
 import jakarta.persistence.EntityExistsException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -68,14 +74,26 @@ public class UserService {
     //--------------------------------------------------
     //| USER AUTH SECTION
     //--------------------------------------------------
-    public AuthResponseDTO loginUser(AuthRequestDTO request) throws LoginException {
+    @Transactional(readOnly = true)
+    public AuthResponseDTO loginUser(AuthRequestDTO request, HttpServletResponse response) throws LoginException {
         User user = userRepository.findByEmail(request.getEmail())
             .orElseThrow(() -> new LoginException("Invalid login credentials"));
 
         if (passwordEncoder.matches(request.getRawPassword(), user.getCipherText())) {
-            String token = jwtUtil.generateToken(user.getId());
+            String accessToken = jwtUtil.generateAccessToken(user.getId());
+            String refreshToken = jwtUtil.generateRefreshToken(user.getId());
+
+             ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true) // set false for local dev if not https, !isLocalEnvironment()
+                .path("/auth")
+                .maxAge(7 * 24 * 60 * 60) // 7 days
+                .sameSite("Strict")
+                .build();
+            response.addHeader("Set-Cookie", cookie.toString());
+
             return AuthResponseDTO.builder()
-                .access_token(token)
+                .access_token(accessToken)
                 .message("Login successful")
                 .build();
         } else {
@@ -83,6 +101,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public AuthResponseDTO registerUser(AuthRequestDTO request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new EntityExistsException("Email already been registered before");
@@ -93,11 +112,46 @@ public class UserService {
             new User(request.getEmail(), cipherText)
         );
 
-        String token = jwtUtil.generateToken(newUser.getId());
+        String token = jwtUtil.generateAccessToken(newUser.getId());
 
         return AuthResponseDTO.builder()
             .access_token(token)
             .message("User registration successful!")
             .build();
     }
+
+    @Transactional(readOnly = true)
+    public void logoutUser(HttpServletResponse response) {
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
+            .httpOnly(true)
+            .secure(true)
+            .path("/auth")
+            .maxAge(0)
+            .build();
+        response.addHeader("Set-Cookie", cookie.toString());
+    }
+
+    @Transactional(readOnly = true)
+    public AuthResponseDTO refreshUserToken(String refreshToken) {
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            throw new UnauthorizedException("Refresh token missing");
+        }
+
+        if (!jwtUtil.validateToken(refreshToken)) {
+            throw new UnauthorizedException("Invalid refresh token");
+        }
+
+        Long userId = jwtUtil.extractUserId(refreshToken);
+
+        userRepository.findById(userId)
+                .orElseThrow(() -> new UnauthorizedException("User not found"));
+
+        String newAccessToken = jwtUtil.generateAccessToken(userId);
+
+        return AuthResponseDTO.builder()
+                .access_token(newAccessToken)
+                .message("Token refreshed")
+                .build();
+        }
+
 }
