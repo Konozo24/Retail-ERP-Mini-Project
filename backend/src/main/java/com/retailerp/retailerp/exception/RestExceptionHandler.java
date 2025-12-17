@@ -106,7 +106,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<String> handleUniqueConstraint(DataIntegrityViolationException ex) {
+    public ResponseEntity<Map<String, String>> handleUniqueConstraint(DataIntegrityViolationException ex) {
         String errMsg = ex.getRootCause() != null ? ex.getRootCause().getMessage() : ex.getMessage();
 
         System.out.println("\n\n\n" + errMsg + "\n\n\n");
@@ -125,7 +125,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         String message = String.format(
                 "The %s, %s is already used by another %s",
                 columnName, fieldValue, tableName);
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(message);
+
+        Map<String, String> error = new HashMap<>();
+        error.put(columnName, message);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     @ExceptionHandler(NoSuchElementException.class)
