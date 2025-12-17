@@ -2,9 +2,20 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Upload, RefreshCw, ChevronDown, PlusCircle } from "lucide-react";
 
+import {
+  useCreateProduct,
+  useUpdateProduct,
+  useGetCategories,
+} from "../api/products.api";
+import Toast from "../components/ui/Toast";
+
 const CreateProduct = () => {
     const navigate = useNavigate();
     const location = useLocation();
+
+    const {mutateAsync: createProduct} = useCreateProduct();
+    const {mutateAsync: updateProduct} = useUpdateProduct();
+    const { data: categoriesData, isLoading: categoriesLoading } = useGetCategories();
 
     // 1. Check if we are in "Edit Mode" (data passed from Products table)
     const productToEdit = location.state?.productToEdit;
@@ -15,12 +26,16 @@ const CreateProduct = () => {
         name: "",
         sku: "",
         category: "",
-        price: "",
-        quantity: "",
+        unitPrice: "",
+        costPrice: "",
+        reorderLevel: "",
         description: "",
         image: null,
         imagePreview: null
     });
+
+    // 3. Toast State
+    const [toast, setToast] = useState(null);
 
     // 3. Populate form if Editing
     useEffect(() => {
@@ -29,8 +44,9 @@ const CreateProduct = () => {
                 name: productToEdit.name || "",
                 sku: productToEdit.sku || "",
                 category: productToEdit.category || "",
-                price: productToEdit.unit_price ? productToEdit.unit_price.toString().replace(/[^0-9.]/g, '') : "", // Remove 'RM' if present
-                quantity: productToEdit.stock_qty || "",
+                unitPrice: productToEdit.unitPrice ? productToEdit.unitPrice.toString().replace(/[^0-9.]/g, '') : "",
+                costPrice: productToEdit.costPrice ? productToEdit.costPrice.toString().replace(/[^0-9.]/g, '') : "",
+                reorderLevel: productToEdit.reorderLevel || "",
                 description: "", // ERD didn't have description, keeping empty
                 image: productToEdit.image || null,
                 imagePreview: productToEdit.image || null
@@ -48,25 +64,94 @@ const CreateProduct = () => {
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setFormData(prev => ({
-                ...prev,
-                image: file,
-                imagePreview: URL.createObjectURL(file)
-            }));
+            // Validate file size (limit to 5MB)
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            if (file.size > maxSize) {
+                setToast({ message: "Image size must be less than 5MB", type: "error" });
+                return;
+            }
+
+            // Convert to Base64
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                setFormData(prev => ({
+                    ...prev,
+                    image: event.target.result, // Base64 string
+                    imagePreview: event.target.result
+                }));
+            };
+            reader.onerror = () => {
+                setToast({ message: "Failed to read image file", type: "error" });
+            };
+            reader.readAsDataURL(file);
         }
     };
 
     const generateSKU = () => {
-        const randomSku = "APL-" + Math.floor(100 + Math.random() * 900);
-        setFormData(prev => ({ ...prev, sku: randomSku }));
+        // Generate SKU based on category
+        const categoryPrefix = {
+            'Smartphone': 'SMRT',
+            'Tablet': 'TAB',
+            'Laptop': 'LAP',
+            'Desktop': 'DESK',
+            'Wearable': 'WEAR',
+            'Audio': 'AUD'
+        };
+        
+        const prefix = categoryPrefix[formData.category] || 'PROD';
+        const randomNum = Math.floor(1000 + Math.random() * 9000); // 4 digit number
+        const randomSuffix = Math.random().toString(36).substring(2, 5).toUpperCase(); // 3 random chars
+        
+        const generatedSku = `${prefix}${randomNum}-${randomSuffix}`;
+        setFormData(prev => ({ ...prev, sku: generatedSku }));
     };
 
-    const handleSubmit = (e) => {
+    const handleAddCategory = () => {
+        if (newCategory.trim()) {
+            setFormData(prev => ({ ...prev, category: newCategory.trim() }));
+            setShowCategoryModal(false);
+            setToast({ message: `Category "${newCategory}" selected`, type: "success" });
+            setNewCategory("");
+        }
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Here you would typically send data to backend
-        console.log("Submitting Form Data:", formData);
-        alert(isEditMode ? "Product Updated Successfully!" : "Product Created Successfully!");
-        navigate("/products");
+
+        // Validate form data
+        if (!formData.name || !formData.sku || !formData.category || !formData.unitPrice || !formData.costPrice || !formData.reorderLevel) {
+            setToast({ message: "Please fill in all required fields", type: "error" });
+            return;
+        }
+
+        const payload = {
+            name: formData.name.trim(),
+            sku: formData.sku.trim(),
+            category: formData.category.trim(),
+            unitPrice: parseFloat(formData.unitPrice),
+            costPrice: parseFloat(formData.costPrice),
+            reorderLevel: Math.max(0, parseInt(formData.reorderLevel) || 0),
+            image: formData.image || null, // Base64 image or null
+        };
+        
+        try {
+            console.log("Submitting Form Data:", payload);
+            if (isEditMode) {
+                await updateProduct({
+                    productId: productToEdit.id,
+                    payload: payload
+                });
+                setToast({ message: "Product Updated Successfully!", type: "success" });
+            } else {
+                await createProduct(payload);
+                setToast({ message: "Product Created Successfully!", type: "success" });
+            }
+            setTimeout(() => navigate("/products"), 1500);
+        } catch (err) {
+            const errorMsg = err?.response?.data?.message || err?.message || 'Failed to save product';
+            console.error("Error:", errorMsg);
+            setToast({ message: errorMsg, type: "error" });
+        }
     };
 
     return (
@@ -149,7 +234,10 @@ const CreateProduct = () => {
                                 <span className="flex items-center gap-1">
                                     Category <span className="text-destructive">*</span>
                                 </span>
-                                <span className="text-accent text-xs cursor-pointer flex items-center gap-1 hover:underline">
+                                <span 
+                                    onClick={() => navigate("/category")}
+                                    className="text-accent text-xs cursor-pointer flex items-center gap-1 hover:underline"
+                                >
                                     <PlusCircle className="w-3 h-3" /> Add New
                                 </span>
                             </label>
@@ -159,13 +247,14 @@ const CreateProduct = () => {
                                 onChange={handleChange}
                                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                                 required
+                                disabled={categoriesLoading}
                             >
-                                <option value="">Choose Category</option>
-                                <option value="Phone">Phone</option>
-                                <option value="Laptop">Laptop</option>
-                                <option value="Tablet">Tablet</option>
-                                <option value="Wearable">Wearable</option>
-                                <option value="Audio">Audio</option>
+                                <option value="">{categoriesLoading ? "Loading categories..." : "Choose Category"}</option>
+                                {categoriesData?.map((category) => (
+                                    <option key={category} value={category}>
+                                        {category}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     </div>
@@ -179,33 +268,51 @@ const CreateProduct = () => {
                     </div>
 
                     <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Quantity */}
+                        {/* Unit Price */}
                         <div className="space-y-2">
                             <label className="text-sm font-medium leading-none">
-                                Quantity <span className="text-destructive">*</span>
+                                Unit Price <span className="text-destructive">*</span>
                             </label>
                             <input
                                 type="number"
-                                name="quantity"
-                                value={formData.quantity}
+                                step="0.01"
+                                name="unitPrice"
+                                value={formData.unitPrice}
                                 onChange={handleChange}
-                                placeholder="Enter Stock Qty"
+                                placeholder="Enter Unit Price"
                                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                                 required
                             />
                         </div>
 
-                        {/* Price */}
+                        {/* Cost Price */}
                         <div className="space-y-2">
                             <label className="text-sm font-medium leading-none">
-                                Price <span className="text-destructive">*</span>
+                                Cost Price <span className="text-destructive">*</span>
                             </label>
                             <input
                                 type="number"
-                                name="price"
-                                value={formData.price}
+                                step="0.01"
+                                name="costPrice"
+                                value={formData.costPrice}
                                 onChange={handleChange}
-                                placeholder="Enter Unit Price"
+                                placeholder="Enter Cost Price"
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                                required
+                            />
+                        </div>
+
+                        {/* Reorder Level */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium leading-none">
+                                Reorder Level <span className="text-destructive">*</span>
+                            </label>
+                            <input
+                                type="number"
+                                name="reorderLevel"
+                                value={formData.reorderLevel}
+                                onChange={handleChange}
+                                placeholder="Enter Reorder Level"
                                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                                 required
                             />
@@ -281,6 +388,16 @@ const CreateProduct = () => {
                 </div>
 
             </form>
+
+            {/* Category Modal - REMOVED, use dedicated Category page instead */}
+            {/* Toast Notification */}
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
+            )}
         </div>
     );
 };

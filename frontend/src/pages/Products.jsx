@@ -7,6 +7,20 @@ import { Plus, Search, Filter, ImageOff } from "lucide-react";
 import { useDebounce } from "use-debounce";
 import { useDeleteProduct, useGetProductsPage, useGetCategories } from "../api/products.api";
 
+// Category Placeholder Images - Professional Unsplash URLs
+const CATEGORY_DEFAULTS = {
+    "Smartphone": "/images/smartphone.jpg",
+    "Tablet":     "/images/tablet.jpg",
+    "Laptop":     "/images/laptop.jpg",
+    "Desktop":    "/images/desktop.jpg",
+    "Wearable":   "/images/wearable.jpg",
+    "Audio":      "/images/audio.jpg",
+};
+
+
+// Generic fallback image
+const DEFAULT_IMAGE = "/images/default.jpg";
+
 const Products = () => {
     const navigate = useNavigate();
 
@@ -67,6 +81,17 @@ const Products = () => {
         setToast({ message, type });
     };
 
+    // Get image with fallback strategy:
+    // 1. Use user-uploaded image if available
+    // 2. Use category default placeholder if available
+    // 3. Use generic default image
+    const getImageUrl = (row) => {
+        if (row.image) {
+            return row.image; // User uploaded specific image
+        }
+        return CATEGORY_DEFAULTS[row.category] || DEFAULT_IMAGE;
+    };
+
     const handleEdit = (row) => {
         navigate("/create-product", { state: { productToEdit: row } });
     };
@@ -83,18 +108,26 @@ const Products = () => {
             accessor: "name",
             render: (row) => (
                 <div className="flex items-center gap-3">
-                    {/* PRODUCT IMAGE - Placeholder */}
-                    <div className="w-10 h-10 rounded-md border border-border overflow-hidden shrink-0 flex items-center justify-center bg-muted">
-                        {row.image ? (
-                            <img
-                                src={row.image}
-                                alt={row.name}
-                                className="w-full h-full object-cover"
-                            />
-                        ) : (
-                            // Use a subtle icon for missing product images
-                            <ImageOff className="w-5 h-5 text-muted-foreground/50" />
-                        )}
+                    {/* PRODUCT IMAGE with fallback */}
+                    <div className="relative w-10 h-10 rounded-md border border-border overflow-hidden shrink-0 bg-muted">
+                        <img
+                            src={getImageUrl(row)}
+                            alt={row.name}
+                            className="absolute inset-0 w-full h-full object-cover"
+                            onError={(e) => {
+                                e.currentTarget.classList.add('hidden');
+                                const fallback = e.currentTarget.parentElement?.querySelector('.img-fallback-icon');
+                                if (fallback) fallback.classList.remove('hidden');
+                            }}
+                            onLoad={(e) => {
+                                // Ensure fallback icon stays hidden when image loads (even for default placeholders)
+                                const fallback = e.currentTarget.parentElement?.querySelector('.img-fallback-icon');
+                                if (fallback) fallback.classList.add('hidden');
+                            }}
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <ImageOff className="img-fallback-icon w-5 h-5 text-muted-foreground/50 hidden" />
+                        </div>
                     </div>
                     <span className="font-medium text-foreground">{row.name}</span>
                 </div>

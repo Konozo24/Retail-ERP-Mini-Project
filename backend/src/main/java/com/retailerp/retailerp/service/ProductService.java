@@ -91,16 +91,17 @@ public class ProductService {
 
     @Transactional
     public ProductDTO createProduct(ProductCreationDTO request) {
-        Product newProduct = productRepository.save(
-                new Product(
-                        request.getSku(),
-                        request.getName(),
-                        request.getCategory(),
-                        request.getUnitPrice(),
-                        request.getCostPrice(),
-                        request.getReorderLevel()));
         User createdBy = jwtUtil.getAuthenticatedUser();
+        Product newProduct = new Product(
+                request.getSku(),
+                request.getName(),
+                request.getCategory(),
+                request.getUnitPrice(),
+                request.getCostPrice(),
+                request.getReorderLevel());
         newProduct.setCreatedBy(createdBy);
+        newProduct.setImage(request.getImage());
+        productRepository.save(newProduct);
         return ProductDTO.fromEntity(newProduct);
     }
 
@@ -115,6 +116,7 @@ public class ProductService {
         existing.setUnitPrice(request.getUnitPrice());
         existing.setCostPrice(request.getCostPrice());
         existing.setReorderLevel(request.getReorderLevel());
+        existing.setImage(request.getImage());
         productRepository.save(existing);
     }
 
