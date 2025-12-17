@@ -21,6 +21,7 @@ public class ProductDTO {
     private BigDecimal costPrice;
     private Integer stockQty;
     private Integer reorderLevel;
+    private String image;
     private OffsetDateTime createdAt;
  
     public static ProductDTO fromEntity(Product product) {
@@ -34,6 +35,7 @@ public class ProductDTO {
             .costPrice(product.getCostPrice())
             .stockQty(product.getStockQty())
             .reorderLevel(product.getReorderLevel())
+            .image(product.getImage())
             .createdAt(product.getCreatedAt())
             .build();
     }

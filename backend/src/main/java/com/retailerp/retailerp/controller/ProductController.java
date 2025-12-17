@@ -1,6 +1,7 @@
 package com.retailerp.retailerp.controller;
 
 import java.net.URI;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,12 +37,19 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<Page<ProductDTO>> getProducts(
         @RequestParam(defaultValue = "") String search,
+        @RequestParam(required = false) String category,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ProductDTO> dtoPage = productService.getProducts(search, pageable);
+        Page<ProductDTO> dtoPage = productService.getProducts(search, category, pageable);
         return ResponseEntity.ok(dtoPage);
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<List<String>> getCategories() {
+        List<String> categories = productService.getCategories();
+        return ResponseEntity.ok(categories);
     }
 
     @GetMapping("/{productId}")

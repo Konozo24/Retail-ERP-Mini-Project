@@ -2,6 +2,7 @@ package com.retailerp.retailerp.dto.product;
 
 import java.math.BigDecimal;
 
+import io.micrometer.common.lang.Nullable;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -34,5 +35,9 @@ public class ProductCreationDTO {
     @NotNull
     @Min(0)
     private Integer reorderLevel;
+
+    // Base64 encoded image (optional)
+    @Nullable
+    private String image;
     
 }

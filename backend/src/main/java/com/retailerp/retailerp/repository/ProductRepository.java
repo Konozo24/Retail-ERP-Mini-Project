@@ -17,6 +17,10 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @Query("SELECT p FROM Product p WHERE p.stockQty <= p.reorderLevel")
     List<Product> findLowStockProducts();
 
+    // Find all distinct product categories
+    @Query("SELECT DISTINCT p.category FROM Product p WHERE p.category IS NOT NULL")
+    List<String> findAllCategories();
+
     // Search products by SKU (Exact match)
     Optional<Product> findBySku(String sku);
 

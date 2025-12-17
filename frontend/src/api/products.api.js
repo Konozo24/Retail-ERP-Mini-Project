@@ -2,18 +2,27 @@ import API from "./api";
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 
 // GET ALL PRODUCTS (GET /products)
-export function useGetProductsPage(searchQuery, pageNum, pageSize) {
+export function useGetProductsPage(searchQuery, pageNum, pageSize, category) {
   return useQuery({
-    queryKey: ['products', searchQuery, pageNum, pageSize],
+    queryKey: ['products', searchQuery, pageNum, pageSize, category],
     queryFn: () => API.get(`/products`, {
         params: {
             search: searchQuery,
             page: pageNum,
             size: pageSize,
+            category: category === "All" ? undefined : category
         }
     }),
     placeholderData: keepPreviousData
   });
+}
+
+export function useGetCategories() {
+    return useQuery({
+        queryKey: ['categories'],
+        queryFn: () => API.get(`/products/categories`), // Adjust URL if your endpoint is different (e.g., /categories)
+        staleTime: 1000 * 60 * 5, // Cache categories for 5 minutes (they don't change often)
+    });
 }
 
 // GET PRODUCT BY ID (GET /products/{productId})
@@ -33,6 +42,7 @@ export function useCreateProduct() {
     onSuccess: () =>{
         qc.invalidateQueries({ queryKey: ['dashboard'] });
         qc.invalidateQueries({ queryKey: ['products'] });
+        qc.invalidateQueries({ queryKey: ['categories'] }); // Refetch categories in case a new one was created
     },
   });
 }
@@ -46,6 +56,7 @@ export function useUpdateProduct() {
         qc.invalidateQueries({ queryKey: ['dashboard'] });
         qc.invalidateQueries({ queryKey: ['products'] });
         qc.invalidateQueries({ queryKey: ['product', productId] });
+        qc.invalidateQueries({ queryKey: ['categories'] });
     },
   });
 }
@@ -59,6 +70,7 @@ export function useDeleteProduct() {
         qc.invalidateQueries({ queryKey: ['dashboard'] })
         qc.invalidateQueries({ queryKey: ['products'] });
         qc.invalidateQueries({ queryKey: ['product', productId] });
+        qc.invalidateQueries({ queryKey: ['categories'] });
     },
   });
 }

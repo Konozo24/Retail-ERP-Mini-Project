@@ -3,19 +3,52 @@ import { useNavigate } from "react-router-dom";
 import DataTable from "../components/ui/DataTable";
 import DeleteModal from "../components/ui/DeleteModal"; // Import Delete Modal
 import Toast from "../components/ui/Toast"; // Import Toast
-import { Plus, Search, Filter } from "lucide-react";
-import { productsData as initialData } from "../data/mockData";
+import { Plus, Search, Filter, ImageOff } from "lucide-react";
+import { useDebounce } from "use-debounce";
+import { useDeleteProduct, useGetProductsPage, useGetCategories } from "../api/products.api";
+
+// Category Placeholder Images - Professional Unsplash URLs
+const CATEGORY_DEFAULTS = {
+    "Smartphone": "/images/smartphone.jpg",
+    "Tablet":     "/images/tablet.jpg",
+    "Laptop":     "/images/laptop.jpg",
+    "Desktop":    "/images/desktop.jpg",
+    "Wearable":   "/images/wearable.jpg",
+    "Audio":      "/images/audio.jpg",
+};
+
+
+// Generic fallback image
+const DEFAULT_IMAGE = "/images/default.jpg";
 
 const Products = () => {
     const navigate = useNavigate();
 
-    // --- STATE ---
-    const [products, setProducts] = useState(initialData);
+    // STATE
     const [searchQuery, setSearchQuery] = useState("");
+    const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
+
     const [selectedCategory, setSelectedCategory] = useState("All");
 
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
+
+    // Data
+    // Fetch Categories dynamically
+    const { data: categoriesData } = useGetCategories();
+    const categories = ["All", ...(categoriesData || [])];
+
+    // Fetch Products (Pass selectedCategory)
+    const { data: productsPage, isLoading } = useGetProductsPage(
+        debouncedSearchQuery,
+        currentPage - 1,
+        itemsPerPage,
+        selectedCategory
+    );
+    const products = productsPage?.content ?? [];
+
+    // Data Mutations
+    const { mutateAsync: deleteProduct } = useDeleteProduct();
 
     // --- NEW: Modal & Toast State ---
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -24,48 +57,48 @@ const Products = () => {
 
     // --- HANDLERS ---
 
-    // 1. Trigger Delete Modal (Replaces window.confirm)
+    // Trigger Delete Modal (Replaces window.confirm)
     const handleDeleteClick = (row) => {
         setProductToDelete(row);
         setIsDeleteModalOpen(true);
     };
 
-    // 2. Confirm Delete Action (Executes deletion)
-    const confirmDelete = () => {
+    // Confirm Delete Action (Executes deletion)
+    const confirmDelete = async () => {
         if (productToDelete) {
-            setProducts(products.filter((item) => item.id !== productToDelete.id));
-            showToast(`Deleted ${productToDelete.name} successfully.`, "success");
-            setProductToDelete(null);
+            try {
+                await deleteProduct(productToDelete.id);
+                showToast(`Deleted ${productToDelete.name} successfully.`, "success");
+                setProductToDelete(null);
+            } catch (error) {
+                showToast("Failed to delete product.", "error");
+            }
         }
     };
 
-    // 3. Helper for Toast
+    // Helper for Toast
     const showToast = (message, type) => {
         setToast({ message, type });
+    };
+
+    // Get image with fallback strategy:
+    // 1. Use user-uploaded image if available
+    // 2. Use category default placeholder if available
+    // 3. Use generic default image
+    const getImageUrl = (row) => {
+        if (row.image) {
+            return row.image; // User uploaded specific image
+        }
+        return CATEGORY_DEFAULTS[row.category] || DEFAULT_IMAGE;
     };
 
     const handleEdit = (row) => {
         navigate("/create-product", { state: { productToEdit: row } });
     };
 
-    // --- FILTERING ---
-    const categories = ["All", ...new Set(initialData.map(item => item.category))];
-
-    const filteredProducts = products.filter((item) => {
-        const matchesSearch =
-            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.sku.toLowerCase().includes(searchQuery.toLowerCase());
-
-        const matchesCategory =
-            selectedCategory === "All" || item.category === selectedCategory;
-
-        return matchesSearch && matchesCategory;
-    });
 
     // --- PAGINATION ---
-    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentData = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
+    const totalPages = productsPage?.totalPages ?? 0;
 
     // --- COLUMNS ---
     const columns = [
@@ -75,8 +108,26 @@ const Products = () => {
             accessor: "name",
             render: (row) => (
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-md border border-border overflow-hidden shrink-0 bg-muted flex items-center justify-center">
-                        <img src={row.image} alt={row.name} className="w-full h-full object-cover" />
+                    {/* PRODUCT IMAGE with fallback */}
+                    <div className="relative w-10 h-10 rounded-md border border-border overflow-hidden shrink-0 bg-muted">
+                        <img
+                            src={getImageUrl(row)}
+                            alt={row.name}
+                            className="absolute inset-0 w-full h-full object-cover"
+                            onError={(e) => {
+                                e.currentTarget.classList.add('hidden');
+                                const fallback = e.currentTarget.parentElement?.querySelector('.img-fallback-icon');
+                                if (fallback) fallback.classList.remove('hidden');
+                            }}
+                            onLoad={(e) => {
+                                // Ensure fallback icon stays hidden when image loads (even for default placeholders)
+                                const fallback = e.currentTarget.parentElement?.querySelector('.img-fallback-icon');
+                                if (fallback) fallback.classList.add('hidden');
+                            }}
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <ImageOff className="img-fallback-icon w-5 h-5 text-muted-foreground/50 hidden" />
+                        </div>
                     </div>
                     <span className="font-medium text-foreground">{row.name}</span>
                 </div>
@@ -85,20 +136,37 @@ const Products = () => {
         { header: "Category", accessor: "category" },
         {
             header: "Price",
-            accessor: "unit_price",
+            accessor: "unitPrice",
             sortable: true,
-            render: (row) => <span>RM {row.unit_price.toLocaleString('en-MY', { minimumFractionDigits: 2 })}</span>
+            render: (row) => {
+                const price = row.unitPrice || 0;
+                return <span>RM {price.toLocaleString('en-MY', { minimumFractionDigits: 2 })}</span>;
+            }
         },
-        { header: "Qty", accessor: "stock_qty" },
+
+        { header: "Qty", accessor: "stockQty" },
         {
             header: "Created By",
-            accessor: "created_by",
-            render: (row) => (
-                <div className="flex items-center gap-2">
-                    <img src={row.created_by.avatar} alt="User" className="w-6 h-6 rounded-full object-cover border border-border" />
-                    <span className="text-sm font-medium text-muted-foreground">{row.created_by.name}</span>
-                </div>
-            )
+
+            accessor: "createdBy",
+            render: (row) => {
+                if (!row.createdBy) {
+                    return <span className="text-sm text-muted-foreground">-</span>;
+                }
+
+                return (
+                    <div className="flex items-center gap-2">
+                        <img
+                            src={row.createdBy.avatar || `https://ui-avatars.com/api/?name=${row.createdBy.name}`}
+                            alt="User"
+                            className="w-6 h-6 rounded-full object-cover border border-border"
+                        />
+                        <span className="text-sm font-medium text-muted-foreground">
+                            {row.createdBy.name}
+                        </span>
+                    </div>
+                );
+            }
         }
     ];
 
@@ -107,15 +175,15 @@ const Products = () => {
 
             {/* Toast Notification */}
             {toast && (
-                <Toast 
-                    message={toast.message} 
-                    type={toast.type} 
-                    onClose={() => setToast(null)} 
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
                 />
             )}
 
             {/* Delete Confirmation Modal */}
-            <DeleteModal 
+            <DeleteModal
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={confirmDelete}
@@ -168,7 +236,9 @@ const Products = () => {
                             className="appearance-none h-10 pl-3 pr-8 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer min-w-[150px]"
                         >
                             {categories.map((cat, index) => (
-                                <option key={index} value={cat}>{cat === "All" ? "All Categories" : cat}</option>
+                                <option key={index} value={cat}>
+                                    {cat === "All" ? "All Categories" : cat}
+                                </option>
                             ))}
                         </select>
                         <Filter className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground pointer-events-none" />
@@ -179,7 +249,8 @@ const Products = () => {
             {/* Table */}
             <DataTable
                 columns={columns}
-                data={currentData}
+                data={products}
+                isLoading={isLoading}
                 showNumber={true}
                 onEdit={handleEdit}
                 onDelete={handleDeleteClick} // Pass the new handler logic
