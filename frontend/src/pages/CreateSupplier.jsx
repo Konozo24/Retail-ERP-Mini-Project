@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, RefreshCw, ChevronDown, PlusCircle } from "lucide-react";
+import { ArrowLeft, Upload, RefreshCw, ChevronDown } from "lucide-react";
+
+import {
+  useCreateSupplier,
+  useUpdateSupplier,
+} from "../api/suppliers.api";
 
 const CreateSupplier = () => {
     const navigate = useNavigate();
     const location = useLocation();
+
+    const {mutateAsync: createSupplier} = useCreateSupplier();
+    const {mutateAsync: updateSupplier} = useUpdateSupplier();
 
     // 1. Check if we are in "Edit Mode" (data passed from Suppliers table)
     const supplierToEdit = location.state?.supplierToEdit;
@@ -52,17 +60,33 @@ const CreateSupplier = () => {
         }
     };
 
-    const generateSKU = () => {
-        const randomSku = "APL-" + Math.floor(100 + Math.random() * 900);
-        setFormData(prev => ({ ...prev, sku: randomSku }));
-    };
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Here you would typically send data to backend
-        console.log("Submitting Form Data:", formData);
-        alert(isEditMode ? "Supplier Updated Successfully!" : "Supplier Created Successfully!");
-        navigate("/suppliers");
+
+        const payload = {
+            name: formData.name,
+            phone: formData.phone,
+            email: formData.email,
+            address: formData.address,
+        };
+        
+        try {
+            console.log("Submitting Form Data:", payload);
+            if (isEditMode) {
+                alert(formData.name)
+                alert(formData.address)
+                await updateSupplier({
+                    supplierId: supplierToEdit.id,
+                    payload: payload
+                });
+            } else {
+                await createSupplier(payload);
+            }
+            alert(isEditMode ? "Supplier Updated Successfully!" : "Supplier Created Successfully!");
+            navigate("/suppliers");
+        } catch (err) {
+            console.error({ form: err?.response?.data?.message || err?.response?.data || 'Something went wrong' });
+        }
     };
 
     return (
