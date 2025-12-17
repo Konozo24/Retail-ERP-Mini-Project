@@ -13,14 +13,22 @@ import com.retailerp.retailerp.model.Product;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
-    // Find all products where Stock Quantity is LESS than Reorder Level     |
+    // Find all products where Stock Quantity is LESS than Reorder Level
     @Query("SELECT p FROM Product p WHERE p.stockQty <= p.reorderLevel")
     List<Product> findLowStockProducts();
 
-    // Search products by SKU (Exact match)                                  |
+    // Search products by SKU (Exact match)
     Optional<Product> findBySku(String sku);
 
-    // Search products by Name (Case Insensitive, partial match)             |
+    // Search products by Name (Case Insensitive, partial match)
     List<Product> findByNameContainingIgnoreCase(String name);
 
+    // DASHBOARD
+    @Query("""
+        SELECT COUNT(p)
+        FROM Product p
+        WHERE p.stockQty <= p.reorderLevel
+          AND p.inactive = false
+    """)
+    long countLowStockItems();
 }

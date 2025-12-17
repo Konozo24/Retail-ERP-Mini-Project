@@ -56,6 +56,7 @@ public class Product {
     @Column(name = "NAME", nullable = false, length = 150)
     private String name;
 
+    // TODO: use enum?
     @Column(name = "CATEGORY", length = 100, nullable = false)
     private String category;
 
