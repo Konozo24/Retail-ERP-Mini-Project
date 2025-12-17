@@ -4,7 +4,10 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
-import { AuthProvider, useAuth } from './contexts/AuthContext'; // Import the new Context
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+
+// ui
+import PageLoader from "./components/ui/PageLoader";
 
 // Components
 import Layout from "./components/Layout";
@@ -27,7 +30,15 @@ import Sales from "./pages/Sales";
 
 // --- Protection Logic ---
 const ProtectedRoute = () => {
-    const { isLoggedIn } = useAuth(); // Use the context hook
+    const { isLoggedIn, isLoading } = useAuth(); // Use the context hook
+
+    if (isLoading) {
+        return (
+            <div className="fixed inset-0 z-[9999] bg-background flex items-center justify-center">
+                <PageLoader />
+            </div>
+        );
+    }
 
     if (!isLoggedIn) {
         return <Navigate to="/login" replace />;
@@ -39,7 +50,16 @@ const ProtectedRoute = () => {
 // --- Public Route Logic ---
 // Redirects to dashboard if user tries to access /login while already logged in
 const PublicRoute = ({ children }) => {
-    const { isLoggedIn } = useAuth();
+    const { isLoggedIn, isLoading } = useAuth();
+
+    if (isLoading) {
+        return (
+             <div className="fixed inset-0 z-[9999] bg-background flex items-center justify-center">
+                <PageLoader />
+            </div>
+        );
+    }
+
     if (isLoggedIn) {
         return <Navigate to="/dashboard" replace />;
     }
@@ -87,7 +107,7 @@ function App() {
 
                             {/* Fullscreen POS (no sidebar/header layout) */}
                             <Route path="/pos" element={<POS />} />
-                        </Route> 
+                        </Route>
 
                     </Routes>
                 </BrowserRouter>

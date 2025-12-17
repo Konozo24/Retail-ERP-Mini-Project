@@ -7,11 +7,13 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [errors, setErrors] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
+
 
     const { mutateAsync: loginUser, isPending } = useLoginUser();
     const { mutateAsync: logoutUser } = useLogoutUser();
-    
-    // 1. Check if user is already logged in on initial page load
+
+    // Check if user is already logged in on initial page load
     useEffect(() => {
         const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
         const storedToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
@@ -20,6 +22,9 @@ export const AuthProvider = ({ children }) => {
             setUser(JSON.parse(storedUser));
             setIsLoggedIn(true);
         }
+
+        // mark loading as finished after check
+        setIsLoading(false);
     }, []);
 
 
@@ -33,7 +38,9 @@ export const AuthProvider = ({ children }) => {
         }
         const data = await loginUser(userData);
 
+        // Update state
         setUser(userData);
+        setIsLoggedIn(true);
 
         if (rememberMe) {
             localStorage.setItem('user', JSON.stringify(userData))
@@ -43,7 +50,6 @@ export const AuthProvider = ({ children }) => {
             sessionStorage.setItem('access_token', data.access_token);
         }
 
-        setIsLoggedIn(true);
     };
 
     // 3. Logout Function
@@ -54,13 +60,13 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('access_token');
         sessionStorage.removeItem('user');
         sessionStorage.removeItem('access_token');
-        
+
         setUser(null);
         setIsLoggedIn(false);
     };
 
     return (
-        <AuthContext.Provider value={{ user, isLoggedIn, login, logout, isPending, errors, setErrors }}>
+        <AuthContext.Provider value={{ user, isLoggedIn, isLoading, login, logout, isPending, errors, setErrors }}>
             {children}
         </AuthContext.Provider>
     );
