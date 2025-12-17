@@ -1,7 +1,7 @@
 package com.retailerp.retailerp.dto.product;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 
 import com.retailerp.retailerp.model.Product;
 
@@ -22,9 +22,11 @@ public class ProductDTO {
     private Integer stockQty;
     private Integer reorderLevel;
     private String image;
-    private OffsetDateTime createdAt;
+    private String createdAt;
+    private String updatedAt;
  
     public static ProductDTO fromEntity(Product product) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM yyyy");
         return ProductDTO.builder()
             .id(product.getId())
             .createdBy(product.getCreatedBy().getEmail())
@@ -36,7 +38,8 @@ public class ProductDTO {
             .stockQty(product.getStockQty())
             .reorderLevel(product.getReorderLevel())
             .image(product.getImage())
-            .createdAt(product.getCreatedAt())
+            .createdAt(product.getCreatedAt().format(formatter))
+            .updatedAt(product.getUpdatedAt().format(formatter))
             .build();
     }
 

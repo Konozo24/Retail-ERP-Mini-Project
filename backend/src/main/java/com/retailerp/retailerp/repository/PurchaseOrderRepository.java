@@ -11,7 +11,7 @@ import com.retailerp.retailerp.model.PurchaseOrder;
 @Repository
 public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, Long>, JpaSpecificationExecutor<PurchaseOrder> {
 
-    // Find orders by status (e.g., "PENDING" or "COMPLETED")
+    // Find orders by status (e.g., "PENDING" or "DELIVERED")
     List<PurchaseOrder> findByStatus(String status);
     
     // Find all orders from a specific supplier

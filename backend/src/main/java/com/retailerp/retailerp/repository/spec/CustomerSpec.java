@@ -27,7 +27,8 @@ public class CustomerSpec {
                 if (search != null && !search.trim().isEmpty()) {
                     String pattern = "%" + search.toLowerCase() + "%";
                     Predicate nameLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), pattern);
-                    predicates.add(nameLike);
+                    Predicate emailLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("email")), pattern);
+                    predicates.add(criteriaBuilder.or(nameLike, emailLike));
                 }
 
                 return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

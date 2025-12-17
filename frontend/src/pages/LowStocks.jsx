@@ -1,19 +1,28 @@
 import React, { useState } from "react";
+import { useDebounce } from 'use-debounce';
 import DataTable from "../components/ui/DataTable";
 import EditStockModal from "../components/ui/EditStockModal";
-import DeleteModal from "../components/ui/DeleteModal"; // Import Delete Modal
+import DeleteModal from "../components/ui/DeleteModal";
 import Toast from "../components/ui/Toast";
 import { Search, Mail, Filter } from "lucide-react";
-import { productsData as initialData } from "../data/mockData";
+
+import { 
+    useGetCategories,
+    useGetLowStockProducts,
+    useGetOutOfStockProducts,
+    useUpdateProduct,
+    useDeleteProduct
+} from "../api/products.api";
+
+// Category Placeholder Images - Professional Unsplash URLs
+import {getImageUrl} from "../data/categoryImages"
+
 
 const LowStocks = () => {
     // --- STATE ---
-    const [products, setProducts] = useState(
-        initialData.map(item => ({ ...item, qty_alert: 10 }))
-    );
-
     const [activeTab, setActiveTab] = useState("Low Stocks");
     const [searchQuery, setSearchQuery] = useState("");
+    const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [isNotifyEnabled, setIsNotifyEnabled] = useState(true);
 
@@ -27,63 +36,63 @@ const LowStocks = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
 
-    const uniqueCategories = ["All", ...new Set(products.map(p => p.category))];
+    // --- DATA ---
+    const { data: categoriesData } = useGetCategories();
+    const categories = categoriesData ?? [];
 
-    // --- HANDLERS ---
+    const { data: lowStockData, isLoading: isLowStockLoading } = useGetLowStockProducts(debouncedSearchQuery, currentPage - 1, itemsPerPage, selectedCategory, {
+        enabled: activeTab === "Low Stocks"
+    });
 
-    // 1. Trigger Delete Modal
-    const handleDeleteClick = (row) => {
-        setSelectedItem(row);
-        setIsDeleteModalOpen(true);
-    };
+    const { data: outOfStockData, isLoading: isOutStockLoading } = useGetOutOfStockProducts(debouncedSearchQuery, currentPage - 1, itemsPerPage, selectedCategory, {
+        enabled: activeTab === "Out of Stocks"
+    });
 
-    // 2. Confirm Delete Action
-    const confirmDelete = () => {
-        if (selectedItem) {
-            setProducts(prev => prev.filter(item => item.id !== selectedItem.id));
-            showToast(`Deleted ${selectedItem.name} successfully.`, "success");
-            setSelectedItem(null);
-        }
-    };
+    const productsData = activeTab === "Low Stocks" ? lowStockData : outOfStockData;
+    const products = productsData?.content ?? [];
+    const totalPages = productsData?.totalPages ?? 1;
 
-    const handleEdit = (row) => {
-        setSelectedItem(row);
-        setIsEditModalOpen(true);
-    };
-
-    const handleSaveEdit = (updatedProduct) => {
-        setProducts(prev =>
-            prev.map(item => (item.id === updatedProduct.id ? updatedProduct : item))
-        );
-        setIsEditModalOpen(false);
-        showToast(`Updated ${updatedProduct.name} successfully.`, "success");
-    };
+    const { mutateAsync: updateProduct } = useUpdateProduct();
+    const { mutateAsync: deleteProduct } = useDeleteProduct();
 
     const showToast = (message, type) => {
         setToast({ message, type });
     };
 
-    // --- FILTERING LOGIC ---
-    const displayedData = products.filter(item => {
-        const isLowStock = item.stock_qty > 0 && item.stock_qty <= 40;
-        const isOutOfStock = item.stock_qty === 0;
+    // --- HANDLERS ---
+    const handleEdit = (row) => {
+        setSelectedItem(row);
+        setIsEditModalOpen(true);
+    };
 
-        if (activeTab === "Low Stocks" && !isLowStock) return false;
-        if (activeTab === "Out of Stocks" && !isOutOfStock) return false;
+    const handleSaveEdit = async (updatedProduct) => {
+        try {
+            await updateProduct({
+                productId: updatedProduct.id,
+                payload: updatedProduct
+            });
+            setIsEditModalOpen(false);
+            showToast(`Updated ${updatedProduct.name} successfully.`, "success");
+        } catch (err) {
+            showToast("Failed to update product.", "error");
+        }
+    };
 
-        const matchesSearch =
-            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.sku.toLowerCase().includes(searchQuery.toLowerCase());
+    const handleDeleteClick = (row) => {
+        setSelectedItem(row);
+        setIsDeleteModalOpen(true);
+    };
 
-        const matchesCategory =
-            selectedCategory === "All" || item.category === selectedCategory;
-
-        return matchesSearch && matchesCategory;
-    });
-
-    const totalPages = Math.ceil(displayedData.length / itemsPerPage) || 1;
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentData = displayedData.slice(startIndex, startIndex + itemsPerPage);
+    const confirmDelete = async () => {
+        if (!selectedItem) return;
+        try {
+            await deleteProduct(selectedItem.id);
+            setIsDeleteModalOpen(false);
+            showToast(`Deleted ${selectedItem.name} successfully.`, "success");
+        } catch (err) {
+            showToast("Failed to delete product.", "error");
+        }
+    };
 
     // --- COLUMNS ---
     const columns = [
@@ -93,7 +102,7 @@ const LowStocks = () => {
             render: (row) => (
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-md border border-border overflow-hidden shrink-0 bg-muted flex items-center justify-center">
-                        <img src={row.image} alt={row.name} className="w-full h-full object-cover" />
+                        <img src={getImageUrl(row)} alt={row.name} className="w-full h-full object-cover" />
                     </div>
                     <span className="font-medium text-foreground">{row.name}</span>
                 </div>
@@ -101,18 +110,17 @@ const LowStocks = () => {
         },
         { header: "Category", accessor: "category" },
         { header: "SKU", accessor: "sku", sortable: true },
-        { header: "Qty", accessor: "stock_qty" },
+        { header: "Qty", accessor: "stockQty" },
         {
-            header: "Qty Alert",
-            accessor: "qty_alert",
-            render: (row) => <span className="text-destructive font-medium">{row.qty_alert}</span>
+            header: "Reorder Level",
+            accessor: "reorderLevel",
+            render: (row) => <span className="text-destructive font-medium">{row.reorderLevel}</span>
         },
     ];
 
     return (
         <div className="space-y-6 relative">
 
-            {/* Toast Notification */}
             {toast && (
                 <Toast
                     message={toast.message}
@@ -121,25 +129,22 @@ const LowStocks = () => {
                 />
             )}
 
-            {/* Edit Modal */}
             <EditStockModal
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
                 onSave={handleSaveEdit}
                 product={selectedItem}
-                categories={uniqueCategories.filter(c => c !== "All")}
+                categories={categories}
             />
 
-            {/* Delete Confirmation Modal */}
             <DeleteModal
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={confirmDelete}
                 title="Delete Product"
-                message={`Are you sure you want to delete ${selectedItem?.name} from low stock?`}
+                message={`Are you sure you want to delete ${selectedItem?.name}?`}
             />
 
-            {/* --- HEADER --- */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight">Low Stocks</h1>
@@ -163,7 +168,6 @@ const LowStocks = () => {
                 </div>
             </div>
 
-            {/* --- TABS --- */}
             <div className="flex items-center gap-4 border-b border-border">
                 {["Low Stocks", "Out of Stocks"].map(tab => (
                     <button
@@ -177,15 +181,14 @@ const LowStocks = () => {
                 ))}
             </div>
 
-            {/* --- FILTERS --- */}
             <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-card p-4 rounded-lg border border-border shadow-sm">
                 <div className="relative w-full sm:w-64">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <input
                         type="text"
-                        placeholder="Search..."
+                        placeholder="Search Name or SKU..."
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
                         className="w-full h-10 pl-9 pr-4 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                 </div>
@@ -194,11 +197,12 @@ const LowStocks = () => {
                     <div className="relative">
                         <select
                             value={selectedCategory}
-                            onChange={(e) => setSelectedCategory(e.target.value)}
+                            onChange={(e) => { setSelectedCategory(e.target.value); setCurrentPage(1); }}
                             className="appearance-none h-10 pl-3 pr-8 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer min-w-[150px]"
                         >
-                            {uniqueCategories.map((cat, index) => (
-                                <option key={index} value={cat}>{cat === "All" ? "All Categories" : cat}</option>
+                            <option value="All">All Categories</option>
+                            {categories.map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
                             ))}
                         </select>
                         <Filter className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground pointer-events-none" />
@@ -206,10 +210,9 @@ const LowStocks = () => {
                 </div>
             </div>
 
-            {/* --- TABLE --- */}
             <DataTable
                 columns={columns}
-                data={currentData}
+                data={products}
                 showNumber={false}
                 onEdit={handleEdit}
                 onDelete={handleDeleteClick}
@@ -218,6 +221,7 @@ const LowStocks = () => {
                 itemsPerPage={itemsPerPage}
                 onPageChange={(page) => setCurrentPage(page)}
                 onItemsPerPageChange={(val) => setItemsPerPage(val)}
+                isLoading={activeTab === "Low Stocks" ? isLowStockLoading : isOutStockLoading}
             />
         </div>
     );

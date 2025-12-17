@@ -146,7 +146,7 @@ const CreateProduct = () => {
                 await createProduct(payload);
                 setToast({ message: "Product Created Successfully!", type: "success" });
             }
-            setTimeout(() => navigate("/products"), 1500);
+            setTimeout(() => navigate("/products"), 1200);
         } catch (err) {
             const errorMsg = err?.response?.data?.message || err?.message || 'Failed to save product';
             console.error("Error:", errorMsg);

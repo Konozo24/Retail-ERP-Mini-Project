@@ -64,13 +64,13 @@ const Sidebar = ({ isCollapsed }) => {
 
             {/* Logo Section */}
             <div className={`h-16 flex items-center border-b border-sidebar-border/50 mb-4 ${isCollapsed ? "justify-center px-0" : "px-6"}`}>
-                <div className="flex items-center gap-2 font-bold text-xl overflow-hidden whitespace-nowrap">
+                <Link to={"/dashboard"} className="flex items-center gap-2 font-bold text-xl overflow-hidden whitespace-nowrap">
                     <ShoppingBag className="w-8 h-8 text-primary shrink-0" />
                     {/* Hide text when collapsed */}
                     <span className={`text-sidebar-foreground transition-opacity duration-300 ${isCollapsed ? "opacity-0 w-0 hidden" : "opacity-100"}`}>
                         Retail<span className="text-accent">Flow</span>
                     </span>
-                </div>
+                </Link>
             </div>
 
             {/* Scrollable Menu Area */}

@@ -32,7 +32,7 @@ public class ProductService {
 
     @Transactional(rollbackFor = Exception.class)
     public void completePurchaseOrder(PurchaseOrder purchaseOrder) {
-        if (purchaseOrder.getStatus() != PurchaseOrderStatus.COMPLETED) {
+        if (purchaseOrder.getStatus() != PurchaseOrderStatus.DELIVERED) {
             throw new IllegalStateException("Purchase order is not completed yet.");
         }
 
@@ -84,6 +84,26 @@ public class ProductService {
         return ProductDTO.fromEntity(product);
     }
 
+    // Fetch all low stock products
+    @Transactional(readOnly = true)
+    public Page<ProductDTO> getLowStockProducts(String search, String category, Pageable pageable) {
+        if (category.trim().isEmpty() || category.equalsIgnoreCase("ALL")) {
+            category = null;
+        }
+        return productRepository.findLowStock(search, category, pageable)
+                .map(ProductDTO::fromEntity);
+    }
+
+    // Fetch all out of stock products
+    @Transactional(readOnly = true)
+    public Page<ProductDTO> getOutOfStockProducts(String search, String category, Pageable pageable) {
+        if (category.trim().isEmpty() || category.equalsIgnoreCase("ALL")) {
+            category = null;
+        }
+        return productRepository.findOutOfStock(search, category, pageable)
+                .map(ProductDTO::fromEntity);
+    }
+
     @Transactional
     public ProductDTO createProduct(ProductCreationDTO request) {
         User createdBy = jwtUtil.getAuthenticatedUser();
@@ -111,6 +131,7 @@ public class ProductService {
         existing.setCategory(request.getCategory());
         existing.setUnitPrice(request.getUnitPrice());
         existing.setCostPrice(request.getCostPrice());
+        existing.setStockQty(request.getStockQty());
         existing.setReorderLevel(request.getReorderLevel());
         existing.setImage(request.getImage());
         productRepository.save(existing);

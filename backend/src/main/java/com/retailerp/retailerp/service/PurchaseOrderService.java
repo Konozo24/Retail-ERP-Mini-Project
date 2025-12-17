@@ -78,14 +78,14 @@ public class PurchaseOrderService {
         PurchaseOrder existing = purchaseOrderRepository.findById(purchaseOrderId)
             .orElseThrow(() -> new NoSuchElementException("Purchase order with id " + purchaseOrderId + " doesn't exist!"));
 
-        if (existing.getStatus() == PurchaseOrderStatus.COMPLETED) {
+        if (existing.getStatus() == PurchaseOrderStatus.DELIVERED) {
             throw new IllegalStateException("Cannot update a completed purchase order");
         }
 
         if (existing.getStatus() != request.getStatus()) {
             existing.setStatus(request.getStatus());
 
-            if (request.getStatus() == PurchaseOrderStatus.COMPLETED) {
+            if (request.getStatus() == PurchaseOrderStatus.DELIVERED) {
                 productService.completePurchaseOrder(existing);
             }
         }
@@ -93,9 +93,12 @@ public class PurchaseOrderService {
 
     @Transactional
     public void removePurchaseOrder(Long purchaseOrderId) {
-        purchaseOrderRepository.findById(purchaseOrderId).orElseThrow(
+        PurchaseOrder existing = purchaseOrderRepository.findById(purchaseOrderId).orElseThrow(
             () -> new NoSuchElementException("Purchase order with id, " + purchaseOrderId + " doesn't exist!")
         );
-        purchaseOrderRepository.deleteById(purchaseOrderId);
+        if (!existing.isInactive()) {
+            existing.setInactive(true);
+            purchaseOrderRepository.save(existing);
+        }
     }
 }

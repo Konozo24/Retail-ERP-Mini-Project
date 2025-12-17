@@ -8,14 +8,7 @@ import { useDebounce } from "use-debounce";
 import { useDeleteProduct, useGetProductsPage, useGetCategories } from "../api/products.api";
 
 // Category Placeholder Images - Professional Unsplash URLs
-const CATEGORY_DEFAULTS = {
-    "Smartphone": "/images/smartphone.jpg",
-    "Tablet":     "/images/tablet.jpg",
-    "Laptop":     "/images/laptop.jpg",
-    "Desktop":    "/images/desktop.jpg",
-    "Wearable":   "/images/wearable.jpg",
-    "Audio":      "/images/audio.jpg",
-};
+import {getImageUrl} from "../data/categoryImages"
 
 
 // Generic fallback image
@@ -79,17 +72,6 @@ const Products = () => {
     // Helper for Toast
     const showToast = (message, type) => {
         setToast({ message, type });
-    };
-
-    // Get image with fallback strategy:
-    // 1. Use user-uploaded image if available
-    // 2. Use category default placeholder if available
-    // 3. Use generic default image
-    const getImageUrl = (row) => {
-        if (row.image) {
-            return row.image; // User uploaded specific image
-        }
-        return CATEGORY_DEFAULTS[row.category] || DEFAULT_IMAGE;
     };
 
     const handleEdit = (row) => {

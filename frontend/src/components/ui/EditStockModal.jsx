@@ -6,8 +6,8 @@ const EditStockModal = ({ isOpen, onClose, onSave, product, categories = [] }) =
     sku: "",
     category: "",
     name: "",
-    stock_qty: "",
-    qty_alert: ""
+    stockQty: 0,
+    reorderLevel: 10
   });
 
   useEffect(() => {
@@ -16,8 +16,8 @@ const EditStockModal = ({ isOpen, onClose, onSave, product, categories = [] }) =
         sku: product.sku || "",
         category: product.category || "",
         name: product.name || "",
-        stock_qty: product.stock_qty || "",
-        qty_alert: product.qty_alert || 10
+        stockQty: product.stockQty || 0,
+        reorderLevel: product.reorderLevel || 10
       });
     }
   }, [product]);
@@ -34,7 +34,7 @@ const EditStockModal = ({ isOpen, onClose, onSave, product, categories = [] }) =
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-card w-full max-w-lg rounded-lg shadow-lg border border-border overflow-hidden animate-in zoom-in-95 duration-200">
         
         {/* Header */}
@@ -98,8 +98,8 @@ const EditStockModal = ({ isOpen, onClose, onSave, product, categories = [] }) =
               <label className="text-sm font-medium">Qty <span className="text-destructive">*</span></label>
               <input 
                 type="number" 
-                name="stock_qty"
-                value={formData.stock_qty}
+                name="stockQty"
+                value={formData.stockQty}
                 onChange={handleChange}
                 className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:ring-1 focus:ring-primary focus:outline-none"
               />
@@ -108,8 +108,8 @@ const EditStockModal = ({ isOpen, onClose, onSave, product, categories = [] }) =
               <label className="text-sm font-medium">Qty Alert <span className="text-destructive">*</span></label>
               <input 
                 type="number" 
-                name="qty_alert"
-                value={formData.qty_alert}
+                name="reorderLevel"
+                value={formData.reorderLevel}
                 onChange={handleChange}
                 className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:ring-1 focus:ring-primary focus:outline-none"
               />

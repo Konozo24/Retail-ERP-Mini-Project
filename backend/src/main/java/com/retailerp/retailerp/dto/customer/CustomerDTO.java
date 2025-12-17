@@ -1,6 +1,6 @@
 package com.retailerp.retailerp.dto.customer;
 
-import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 
 import com.retailerp.retailerp.model.Customer;
 
@@ -15,15 +15,16 @@ public class CustomerDTO {
     private String name;
     private String phone;
     private String email;
-    private OffsetDateTime createdAt;
+    private String createdAt;
 
     public static CustomerDTO fromEntity(Customer customer) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM yyyy");
         return CustomerDTO.builder()
             .id(customer.getId())
             .name(customer.getName())
             .phone(customer.getPhone())
             .email(customer.getEmail())
-            .createdAt(customer.getCreatedAt())
+            .createdAt(customer.getCreatedAt().format(formatter))
             .build();
     }
     

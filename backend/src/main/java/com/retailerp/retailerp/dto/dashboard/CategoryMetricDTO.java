@@ -2,17 +2,19 @@ package com.retailerp.retailerp.dto.dashboard;
 
 import java.math.BigDecimal;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Builder.Default;
 
-@Data
+@Getter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class CategoryMetricDTO {
 
     private String category;
     private BigDecimal total;
+    private BigDecimal percentage;
+
+    @Default
+    private String color = "#8B5CF6";
+
 }

@@ -2,17 +2,14 @@ package com.retailerp.retailerp.dto.dashboard;
 
 import java.math.BigDecimal;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 
-@Data
+@Getter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class MonthlyMetricDTO {
 
     private String month;
     private BigDecimal total;
+    
 }

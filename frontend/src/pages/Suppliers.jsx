@@ -103,8 +103,12 @@ const Suppliers = () => {
             sortable: true,
             render: (row) => (
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-md border border-border overflow-hidden shrink-0 bg-muted flex items-center justify-center">
-                        <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(row.name)}&background=random`} alt={row.name} className="w-full h-full object-cover" />
+                    <div className="w-10 h-10 rounded-full border border-border overflow-hidden shrink-0 bg-muted flex items-center justify-center">
+                        <img
+                            src={row.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(row.name)}&background=random`}
+                            alt={row.name}
+                            className="w-full h-full object-cover"
+                        />
                     </div>
                     <span className="font-medium text-foreground">{row.name}</span>
                 </div>

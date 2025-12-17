@@ -21,7 +21,7 @@ public class PurchaseOrderSpec {
                 List<Predicate> predicates = new ArrayList<>();
 
                 // Filter out inactive products
-                //predicates.add(criteriaBuilder.isFalse(root.get("inactive")));
+                predicates.add(criteriaBuilder.isFalse(root.get("inactive")));
 
                 // Search by name
                 if (search != null && !search.trim().isEmpty()) {

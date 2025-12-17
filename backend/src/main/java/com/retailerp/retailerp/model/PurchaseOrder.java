@@ -59,6 +59,9 @@ public class PurchaseOrder implements Serializable {
     @OneToMany(mappedBy = "purchaseOrder", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PurchaseOrderItem> items  = new ArrayList<>();
     
+    @Column(name = "INACTIVE", nullable = false)
+    private boolean inactive = false;
+    
     // Require calling setSupplier() setUser() addItem(), default status = "Pending"
     public void addItem(PurchaseOrderItem item) {
         this.items.add(item);

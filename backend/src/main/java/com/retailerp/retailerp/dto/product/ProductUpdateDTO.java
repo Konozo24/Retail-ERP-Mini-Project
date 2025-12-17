@@ -34,6 +34,10 @@ public class ProductUpdateDTO {
 
     @NotNull
     @Min(0)
+    private Integer stockQty;
+    
+    @NotNull
+    @Min(0)
     private Integer reorderLevel;
 
     // Base64 encoded image (optional)

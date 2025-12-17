@@ -27,7 +27,8 @@ public class ProductSpec {
                 if (search != null && !search.trim().isEmpty()) {
                     String pattern = "%" + search.toLowerCase() + "%";
                     Predicate nameLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), pattern);
-                    predicates.add(nameLike);
+                    Predicate skuLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("sku")), pattern);
+                    predicates.add(criteriaBuilder.or(nameLike, skuLike));
                 }
 
                 // Filter by category

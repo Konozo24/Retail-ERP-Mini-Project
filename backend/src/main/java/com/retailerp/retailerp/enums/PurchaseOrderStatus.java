@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 public enum PurchaseOrderStatus {
     PENDING,
     DELIVERED,
-    COMPLETED,
     CANCELLED;
 
     @JsonCreator

@@ -13,14 +13,6 @@ import {
 import { DollarSign, ShoppingCart, Users, AlertTriangle } from 'lucide-react'; // Import AlertTriangle
 import { useGetDashboardStatistics } from "../api/dashboard.api";
 
-const categoryColourMap = {
-  Smartphone: '#4F46E5',
-  Tablet: '#1F2937',
-  Laptop: '#EAB308',
-  Home: '#F97316',
-  Others: '#8B5CF6',
-};
-
 // --- Reusable Stat Card Component ---
 const StatCard = ({ title, value, subtext, icon: Icon, iconColor, bgColor }) => (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -135,7 +127,7 @@ const Dashboard = () => {
                                     nameKey="category"
                                 >
                                     {statistics.topCategories.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={categoryColourMap[entry.category] || "#FFFFFF"} strokeWidth={0} />
+                                        <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
                                     ))}
                                 </Pie>
                                 <Tooltip />
@@ -148,9 +140,9 @@ const Dashboard = () => {
                             <div key={item.category} className="flex items-center text-sm text-gray-600">
                                 <span
                                     className="w-3 h-3 rounded-full mr-2"
-                                    style={{ backgroundColor: categoryColourMap[item.category] || "#FFFFFF" }}
+                                    style={{ backgroundColor: item.color }}
                                 />
-                                {item.total}%
+                                {item.percentage}%
                             </div>
                         ))}
                     </div>

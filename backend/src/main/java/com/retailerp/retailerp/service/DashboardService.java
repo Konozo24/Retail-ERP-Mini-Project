@@ -141,8 +141,24 @@ public class DashboardService {
         return result;
     }
 
+    private static String getColorFromString(String input) {
+        int hash = input.hashCode();
+
+        // Extract RGB from hash
+        int r = (hash & 0xFF0000) >> 16;
+        int g = (hash & 0x00FF00) >> 8;
+        int b = hash & 0x0000FF;
+
+        // Make sure values are positive
+        r = (r + 256) % 256;
+        g = (g + 256) % 256;
+        b = (b + 256) % 256;
+
+        return String.format("#%02X%02X%02X", r, g, b);
+    }
+
     private List<CategoryMetricDTO> getTopCategories() {
-    List<Object[]> raw = salesOrderRepository.getTopCategories(Year.now().getValue());
+        List<Object[]> raw = salesOrderRepository.getTopCategories(Year.now().getValue());
 
         // Convert raw data to a map: category -> amount
         List<Map.Entry<String, BigDecimal>> sortedCategories = raw.stream()
@@ -153,14 +169,24 @@ public class DashboardService {
 
         List<CategoryMetricDTO> result = new ArrayList<>();
         BigDecimal othersTotal = BigDecimal.ZERO;
+        BigDecimal totalSum = sortedCategories.stream()
+            .map(Map.Entry::getValue)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         for (int i = 0; i < sortedCategories.size(); i++) {
             Map.Entry<String, BigDecimal> entry = sortedCategories.get(i);
+
             if (i < 4) {
                 // Top 4 categories
+                BigDecimal percentage = totalSum.compareTo(BigDecimal.ZERO) > 0
+                    ? entry.getValue().multiply(BigDecimal.valueOf(100)).divide(totalSum, 2, RoundingMode.HALF_UP)
+                    : BigDecimal.ZERO;
+
                 result.add(CategoryMetricDTO.builder()
                         .category(entry.getKey())
                         .total(entry.getValue())
+                        .percentage(percentage)
+                        .color(getColorFromString(entry.getKey()))
                         .build());
             } else {
                 // Sum the rest
@@ -168,15 +194,22 @@ public class DashboardService {
             }
         }
 
+        // Add "Others" category if there is any remaining
         if (othersTotal.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal othersPercentage = totalSum.compareTo(BigDecimal.ZERO) > 0
+                ? othersTotal.multiply(BigDecimal.valueOf(100)).divide(totalSum, 2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
+
             result.add(CategoryMetricDTO.builder()
                     .category("Others")
                     .total(othersTotal)
+                    .percentage(othersPercentage)
                     .build());
         }
 
         return result;
     }
+
 
     private BigDecimal calculatePercentageChange(BigDecimal current, BigDecimal previous) {
         if (previous.compareTo(BigDecimal.ZERO) == 0) {

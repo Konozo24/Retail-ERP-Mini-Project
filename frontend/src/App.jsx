@@ -24,7 +24,6 @@ import ManageStock from "./pages/ManageStock";
 import Dashboard from "./pages/Dashboard";
 import PurchaseOrder from "./pages/PurchaseOrder";
 import Suppliers from "./pages/Suppliers";
-import CreateSupplier from "./pages/CreateSupplier";
 import Sales from "./pages/Sales";
 
 
@@ -102,7 +101,6 @@ function App() {
                                 <Route path="/sales" element={<Sales />} />
                                 <Route path="/customers" element={<Customers />} />
                                 <Route path="/suppliers" element={<Suppliers />} />
-                                <Route path="/create-supplier" element={<CreateSupplier />} />
                             </Route>
 
                             {/* Fullscreen POS (no sidebar/header layout) */}

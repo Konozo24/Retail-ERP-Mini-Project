@@ -37,7 +37,7 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<Page<ProductDTO>> getProducts(
         @RequestParam(defaultValue = "") String search,
-        @RequestParam(required = false) String category,
+        @RequestParam(defaultValue = "") String category,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
@@ -60,6 +60,32 @@ public class ProductController {
         return ResponseEntity.ok(dto);
     }
 
+    // Get all low stock products
+    @GetMapping("/low-stock")
+    public ResponseEntity<Page<ProductDTO>> getLowStockProducts(
+        @RequestParam(defaultValue = "") String search,
+        @RequestParam(defaultValue = "") String category,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductDTO> dtoPage = productService.getLowStockProducts(search, category, pageable);
+        return ResponseEntity.ok(dtoPage);
+    }
+
+    // Get all out of stock products
+    @GetMapping("/out-of-stock")
+    public ResponseEntity<Page<ProductDTO>> getOutOfStockProducts(
+        @RequestParam(defaultValue = "") String search,
+        @RequestParam(defaultValue = "") String category,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductDTO> dtoPage = productService.getOutOfStockProducts(search, category, pageable);
+        return ResponseEntity.ok(dtoPage);
+    }
+    
     @PostMapping
     public ResponseEntity<ProductDTO> createProduct(
         @Valid @RequestBody ProductCreationDTO request
