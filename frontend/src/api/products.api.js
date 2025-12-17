@@ -30,7 +30,10 @@ export function useCreateProduct() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload) => API.post(`/products`, payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['products'] }),
+    onSuccess: () =>{
+        qc.invalidateQueries({ queryKey: ['dashboard'] });
+        qc.invalidateQueries({ queryKey: ['products'] });
+    },
   });
 }
 
@@ -40,6 +43,7 @@ export function useUpdateProduct() {
   return useMutation({
     mutationFn: ({productId, payload}) => API.put(`/products/${productId}`, payload),
     onSuccess: (_, {productId}) => {
+        qc.invalidateQueries({ queryKey: ['dashboard'] });
         qc.invalidateQueries({ queryKey: ['products'] });
         qc.invalidateQueries({ queryKey: ['product', productId] });
     },
@@ -52,6 +56,7 @@ export function useDeleteProduct() {
   return useMutation({
     mutationFn: (productId) => API.delete(`/products/${productId}`),
     onSuccess: (_, productId) => {
+        qc.invalidateQueries({ queryKey: ['dashboard'] })
         qc.invalidateQueries({ queryKey: ['products'] });
         qc.invalidateQueries({ queryKey: ['product', productId] });
     },

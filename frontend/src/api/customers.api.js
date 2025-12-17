@@ -30,7 +30,10 @@ export function useCreateCustomer() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload) => API.post(`/customers`, payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['customers'] }),
+    onSuccess: () => {
+        qc.invalidateQueries({ queryKey: ['dashboard'] });
+        qc.invalidateQueries({ queryKey: ['customers'] });
+    },
   });
 }
 
@@ -52,6 +55,7 @@ export function useDeleteCustomer() {
   return useMutation({
     mutationFn: (customerId) => API.delete(`/customers/${customerId}`),
     onSuccess: (_, customerId) => {
+        qc.invalidateQueries({ queryKey: ['dashboard'] });
         qc.invalidateQueries({ queryKey: ['customers'] });
         qc.invalidateQueries({ queryKey: ['customer', customerId] });
     },

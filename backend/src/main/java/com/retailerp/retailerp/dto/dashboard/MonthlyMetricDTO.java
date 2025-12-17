@@ -14,5 +14,5 @@ import lombok.NoArgsConstructor;
 public class MonthlyMetricDTO {
 
     private String month;
-    private BigDecimal value;
+    private BigDecimal total;
 }

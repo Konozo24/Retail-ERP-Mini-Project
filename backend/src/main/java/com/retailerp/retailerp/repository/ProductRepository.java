@@ -30,5 +30,5 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
         WHERE p.stockQty <= p.reorderLevel
           AND p.inactive = false
     """)
-    long countLowStockItems();
+    int countLowStockItems();
 }

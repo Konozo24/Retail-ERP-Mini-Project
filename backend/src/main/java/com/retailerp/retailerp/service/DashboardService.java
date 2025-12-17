@@ -72,12 +72,7 @@ public class DashboardService {
             .build();
 
         // ================= LOW STOCK =================
-        long lowStockCount = productRepository.countLowStockItems();
-
-        SimpleMetricDTO lowStockItems = SimpleMetricDTO.builder()
-            .value(lowStockCount)
-            .message("Requires attention immediately")
-            .build();
+        int lowStockCount = productRepository.countLowStockItems();
 
         // ================= MONTHLY OVERVIEW =================
         List<MonthlyMetricDTO> overview = getMonthlyRevenueOverview();
@@ -89,7 +84,7 @@ public class DashboardService {
             .totalRevenue(totalRevenue)
             .sales(sales)
             .newCustomers(newCustomers)
-            .lowStockItems(lowStockItems)
+            .lowStockItems(lowStockCount)
             .overview(overview)
             .topCategories(topCategories)
             .build();
@@ -138,8 +133,8 @@ public class DashboardService {
         for (int month = 1; month <= 12; month++) {
             result.add(
                 MonthlyMetricDTO.builder()
-                    .month(YearMonth.of(year, month).getMonth().name())
-                    .value(revenueByMonth.getOrDefault(month, BigDecimal.ZERO))
+                    .month(YearMonth.of(year, month).getMonth().name().substring(0, 3))
+                    .total(revenueByMonth.getOrDefault(month, BigDecimal.ZERO))
                     .build()
             );
         }

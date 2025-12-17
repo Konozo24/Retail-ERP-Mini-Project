@@ -30,30 +30,36 @@ export function useCreateSalesOrder() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload) => API.post(`/sales-order`, payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['salesOrders'] }),
-  });
-}
-
-// UPDATE SALES ORDER (PUT /sales-order/{salesOrderId})
-export function useUpdateSalesOrder() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({salesOrderId, payload}) => API.put(`/sales-order/${salesOrderId}`, payload),
-    onSuccess: (_, {salesOrderId}) => {
+    onSuccess: () => {
+        qc.invalidateQueries({ queryKey: ['products'] });
+        qc.invalidateQueries({ queryKey: ['dashboard'] });
         qc.invalidateQueries({ queryKey: ['salesOrders'] });
-        qc.invalidateQueries({ queryKey: ['salesOrder', salesOrderId] });
     },
   });
 }
 
-// DELETE SALES ORDER (DELETE /sales-order/{salesOrderId})
-export function useDeleteSalesOrder() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (salesOrderId) => API.delete(`/sales-order/${salesOrderId}`),
-    onSuccess: (_, salesOrderId) => {
-        qc.invalidateQueries({ queryKey: ['salesOrders'] });
-        qc.invalidateQueries({ queryKey: ['salesOrder', salesOrderId] });
-    },
-  });
-}
+// // UPDATE SALES ORDER (PUT /sales-order/{salesOrderId})
+// export function useUpdateSalesOrder() {
+//   const qc = useQueryClient();
+//   return useMutation({
+//     mutationFn: ({salesOrderId, payload}) => API.put(`/sales-order/${salesOrderId}`, payload),
+//     onSuccess: (_, {salesOrderId}) => {
+//         qc.invalidateQueries({ queryKey: ['dashboard'] });
+//         qc.invalidateQueries({ queryKey: ['salesOrders'] });
+//         qc.invalidateQueries({ queryKey: ['salesOrder', salesOrderId] });
+//     },
+//   });
+// }
+
+// // DELETE SALES ORDER (DELETE /sales-order/{salesOrderId})
+// export function useDeleteSalesOrder() {
+//   const qc = useQueryClient();
+//   return useMutation({
+//     mutationFn: (salesOrderId) => API.delete(`/sales-order/${salesOrderId}`),
+//     onSuccess: (_, salesOrderId) => {
+//         qc.invalidateQueries({ queryKey: ['dashboard'] });
+//         qc.invalidateQueries({ queryKey: ['salesOrders'] });
+//         qc.invalidateQueries({ queryKey: ['salesOrder', salesOrderId] });
+//     },
+//   });
+// }

@@ -46,14 +46,14 @@ export function useUpdatePurchaseOrder() {
   });
 }
 
-// DELETE PURCHASE ORDER (DELETE /purchase-order/{purchaseOrderId})
-export function useDeletePurchaseOrder() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (purchaseOrderId) => API.delete(`/purchase-order/${purchaseOrderId}`),
-    onSuccess: (_, purchaseOrderId) => {
-        qc.invalidateQueries({ queryKey: ['purchaseOrders'] });
-        qc.invalidateQueries({ queryKey: ['purchaseOrder', purchaseOrderId] });
-    },
-  });
-}
+// // DELETE PURCHASE ORDER (DELETE /purchase-order/{purchaseOrderId})
+// export function useDeletePurchaseOrder() {
+//   const qc = useQueryClient();
+//   return useMutation({
+//     mutationFn: (purchaseOrderId) => API.delete(`/purchase-order/${purchaseOrderId}`),
+//     onSuccess: (_, purchaseOrderId) => {
+//         qc.invalidateQueries({ queryKey: ['purchaseOrders'] });
+//         qc.invalidateQueries({ queryKey: ['purchaseOrder', purchaseOrderId] });
+//     },
+//   });
+// }
