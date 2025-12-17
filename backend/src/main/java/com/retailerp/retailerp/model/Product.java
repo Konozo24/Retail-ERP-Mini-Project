@@ -68,7 +68,7 @@ public class Product {
     private BigDecimal costPrice;
 
     @Column(name = "STOCK_QTY", nullable = false)
-    private Integer stockQty;
+    private Integer stockQty = 0;
 
     @Column(name = "REORDER_LEVEL", nullable = false)
     private Integer reorderLevel;
@@ -89,13 +89,13 @@ public class Product {
     private boolean inactive = false;
     
     // Require calling setCreatedBy(), Default stockQty = 0
-    public Product(String sku, String name, String category, BigDecimal unitPrice, BigDecimal costPrice, Integer reorderLevel) {
+    public Product(String sku, String name, String category, BigDecimal unitPrice, BigDecimal costPrice, Integer reorderLevel, String image) {
         this.sku = sku;
         this.name = name;
         this.category = category;
         this.unitPrice = unitPrice;
         this.costPrice = costPrice;
-        this.stockQty = 0;
         this.reorderLevel = reorderLevel;
+        this.image = image;
     }
 }

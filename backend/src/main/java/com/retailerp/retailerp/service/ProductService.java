@@ -65,12 +65,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public Page<ProductDTO> getProducts(String search, String category, Pageable pageable) {
         // Get the existing search specification (Name/SKU)
-        Specification<Product> spec = ProductSpec.getSpecification(search);
-
-        // Append Category filter if it exists and isn't "All"
-        if (category != null && !category.isEmpty() && !"All".equalsIgnoreCase(category)) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("category"), category));
-        }
+        Specification<Product> spec = ProductSpec.getSpecification(search, category);
 
         return productRepository.findAll(spec, pageable)
             .map(ProductDTO::fromEntity);
@@ -98,9 +93,10 @@ public class ProductService {
                 request.getCategory(),
                 request.getUnitPrice(),
                 request.getCostPrice(),
-                request.getReorderLevel());
+                request.getReorderLevel(),
+                request.getImage()
+            );
         newProduct.setCreatedBy(createdBy);
-        newProduct.setImage(request.getImage());
         productRepository.save(newProduct);
         return ProductDTO.fromEntity(newProduct);
     }
