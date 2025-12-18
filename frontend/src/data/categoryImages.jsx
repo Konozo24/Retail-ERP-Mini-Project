@@ -7,6 +7,9 @@ export const CATEGORY_DEFAULTS = {
     "Audio":      "/images/audio.jpg",
 };
 
+// Generic fallback image
+const DEFAULT_IMAGE = "/images/default.jpg";
+
 // Get image with fallback strategy:
 // 1. Use user-uploaded image if available
 // 2. Use category default placeholder if available

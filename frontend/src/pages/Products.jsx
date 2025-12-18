@@ -11,9 +11,6 @@ import { useDeleteProduct, useGetProductsPage, useGetCategories } from "../api/p
 import {getImageUrl} from "../data/categoryImages"
 
 
-// Generic fallback image
-const DEFAULT_IMAGE = "/images/default.jpg";
-
 const Products = () => {
     const navigate = useNavigate();
 
