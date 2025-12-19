@@ -2,14 +2,19 @@ import API from "./api";
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 
 // GET ALL SALES ORDERS (GET /sales-order)
-export function useGetSalesOrdersPage(searchQuery, pageNum, pageSize) {
+export function useGetSalesOrdersPage(searchQuery, pageNum, pageSize, startDate, endDate) {
   return useQuery({
-    queryKey: ['salesOrders', searchQuery, pageNum, pageSize],
+    queryKey: ['salesOrders', searchQuery, pageNum, pageSize, startDate, endDate],
+    
     queryFn: () => API.get(`/sales-order`, {
         params: {
             search: searchQuery,
             page: pageNum,
             size: pageSize,
+            
+            // Optional Parameters
+            startDate: startDate || undefined, 
+            endDate: endDate || undefined,
         }
     }),
     placeholderData: keepPreviousData
