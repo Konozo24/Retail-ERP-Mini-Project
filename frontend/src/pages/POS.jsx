@@ -80,7 +80,7 @@ const Header = ({ search, setSearch, onDashboardClick }) => (
                 <LayoutDashboard size={18} />
                 <span className="hidden sm:inline">Dashboard</span>
             </button>
-            <div className="h-6 w-[1px] bg-border mx-1" />
+            <div className="h-6 w-px bg-border mx-1" />
 
             <div className="flex items-center gap-3 pl-2">
                 <div className="text-right hidden sm:block">
