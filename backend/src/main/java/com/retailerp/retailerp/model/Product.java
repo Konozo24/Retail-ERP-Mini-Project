@@ -57,9 +57,9 @@ public class Product {
     @Column(name = "NAME", nullable = false, length = 150)
     private String name;
 
-    // TODO: use enum?
-    @Column(name = "CATEGORY", length = 100, nullable = false)
-    private String category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CATEGORY_ID", referencedColumnName = "CATEGORY_ID", nullable = false)
+    private Category category;
 
     @Column(name = "UNIT_PRICE", nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
@@ -88,11 +88,10 @@ public class Product {
     @Column(name = "INACTIVE", nullable = false)
     private boolean inactive = false;
     
-    // Require calling setCreatedBy(), Default stockQty = 0
-    public Product(String sku, String name, String category, BigDecimal unitPrice, BigDecimal costPrice, Integer reorderLevel, String image) {
+    // Require calling setCreatedBy(), setCategory(), Default stockQty = 0
+    public Product(String sku, String name, BigDecimal unitPrice, BigDecimal costPrice, Integer reorderLevel, String image) {
         this.sku = sku;
         this.name = name;
-        this.category = category;
         this.unitPrice = unitPrice;
         this.costPrice = costPrice;
         this.reorderLevel = reorderLevel;

@@ -3,6 +3,7 @@ package com.retailerp.retailerp.dto.product;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 
+import com.retailerp.retailerp.dto.category.CategoryDTO;
 import com.retailerp.retailerp.model.Product;
 
 import lombok.Builder;
@@ -16,7 +17,7 @@ public class ProductDTO {
     private String createdBy;
     private String sku;
     private String name;
-    private String category;
+    private CategoryDTO category;
     private BigDecimal unitPrice;
     private BigDecimal costPrice;
     private Integer stockQty;
@@ -32,7 +33,7 @@ public class ProductDTO {
             .createdBy(product.getCreatedBy().getEmail())
             .sku(product.getSku())
             .name(product.getName())
-            .category(product.getCategory())
+            .category(CategoryDTO.fromEntity(product.getCategory()))
             .unitPrice(product.getUnitPrice())
             .costPrice(product.getCostPrice())
             .stockQty(product.getStockQty())

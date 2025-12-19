@@ -23,6 +23,10 @@ public class ProductSpec {
                 // Filter out inactive products
                 predicates.add(criteriaBuilder.isFalse(root.get("inactive")));
 
+                // Category must be active
+                var categoryVar = root.join("category");
+                predicates.add(criteriaBuilder.isFalse(categoryVar.get("inactive")));
+
                 // Search by name
                 if (search != null && !search.trim().isEmpty()) {
                     String pattern = "%" + search.toLowerCase() + "%";
@@ -34,7 +38,7 @@ public class ProductSpec {
                 // Filter by category
                 if (category != null && !category.isEmpty() && !category.equalsIgnoreCase("ALL")) {
                     String pattern = category.toLowerCase();
-                    predicates.add(criteriaBuilder.equal(criteriaBuilder.lower(root.get("category")), pattern));
+                    predicates.add(criteriaBuilder.equal(criteriaBuilder.lower(categoryVar.get("name")), pattern));
                 }
 
                 return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

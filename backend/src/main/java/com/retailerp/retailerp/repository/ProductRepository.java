@@ -15,10 +15,6 @@ import com.retailerp.retailerp.model.Product;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
-    // Find all distinct product categories
-    @Query("SELECT DISTINCT p.category FROM Product p WHERE p.category IS NOT NULL")
-    List<String> findAllCategories();
-
     // Search products by SKU (Exact match)
     Optional<Product> findBySku(String sku);
 
@@ -33,9 +29,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
         AND (:search IS NULL 
             OR LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%'))
             OR LOWER(p.sku) LIKE LOWER(CONCAT('%', :search, '%')))
-      AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
+      AND (:categoryId IS NULL OR p.category.id = :categoryId)
     """)
-    Page<Product> findLowStock(String search, String category, Pageable pageable);
+    Page<Product> findLowStock(String search, Long categoryId, Pageable pageable);
 
 
     // Out of stock: stockQty == 0
@@ -46,9 +42,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
         AND (:search IS NULL 
             OR LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%'))
             OR LOWER(p.sku) LIKE LOWER(CONCAT('%', :search, '%')))
-        AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
+        AND (:categoryId IS NULL OR p.category.id = :categoryId)
     """)
-    Page<Product> findOutOfStock(String search, String category, Pageable pageable);
+    Page<Product> findOutOfStock(String search, Long categoryId, Pageable pageable);
 
 
     // DASHBOARD

@@ -20,9 +20,8 @@ public class ProductUpdateDTO {
     @Size(max = 150)
     private String name;
 
-    @NotBlank
-    @Size(max = 100)
-    private String category;
+    @NotNull
+    private Long categoryId;
 
     @NotNull
     @Digits(integer = 8, fraction = 2)

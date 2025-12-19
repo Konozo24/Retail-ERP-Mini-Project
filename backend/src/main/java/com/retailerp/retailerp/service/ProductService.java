@@ -1,7 +1,6 @@
 package com.retailerp.retailerp.service;
 
 import java.util.NoSuchElementException;
-import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,10 +13,12 @@ import com.retailerp.retailerp.dto.product.ProductCreationDTO;
 import com.retailerp.retailerp.dto.product.ProductDTO;
 import com.retailerp.retailerp.dto.product.ProductUpdateDTO;
 import com.retailerp.retailerp.enums.PurchaseOrderStatus;
+import com.retailerp.retailerp.model.Category;
 import com.retailerp.retailerp.model.Product;
 import com.retailerp.retailerp.model.PurchaseOrder;
 import com.retailerp.retailerp.model.PurchaseOrderItem;
 import com.retailerp.retailerp.model.User;
+import com.retailerp.retailerp.repository.CategoryRepository;
 import com.retailerp.retailerp.repository.ProductRepository;
 import com.retailerp.retailerp.repository.spec.ProductSpec;
 
@@ -28,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
     private final JwtUtil jwtUtil;
 
     @Transactional(rollbackFor = Exception.class)
@@ -58,11 +60,6 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<String> getCategories() {
-        return productRepository.findAllCategories();
-    }
-
-    @Transactional(readOnly = true)
     public Page<ProductDTO> getProducts(String search, String category, Pageable pageable) {
         // Get the existing search specification (Name/SKU)
         Specification<Product> spec = ProductSpec.getSpecification(search, category);
@@ -87,35 +84,46 @@ public class ProductService {
     // Fetch all low stock products
     @Transactional(readOnly = true)
     public Page<ProductDTO> getLowStockProducts(String search, String category, Pageable pageable) {
-        if (category.trim().isEmpty() || category.equalsIgnoreCase("ALL")) {
-            category = null;
+        Long categoryId = null;
+        if (!category.trim().isEmpty() || !category.equalsIgnoreCase("ALL")) {
+            categoryId = categoryRepository.findByName(category).orElseThrow(
+                () -> new NoSuchElementException("Category with name, " + category + " doesn't exist!"))
+                .getId();
         }
-        return productRepository.findLowStock(search, category, pageable)
+
+
+        return productRepository.findLowStock(search, categoryId, pageable)
                 .map(ProductDTO::fromEntity);
     }
 
     // Fetch all out of stock products
     @Transactional(readOnly = true)
     public Page<ProductDTO> getOutOfStockProducts(String search, String category, Pageable pageable) {
-        if (category.trim().isEmpty() || category.equalsIgnoreCase("ALL")) {
-            category = null;
+        Long categoryId = null;
+        if (!category.trim().isEmpty() || !category.equalsIgnoreCase("ALL")) {
+            categoryId = categoryRepository.findByName(category).orElseThrow(
+                () -> new NoSuchElementException("Category with name, " + category + " doesn't exist!"))
+                .getId();
         }
-        return productRepository.findOutOfStock(search, category, pageable)
+        return productRepository.findOutOfStock(search, categoryId, pageable)
                 .map(ProductDTO::fromEntity);
     }
 
     @Transactional
     public ProductDTO createProduct(ProductCreationDTO request) {
+        Category category = categoryRepository.findById(request.getCategoryId()).orElseThrow(
+                () -> new NoSuchElementException("Category with id, " + request.getCategoryId() + " doesn't exist!"));
+
         User createdBy = jwtUtil.getAuthenticatedUser();
         Product newProduct = new Product(
                 request.getSku(),
                 request.getName(),
-                request.getCategory(),
                 request.getUnitPrice(),
                 request.getCostPrice(),
                 request.getReorderLevel(),
                 request.getImage()
             );
+        newProduct.setCategory(category);
         newProduct.setCreatedBy(createdBy);
         productRepository.save(newProduct);
         return ProductDTO.fromEntity(newProduct);
@@ -126,9 +134,12 @@ public class ProductService {
         Product existing = productRepository.findById(productId).orElseThrow(
                 () -> new NoSuchElementException("Product with id, " + productId + " doesn't exist!"));
 
+        Category category = categoryRepository.findById(request.getCategoryId()).orElseThrow(
+            () -> new NoSuchElementException("Category with id, " + request.getCategoryId() + " doesn't exist!"));
+
         existing.setSku(request.getSku());
         existing.setName(request.getName());
-        existing.setCategory(request.getCategory());
+        existing.setCategory(category);
         existing.setUnitPrice(request.getUnitPrice());
         existing.setCostPrice(request.getCostPrice());
         existing.setStockQty(request.getStockQty());

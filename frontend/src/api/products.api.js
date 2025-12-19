@@ -1,14 +1,6 @@
 import API from "./api";
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 
-export function useGetCategories() {
-    return useQuery({
-        queryKey: ['categories'],
-        queryFn: () => API.get(`/products/categories`),
-        staleTime: 1000 * 60 * 5,
-    });
-}
-
 // GET ALL PRODUCTS (GET /products)
 export function useGetProductsPage(searchQuery, pageNum, pageSize, category) {
     return useQuery({

@@ -51,11 +51,11 @@ public interface SalesOrderRepository extends JpaRepository<SalesOrder, Long>, J
     List<Object[]> getMonthlyRevenue(int year);
 
     @Query("""
-        SELECT soi.product.category, SUM(soi.quantity)
+        SELECT soi.product.category.name, SUM(soi.quantity)
         FROM SalesOrderItem soi
         JOIN soi.salesOrder so
         WHERE YEAR(so.createdAt) = :year
-        GROUP BY soi.product.category
+        GROUP BY soi.product.category.name
         ORDER BY SUM(soi.quantity) DESC
     """)
     List<Object[]> getTopCategories(int year);

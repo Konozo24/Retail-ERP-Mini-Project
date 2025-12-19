@@ -16,7 +16,6 @@ import com.retailerp.retailerp.repository.spec.CustomerSpec;
 
 import lombok.RequiredArgsConstructor;
 
-
 @Service
 @RequiredArgsConstructor
 public class CustomerService {
