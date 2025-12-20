@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class MetricDTO {
+public class DashboardMetricDTO {
 
     private BigDecimal value;
     private BigDecimal changePercentage;

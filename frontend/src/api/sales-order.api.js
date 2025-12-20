@@ -38,6 +38,7 @@ export function useCreateSalesOrder() {
     onSuccess: () => {
         qc.invalidateQueries({ queryKey: ['products'] });
         qc.invalidateQueries({ queryKey: ['dashboard'] });
+        qc.invalidateQueries({ queryKey: ['sales'] });
         qc.invalidateQueries({ queryKey: ['salesOrders'] });
     },
   });

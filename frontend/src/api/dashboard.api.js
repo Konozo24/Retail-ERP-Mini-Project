@@ -8,3 +8,18 @@ export function useGetDashboardStatistics() {
     queryFn: () => API.get(`/dashboard/statistics`),
   });
 }
+
+export function useGetSalesStatistics(category, pageNum, pageSize, startDate, endDate) {
+  return useQuery({
+    queryKey: ['sales'],
+    queryFn: () => API.get(`/dashboard/sales`, {
+        params: {
+            category: category,
+            pageNum: pageNum,
+            pageSize: pageSize,
+            startDate: startDate,
+            endDate: endDate
+        }
+    }),
+  });
+}

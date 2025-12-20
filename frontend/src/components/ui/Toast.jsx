@@ -20,7 +20,7 @@ const Toast = ({ message, type = "success", onClose }) => {
   };
 
   return (
-    <div className={`fixed top-4 right-4 z-[110] flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border-l-4 animate-in slide-in-from-right-5 duration-300 ${bgColors[type]}`}>
+    <div className={`fixed top-4 right-4 z-110 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border-l-4 animate-in slide-in-from-right-5 duration-300 ${bgColors[type]}`}>
       {icons[type]}
       <div className="flex flex-col">
         <span className="text-sm font-semibold text-foreground">{type === "success" ? "Success" : "Error"}</span>

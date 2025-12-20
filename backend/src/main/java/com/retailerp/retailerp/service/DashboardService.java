@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.retailerp.retailerp.dto.dashboard.CategoryMetricDTO;
+import com.retailerp.retailerp.dto.dashboard.DashboardCategoryMetricDTO;
 import com.retailerp.retailerp.dto.dashboard.DashboardDTO;
-import com.retailerp.retailerp.dto.dashboard.MetricDTO;
-import com.retailerp.retailerp.dto.dashboard.MonthlyMetricDTO;
+import com.retailerp.retailerp.dto.dashboard.DashboardMetricDTO;
+import com.retailerp.retailerp.dto.dashboard.DashboardMonthlyMetricDTO;
 import com.retailerp.retailerp.dto.dashboard.TopCategoryDTO;
 import com.retailerp.retailerp.repository.CustomerRepository;
 import com.retailerp.retailerp.repository.ProductRepository;
@@ -26,13 +26,13 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class DashboardService {
 
     private final SalesOrderRepository salesOrderRepository;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
 
+    @Transactional(readOnly = true)
     public DashboardDTO getDashboardStatistics() {
 
         YearMonth currentMonth = YearMonth.now();
@@ -42,7 +42,7 @@ public class DashboardService {
         BigDecimal currentRevenue = getRevenueForMonth(currentMonth);
         BigDecimal lastRevenue = getRevenueForMonth(lastMonth);
 
-        MetricDTO totalRevenue = MetricDTO.builder()
+        DashboardMetricDTO totalRevenue = DashboardMetricDTO.builder()
             .value(currentRevenue)
             .changePercentage(calculatePercentageChange(currentRevenue, lastRevenue))
             .build();
@@ -51,7 +51,7 @@ public class DashboardService {
         long currentSales = getSalesCountForMonth(currentMonth);
         long lastSales = getSalesCountForMonth(lastMonth);
 
-        MetricDTO sales = MetricDTO.builder()
+        DashboardMetricDTO sales = DashboardMetricDTO.builder()
             .value(BigDecimal.valueOf(currentSales))
             .changePercentage(
                 calculatePercentageChange(
@@ -65,7 +65,7 @@ public class DashboardService {
         long currentCustomers = getCustomersForMonth(currentMonth);
         long lastCustomers = getCustomersForMonth(lastMonth);
 
-        MetricDTO newCustomers = MetricDTO.builder()
+        DashboardMetricDTO newCustomers = DashboardMetricDTO.builder()
             .value(BigDecimal.valueOf(currentCustomers))
             .changePercentage(
                 calculatePercentageChange(
@@ -79,10 +79,10 @@ public class DashboardService {
         int lowStockCount = productRepository.countLowStockItems();
 
         // ================= MONTHLY OVERVIEW =================
-        List<MonthlyMetricDTO> overview = getMonthlyRevenueOverview();
+        List<DashboardMonthlyMetricDTO> overview = getMonthlyRevenueOverview();
 
         // ================= TOP CATEGORIES =================
-        List<CategoryMetricDTO> topCategories = getTopCategories();
+        List<DashboardCategoryMetricDTO> topCategories = getTopCategories();
 
         return DashboardDTO.builder()
             .totalRevenue(totalRevenue)
@@ -123,11 +123,11 @@ public class DashboardService {
         return customerRepository.countCustomersBetween(start, end);
     }
 
-    private List<MonthlyMetricDTO> getMonthlyRevenueOverview() {
+    private List<DashboardMonthlyMetricDTO> getMonthlyRevenueOverview() {
         int year = Year.now().getValue();
         List<Object[]> raw = salesOrderRepository.getMonthlyRevenue(year);
 
-        List<MonthlyMetricDTO> result = new ArrayList<>();
+        List<DashboardMonthlyMetricDTO> result = new ArrayList<>();
         Map<Integer, BigDecimal> revenueByMonth = raw.stream()
             .collect(Collectors.toMap(
                 r -> (Integer) r[0],
@@ -136,7 +136,7 @@ public class DashboardService {
 
         for (int month = 1; month <= 12; month++) {
             result.add(
-                MonthlyMetricDTO.builder()
+                DashboardMonthlyMetricDTO.builder()
                     .month(YearMonth.of(year, month).getMonth().name().substring(0, 3))
                     .total(revenueByMonth.getOrDefault(month, BigDecimal.ZERO))
                     .build()
@@ -145,7 +145,7 @@ public class DashboardService {
         return result;
     }
 
-    private List<CategoryMetricDTO> getTopCategories() {
+    private List<DashboardCategoryMetricDTO> getTopCategories() {
         List<TopCategoryDTO> raw = salesOrderRepository.getTopCategories(Year.now().getValue());
 
         // Calculate total quantity for percentages
@@ -153,7 +153,7 @@ public class DashboardService {
                 .map(TopCategoryDTO::getTotalQuantity)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        List<CategoryMetricDTO> result = new ArrayList<>();
+        List<DashboardCategoryMetricDTO> result = new ArrayList<>();
         BigDecimal othersTotal = BigDecimal.ZERO;
 
         for (int i = 0; i < raw.size(); i++) {
@@ -166,7 +166,7 @@ public class DashboardService {
                             .divide(totalSum, 2, RoundingMode.HALF_UP)
                         : BigDecimal.ZERO;
 
-                result.add(CategoryMetricDTO.builder()
+                result.add(DashboardCategoryMetricDTO.builder()
                         .category(dto.getCategoryName())
                         .total(dto.getTotalQuantity())
                         .percentage(percentage)
@@ -184,7 +184,7 @@ public class DashboardService {
                             .divide(totalSum, 2, RoundingMode.HALF_UP)
                     : BigDecimal.ZERO;
 
-            result.add(CategoryMetricDTO.builder()
+            result.add(DashboardCategoryMetricDTO.builder()
                     .category("Others")
                     .total(othersTotal)
                     .percentage(othersPercentage)

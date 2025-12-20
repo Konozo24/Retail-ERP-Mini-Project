@@ -11,8 +11,8 @@ import {
     Calendar as CalendarIcon,
     Download
 } from "lucide-react";
-import { useGetSalesOrdersPage } from "../api/sales-order.api";
-import { useGetProductsPage } from "../api/products.api";
+import { useGetSalesStatistics } from "../api/dashboard.api";
+import { useGetCategoriesName } from "../api/categories.api";
 
 const currencyFormatter = new Intl.NumberFormat("en-MY", {
     style: "currency",
@@ -22,7 +22,7 @@ const currencyFormatter = new Intl.NumberFormat("en-MY", {
 
 const Sales = () => {
     const [selectedCategory, setSelectedCategory] = useState("All");
-    const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
+    const [startDate, setStartDate] = useState("2024-01-01");
     const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -35,72 +35,19 @@ const Sales = () => {
         return [startDate, endDate];
     }, [startDate, endDate]);
 
-    const { data: salesPage, isLoading: isSalesLoading, isError: isSalesError } = useGetSalesOrdersPage("", 0, 500, fromDate, toDate);
-    const salesOrders = salesPage?.content ?? [];
-
-    const { data: productsPage, isLoading: isProductsLoading, isError: isProductsError } = useGetProductsPage("", 0, 500, "");
-
-    const productIndex = useMemo(() => {
-        const index = new Map();
-        (productsPage?.content ?? []).forEach((p) => {
-            index.set(p.name, {
-                stockQty: p.stockQty ?? 0,
-                category: p.category || "",
-                sku: p.sku || "",
-            });
-        });
-        return index;
-    }, [productsPage]);
-
-    const productSummary = useMemo(() => {
-        const totals = new Map();
-        salesOrders.forEach((order) => {
-            (order.items ?? []).forEach((item) => {
-                if (!item?.product) return;
-                const existing = totals.get(item.product) || {
-                    product: item.product,
-                    soldQty: 0,
-                    soldAmount: 0,
-                };
-                const qty = Number(item.quantity ?? 0);
-                const amount = Number(item.subtotal ?? qty * Number(item.unitPrice ?? 0));
-                existing.soldQty += qty;
-                existing.soldAmount += amount;
-                totals.set(item.product, existing);
-            });
-        });
-
-        return Array.from(totals.values()).map((entry) => {
-            const meta = productIndex.get(entry.product);
-            return {
-                ...entry,
-                instockQty: meta?.stockQty ?? 0,
-                category: meta?.category || "",
-                sku: meta?.sku || "",
-            };
-        });
-    }, [salesOrders, productIndex]);
-
-    const categories = useMemo(() => ["All", ...new Set(productSummary.map((item) => item.category).filter(Boolean))], [productSummary]);
-
-    const filteredData = useMemo(
-        () => (selectedCategory === "All" ? productSummary : productSummary.filter((item) => item.category === selectedCategory)),
-        [productSummary, selectedCategory]
+    const { data: statisticData, isLoading, isError } = useGetSalesStatistics(selectedCategory, 0, 500, 
+        startDate.replace(/(\d{4})-(\d{2})-(\d{2})/, "$3/$2/$1"), endDate.replace(/(\d{4})-(\d{2})-(\d{2})/, "$3/$2/$1")
     );
+    const productsStatistic = statisticData?.productsStatistic ?? [];
 
-    const totalRevenue = filteredData.reduce((sum, item) => sum + Number(item.soldAmount || 0), 0);
-    const itemsSold = filteredData.reduce((sum, item) => sum + Number(item.soldQty || 0), 0);
-    const totalOrders = salesOrders.length;
-    const averageOrderValue = totalOrders ? totalRevenue / totalOrders : 0;
+    const { data: categoriesNameData } = useGetCategoriesName();
+    const categoriesName = ["All", ...(categoriesNameData || [])];
 
-    const totalPages = Math.max(1, Math.ceil(filteredData.length / itemsPerPage));
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentData = filteredData.slice(startIndex, startIndex + itemsPerPage);
-
-    const isLoading = isSalesLoading || isProductsLoading;
-    const isError = isSalesError || isProductsError;
+    const totalPages = Math.max(1, Math.ceil(productsStatistic.length / itemsPerPage));
 
     const handleGenerateReport = () => {
+        if (isLoading) return;
+
         const doc = new jsPDF();
 
         doc.setFontSize(20);
@@ -120,10 +67,10 @@ const Sales = () => {
         doc.text("Summary Overview:", 14, 56);
 
         const summaryData = [
-            ["Total Revenue", currencyFormatter.format(totalRevenue)],
-            ["Total Orders", totalOrders.toLocaleString()],
-            ["Item Sold", itemsSold.toLocaleString()],
-            ["Avg Order Value", currencyFormatter.format(averageOrderValue)],
+            ["Total Revenue", currencyFormatter.format(statisticData.totalRevenue)],
+            ["Total Orders", statisticData.totalOrders.toLocaleString()],
+            ["Item Sold", statisticData.totalItemSold.toLocaleString()],
+            ["Avg Order Value", currencyFormatter.format(statisticData.averageOrderValue)],
         ];
 
         autoTable(doc, {
@@ -142,13 +89,13 @@ const Sales = () => {
         autoTable(doc, {
             startY: doc.lastAutoTable.finalY + 14,
             head: [["SKU", "Product", "Category", "Sold Qty", "Amount", "Instock Qty"]],
-            body: filteredData.map((item) => [
-                item.sku || "",
-                item.product,
-                item.category || "",
+            body: productsStatistic.map((item) => [
+                item.product.sku || "",
+                item.product.name,
+                item.product.category.name || "",
                 item.soldQty,
                 currencyFormatter.format(Number(item.soldAmount || 0)),
-                item.instockQty,
+                item.product.stockQty,
             ]),
             theme: "striped",
             headStyles: { fillColor: [66, 66, 66] },
@@ -162,15 +109,15 @@ const Sales = () => {
         {
             header: "SKU",
             accessor: "sku",
-            render: (row) => <span className="text-muted-foreground">{row.sku || ""}</span>,
+            render: (row) => <span className="text-muted-foreground">{row.product.sku || ""}</span>,
         },
         {
             header: "Product",
             accessor: "product",
             render: (row) => (
                 <div className="flex flex-col">
-                    <span className="font-medium text-foreground">{row.product}</span>
-                    <span className="text-xs text-muted-foreground">{row.category || "Uncategorized"}</span>
+                    <span className="font-medium text-foreground">{row.product.name}</span>
+                    <span className="text-xs text-muted-foreground">{row.product.category.name || "Uncategorized"}</span>
                 </div>
             ),
         },
@@ -189,9 +136,11 @@ const Sales = () => {
         {
             header: "Instock Qty",
             accessor: "instockQty",
-            render: (row) => <span className="text-muted-foreground">{row.instockQty}</span>,
+            render: (row) => <span className="text-muted-foreground">{row.stockQty}</span>,
         },
     ];
+
+    if (isLoading || isError) return <div>a</div>;
 
     return (
         <div className="space-y-6">
@@ -209,7 +158,7 @@ const Sales = () => {
                     </div>
                     <div>
                         <p className="text-sm text-muted-foreground">Total Revenue</p>
-                        <h3 className="text-xl font-bold text-foreground">{currencyFormatter.format(totalRevenue)}</h3>
+                        <h3 className="text-xl font-bold text-foreground">{currencyFormatter.format(statisticData.totalRevenue)}</h3>
                     </div>
                 </div>
 
@@ -219,7 +168,7 @@ const Sales = () => {
                     </div>
                     <div>
                         <p className="text-sm text-muted-foreground">Total Orders</p>
-                        <h3 className="text-xl font-bold text-foreground">{totalOrders.toLocaleString()}</h3>
+                        <h3 className="text-xl font-bold text-foreground">{statisticData.totalOrders.toLocaleString()}</h3>
                     </div>
                 </div>
 
@@ -229,7 +178,7 @@ const Sales = () => {
                     </div>
                     <div>
                         <p className="text-sm text-muted-foreground">Item Sold</p>
-                        <h3 className="text-xl font-bold text-foreground">{itemsSold.toLocaleString()}</h3>
+                        <h3 className="text-xl font-bold text-foreground">{statisticData.totalItemSold.toLocaleString()}</h3>
                     </div>
                 </div>
 
@@ -239,7 +188,7 @@ const Sales = () => {
                     </div>
                     <div>
                         <p className="text-sm text-muted-foreground">Average Order Value</p>
-                        <h3 className="text-xl font-bold text-foreground">{currencyFormatter.format(averageOrderValue)}</h3>
+                        <h3 className="text-xl font-bold text-foreground">{currencyFormatter.format(statisticData.averageOrderValue)}</h3>
                     </div>
                 </div>
             </div>
@@ -270,7 +219,7 @@ const Sales = () => {
                         </label>
                         <div className="relative">
                             <select value={selectedCategory} onChange={(e) => { setSelectedCategory(e.target.value); setCurrentPage(1); }} className="w-full h-10 pl-3 pr-8 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer">
-                                {categories.map((cat, idx) => (
+                                {categoriesName.map((cat, idx) => (
                                     <option key={idx} value={cat}>{cat === "All" ? "All Categories" : cat}</option>
                                 ))}
                             </select>
@@ -303,7 +252,7 @@ const Sales = () => {
 
                 <DataTable
                     columns={columns}
-                    data={currentData}
+                    data={productsStatistic}
                     showNumber={false}
                     actions={false}
                     currentPage={currentPage}

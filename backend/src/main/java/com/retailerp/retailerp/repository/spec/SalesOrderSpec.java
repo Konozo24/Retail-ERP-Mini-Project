@@ -26,13 +26,15 @@ public class SalesOrderSpec {
             public Predicate toPredicate(Root<SalesOrder> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
                 List<Predicate> predicates = new ArrayList<>();
 
+                var customerVar = root.join("customer");
+
                 // Filter out inactive products
                 //predicates.add(criteriaBuilder.isFalse(root.get("inactive")));
 
                 // Search by name
                 if (search != null && !search.trim().isEmpty()) {
                     String pattern = "%" + search.toLowerCase() + "%";
-                    Predicate nameLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), pattern);
+                    Predicate nameLike = criteriaBuilder.like(criteriaBuilder.lower(customerVar.get("name")), pattern);
                     predicates.add(nameLike);
                 }
 

@@ -19,7 +19,7 @@ const ManageStock = () => {
     // --- STATE ---
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState("");
-    const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
+    const [debouncedSearchQuery] = useDebounce(searchQuery, 400);
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);

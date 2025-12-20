@@ -9,11 +9,11 @@ import lombok.Getter;
 @Builder
 public class DashboardDTO {
 
-    private MetricDTO totalRevenue;
-    private MetricDTO sales;
-    private MetricDTO newCustomers;
+    private DashboardMetricDTO totalRevenue;
+    private DashboardMetricDTO sales;
+    private DashboardMetricDTO newCustomers;
     private Integer lowStockItems;
 
-    private List<MonthlyMetricDTO> overview;        // bar chart
-    private List<CategoryMetricDTO> topCategories;  // pie chart
+    private List<DashboardMonthlyMetricDTO> overview;        // bar chart
+    private List<DashboardCategoryMetricDTO> topCategories;  // pie chart
 }

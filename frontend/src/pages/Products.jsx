@@ -39,7 +39,7 @@ const Products = () => {
 
     // --- STATE ---
     const [searchQuery, setSearchQuery] = useState("");
-    const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
+    const [debouncedSearchQuery] = useDebounce(searchQuery, 400);
     const [selectedCategoryName, setSelectedCategoryName] = useState("All");
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);

@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class MonthlyMetricDTO {
+public class DashboardMonthlyMetricDTO {
 
     private String month;
     private BigDecimal total;

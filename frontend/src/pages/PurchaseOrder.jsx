@@ -1,108 +1,351 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useDebounce } from 'use-debounce';
 import { useNavigate } from 'react-router-dom';
+import Toast from "../components/ui/Toast"; // Import Toast
 import { Search, ClipboardList, CheckCircle, RotateCcw, FilePlus2, Download, History as HistoryIcon, Trash2, Plus } from 'lucide-react';
 import DataTable from '../components/ui/DataTable';
-import { purchaseOrdersList, suppliersData } from '../data/PurchaseData';
-import { productsData } from '../data/mockData';
 
-const PurchaseOrder = () => {
-    const navigate = useNavigate();
-    const [searchTerm, setSearchTerm] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const [entriesPerPage, setEntriesPerPage] = useState(10);
+import { 
+    useGetSuppliersPage,
+} from "../api/suppliers.api";
 
-    const storageKey = "purchaseOrders";
-    const loadOrders = () => {
-        try {
-            const raw = localStorage.getItem(storageKey);
-            if (raw) return JSON.parse(raw);
-        } catch (e) {
-            console.warn("Failed to parse purchase orders from storage", e);
-        }
-        return purchaseOrdersList;
+import { 
+    useGetProductsPage,
+} from "../api/products.api";
+
+import { 
+    useGetPurchaseOrdersPage,
+    useCreatePurchaseOrder,
+    useUpdatePurchaseOrder,
+} from "../api/purchase-order.api";
+
+{/* Main Content Card (The List Table) */}
+const CreationFormTable = ({showToast}) => {
+    // --- FORM STATES ---
+    const [ formData, setFormData ] = useState({
+        supplierId: null,
+        productId: null,
+        quantity: 1,
+        costPrice: 0,
+    });
+    const [ items, setItems ] = useState([]);
+    const itemsTotal = items.reduce((sum, i) => sum + i.quantity * i.product.costPrice, 0);
+
+    // --- DATA ---
+    const {data: suppliersPage, isSuppliersLoading} = useGetSuppliersPage("", 0, 1000);
+    const suppliers = suppliersPage?.content ?? [];
+
+    const {data: productsPage, isProductsLoading} = useGetProductsPage("", 0, 1000);
+    const products = productsPage?.content ?? [];
+
+    // --- DATA MUTATIONS ---
+    const { mutateAsync: createPurchaseOrder } = useCreatePurchaseOrder();
+
+    // --- Handlers ---
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
     };
 
-    const [orders, setOrders] = useState(loadOrders);
-    const [selectedSupplier, setSelectedSupplier] = useState("");
-    const [orderDate, setOrderDate] = useState(() => new Date().toISOString().slice(0, 10));
-    const [selectedProduct, setSelectedProduct] = useState("");
-    const [itemQty, setItemQty] = useState(1);
-    const [itemCost, setItemCost] = useState("");
-    const [items, setItems] = useState([]);
+    const handleProductChange = (productId) => {
+        const product = products.find(p => p.id === Number(productId));
 
-    // Placeholder functions for the buttons (Necessary to prevent errors)
-    const handleSubmitOrder = () => {
-        if (!selectedSupplier) {
-            alert("Please select a supplier.");
+        setFormData((prev) => ({
+            ...prev,
+            productId: productId,
+            costPrice: product.costPrice
+        }));
+    };
+
+    const handleAddItem = () => {
+        if (!formData.supplierId) return;
+        if (!formData.productId) return;
+        if (formData.quantity < 0) return;
+
+        const product = products.find(p => p.id === Number(formData.productId));
+
+        setItems((prev) => {
+            let found = false;
+
+            const updated = prev.map((i) => {
+                if (i.product.id === product.id) {
+                    found = true;
+                    return { ...i, quantity: i.quantity + formData.quantity };
+                }
+                return i;
+            });
+
+            return found
+                ? updated
+                : [
+                    ...prev, 
+                    {
+                        supplierId: formData.supplierId,
+                        product: product, 
+                        quantity: formData.quantity,
+                    }
+                ];
+        });
+
+        setFormData((prev) => {
+            return {
+                ...prev,
+                //supplierId: null,
+                productId: null,
+                quantity: 1,
+                costPrice: 0,
+            }
+        });
+    }
+
+    const handleRemoveItem = (productId) => {
+        setItems((prev) => prev.filter((i) => i.product.id !== productId));
+    }
+
+    const handleUpdateItemQuantity = (productId, value) => {
+        if (value == 0) {
+            handleRemoveItem(productId);
+            return;
+        }
+
+        setItems((prev) =>
+            prev.map((i) =>
+                i.product.id === productId
+                    ? { ...i, quantity: value }
+                    : i
+            )
+        );
+    };
+
+    const handleSubmitOrder = async () => {
+        if (!formData.supplierId) {
+            showToast("Please select a supplier.", "error");
             return;
         }
         if (!items.length) {
-            alert("Add at least one product to the order.");
+            showToast("Add at least one product to the order.", "error");
             return;
         }
 
-        const supplierObj = suppliersData.find((s) => String(s.id) === String(selectedSupplier));
-        const total_cost = items.reduce((sum, it) => sum + it.quantity * it.unit_cost, 0);
-        const newOrder = {
-            po_id: `PO-${Date.now()}`,
-            date: orderDate,
-            supplier: supplierObj,
-            total_cost,
-            items_count: items.length,
-            status: "Pending",
-        };
-
-        setOrders((prev) => [newOrder, ...prev]);
-        setSelectedSupplier("");
-        setOrderDate(new Date().toISOString().slice(0, 10));
-        setItems([]);
-        setSelectedProduct("");
-        setItemQty(1);
-        setItemCost("");
-        alert("Purchase order created (demo).");
-    };
-
-    const handleAddPurchase = () => {
-        alert("Add Purchase button clicked! (This functionality belongs on the PO Create page.)");
-    };
-    // --- END PLACEHOLDER FUNCTIONS ---
-
-
-    useEffect(() => {
-        try {
-            localStorage.setItem(storageKey, JSON.stringify(orders));
-        } catch (e) {
-            console.warn("Failed to save purchase orders", e);
+        const payload = {
+            supplierId: Number(formData.supplierId),
+            items: items.map(i => ({
+                productId: i.product.id,
+                quantity: i.quantity
+            }))
         }
-    }, [orders]);
 
-    const filteredOrders = useMemo(
-        () =>
-            orders.filter((order) =>
-                order.po_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                order.supplier.name.toLowerCase().includes(searchTerm.toLowerCase())
-            ),
-        [orders, searchTerm]
+        try {
+            await createPurchaseOrder(payload);
+            setFormData({
+                supplierId: null,
+                productId: null,
+                quantity: 1,
+                costPrice: 0,
+            });
+            setItems([]);
+            showToast("New purchase order added successfully!", "success");
+        } catch (error) {
+            showToast("Failed to create purchase order.\n" + error, "error");
+        }
+        
+    };
+
+    return (
+        <div className="bg-card p-6 rounded-lg border border-border shadow-sm space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-1">
+                    <label className="text-sm font-medium">Supplier <span className="text-destructive">*</span></label>
+                    <select
+                        name='supplierId'
+                        value={formData.supplierId || ''}
+                        onChange={handleChange}
+                        className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:ring-1 focus:ring-primary"
+                    >
+                        <option value="">Select supplier</option>
+                        {suppliers.map((s) => (
+                            <option key={s.id} value={s.id}>{s.name}</option>
+                        ))}
+                    </select>
+                </div>
+                {/* <div className="space-y-1">
+                    <label className="text-sm font-medium">Order Date</label>
+                    <input
+                        type="date"
+                        value={orderDate}
+                        onChange={(e) => setOrderDate(e.target.value)}
+                        className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:ring-1 focus:ring-primary"
+                    />
+                </div> */}
+            </div>
+
+            <div hidden={!formData.supplierId} className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="md:col-span-2">
+                    <label className="text-sm font-medium">Product</label>
+                    <select
+                        name='productId'
+                        value={formData.productId || ''}
+                        onChange={e => handleProductChange(e.target.value)}
+                        className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:ring-1 focus:ring-primary"
+                    >
+                        <option value="">Select product</option>
+                        {products.map((p) => (
+                            <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>
+                        ))}
+                    </select>
+                </div>
+                <div>
+                    <label className="text-sm font-medium">Quantity</label>
+                    <input
+                        disabled={!formData.productId}
+                        name='quantity'
+                        type="number"
+                        min="1"
+                        step="1"
+                        value={formData.quantity}
+                        onChange={handleChange}
+                        className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:ring-1 focus:ring-primary"
+                    />
+                </div>
+                <div>
+                    <label className="text-sm font-medium">Cost Price</label>
+                    <input
+                        type="number"
+                        disabled="true"
+                        value={formData.costPrice}
+                        placeholder="Auto from product price"
+                        className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:ring-1 focus:ring-primary"
+                    />
+                </div>
+            </div>
+           
+            <button
+                disabled={!formData.supplierId || !formData.productId}
+                onClick={handleAddItem}
+                className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm hover:bg-primary/90"
+            >
+                <Plus className="w-4 h-4" /> Add Item
+            </button>
+
+            {/* Items table */}
+            <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-border">
+                    <thead className="bg-muted">
+                        <tr>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Product</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Qty</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Cost Price</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Subtotal</th>
+                            <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-background divide-y divide-border">
+                        {items.length ? items.map((it) => (
+                            <tr key={it.productId}>
+                                <td className="px-4 py-3 text-sm font-medium">{it.product.name}</td>
+                                <td className="px-4 py-3 text-sm">
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={it.quantity}
+                                        onChange={(e) => handleUpdateItemQuantity(it.product.id, e.target.value)}
+                                        className="w-20 h-9 rounded-md border border-input bg-background px-2 text-sm focus:ring-1 focus:ring-primary"
+                                    />
+                                </td>
+                                <td className="px-4 py-3 text-sm">
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        disabled="true"
+                                        value={it.product.costPrice}
+                                        className="w-28 h-9 rounded-md border border-input bg-background px-2 text-sm focus:ring-1 focus:ring-primary"
+                                    />
+                                </td>
+                                <td className="px-4 py-3 text-sm font-semibold">
+                                    {((it.quantity * it.product.costPrice || 0)).toLocaleString("en-MY")}
+                                </td>
+                                <td className="px-4 py-3 text-right">
+                                    <button
+                                        onClick={() => handleRemoveItem(it.product.id)}
+                                        className="p-2 rounded-md hover:bg-destructive/10 text-destructive"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
+                                </td>
+                            </tr>
+                        )) : (
+                            <tr>
+                                <td colSpan="5" className="px-4 py-6 text-center text-muted-foreground text-sm">
+                                    No items added. Select a product to begin.
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
+            <div className="flex justify-between items-center pt-2">
+                <div className="text-sm text-muted-foreground">
+                    Items: {items.length}
+                </div>
+                <div className="text-lg font-bold">
+                    Total: RM {((itemsTotal)).toLocaleString("en-MY")}
+                </div>
+            </div>
+
+            <div className="flex gap-3">
+                <button
+                    onClick={handleSubmitOrder}
+                    className="bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-4 rounded-md transition-colors shadow-sm"
+                >
+                    Submit Order
+                </button>
+                {/* <button
+                    onClick={handleAddPurchase}
+                    className="bg-secondary hover:bg-secondary/80 text-secondary-foreground font-semibold py-2 px-4 rounded-md transition-colors shadow-sm"
+                >
+                    Add Purchase
+                </button> */}
+            </div>
+        </div>
     );
+}
 
-    const indexOfLastEntry = currentPage * entriesPerPage;
-    const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
-    const currentEntries = filteredOrders.slice(indexOfFirstEntry, indexOfLastEntry);
-    const totalPages = Math.max(1, Math.ceil(filteredOrders.length / entriesPerPage));
+{/* Existing list */}
+const PurchaseOrderList = ({showToast}) => {
+    const navigate = useNavigate();
 
+     // --- STATE ---
+    const [searchQuery, setSearchQuery] = useState("");
+    const [debouncedSearchQuery] = useDebounce(searchQuery, 400);
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+    
+    // --- DATA ---
+    const {data: purchaseOrderPage, isLoading} = useGetPurchaseOrdersPage(debouncedSearchQuery, currentPage - 1, itemsPerPage);
+    const purchaseOrders = purchaseOrderPage?.content ?? [];
+    const totalPages = purchaseOrderPage?.totalPages ?? 0;
+
+    // --- DATA MUTATIONS ---
+    const { mutateAsync: updatePurchaseOrder } = useUpdatePurchaseOrder();
+    
     const StatusBadge = ({ status }) => {
         let colorClass = '';
         switch (status) {
             case 'Received':
                 colorClass = 'bg-primary-100 text-primary';
                 break;
-            case 'Completed':
+            case 'DELIVERED':
                 colorClass = 'bg-green-100 text-green-700';
                 break;
-            case 'In Transit':
-                colorClass = 'bg-blue-100 text-blue-700';
+            case 'CANCELLED':
+                colorClass = 'bg-blue-100 text-red-600';
                 break;
-            case 'Pending':
+            case 'PENDING':
                 colorClass = 'bg-yellow-100 text-yellow-700';
                 break;
             default:
@@ -115,43 +358,49 @@ const PurchaseOrder = () => {
         );
     };
 
-    const handleToggleDelivered = (po_id) => {
-        setOrders((prev) =>
-            prev.map((o) =>
-                o.po_id === po_id
-                    ? {
-                        ...o,
-                        status: o.status === 'Received' ? 'Pending' : 'Received',
-                    }
-                    : o
-            )
-        );
+    const handleToggleDelivered = async (purchaseOrderId) => {
+        const purchaseOrder = purchaseOrders.find(po => po.id === Number(purchaseOrderId));
+        const newStatus = purchaseOrder.status === 'DELIVERED' ? 'PENDING' : 'DELIVERED'
+        
+        try {
+            await updatePurchaseOrder({
+                purchaseOrderId: purchaseOrderId, 
+                payload:{ status: newStatus }
+            })
+        } catch (error) {
+            
+        }
     };
 
     const columns = [
         {
             header: "PO ID",
-            accessor: "po_id",
-            render: (row) => <span className="font-semibold text-primary">{row.po_id}</span>,
+            accessor: "id",
+            render: (row) => <span className="font-semibold text-primary">PO-{String(row.id).padStart(5, '0')}</span>,
         },
         {
             header: "Date",
-            accessor: "date",
-            render: (row) => <span className="text-muted-foreground">{row.date}</span>,
+            accessor: "createdAt",
+            render: (row) => <span className="text-muted-foreground">{row.createdAt}</span>,
         },
         {
             header: "Supplier",
             accessor: "supplier",
-            render: (row) => <span className="font-medium">{row.supplier.name}</span>,
+            render: (row) => <span className="font-medium">{row.supplier}</span>,
         },
         {
             header: "Items",
-            accessor: "items_count",
+            accessor: "items.length",
+            render: (row) => <span>{row.items.length}</span>,
         },
         {
             header: "Total Cost",
             accessor: "total_cost",
-            render: (row) => <span className="font-medium">${row.total_cost.toFixed(2)}</span>,
+            render: (row) => <span className="font-medium">
+                ${
+                    ((row.items.reduce((sum, i) => sum + i.subtotal, 0) || 0)).toLocaleString("en-MY")
+                }
+            </span>,
         },
         {
             header: "Status",
@@ -164,11 +413,12 @@ const PurchaseOrder = () => {
             render: (row) => (
                 <div className="flex justify-end gap-2">
                     <button
-                        onClick={() => handleToggleDelivered(row.po_id)}
+                        hidden={row.status==="DELIVERED"}
+                        onClick={() => handleToggleDelivered(row.id)}
                         className="px-3 py-2 rounded-md border border-border text-sm hover:bg-muted transition-colors flex items-center gap-2"
                         title={row.status === 'Received' ? 'Mark as Pending' : 'Mark as Delivered'}
                     >
-                        {row.status === 'Received' ? (
+                        {row.status === 'DELIVERED' ? (
                             <>
                                 <RotateCcw className="w-4 h-4" />
                                 Pending
@@ -193,50 +443,57 @@ const PurchaseOrder = () => {
         },
     ];
 
-    const addItem = () => {
-        if (!selectedProduct) return;
-        const product = productsData.find((p) => String(p.id) === String(selectedProduct));
-        if (!product) return;
-        const unitCost = itemCost ? parseFloat(itemCost) : parseFloat((product.unit_price || "0").replace(/,/g, ""));
-        if (!unitCost || unitCost <= 0) {
-            alert("Please enter a valid unit cost.");
-            return;
-        }
-        setItems((prev) => {
-            const exists = prev.find((i) => i.product.id === product.id);
-            if (exists) {
-                return prev.map((i) =>
-                    i.product.id === product.id
-                        ? { ...i, quantity: i.quantity + itemQty }
-                        : i
-                );
-            }
-            return [...prev, { product, quantity: itemQty, unit_cost: unitCost }];
-        });
-        setItemQty(1);
-        setItemCost("");
-        setSelectedProduct("");
-    };
+    return (
+        <div className="bg-card p-6 rounded-lg border border-border shadow-sm space-y-4">
+            {/* Search */}
+            <div className="relative w-full md:w-80">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                    type="text"
+                    placeholder="Search by PO ID or Supplier..."
+                    value={searchQuery}
+                    onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                        setCurrentPage(1);
+                    }}
+                    className="w-full h-10 pl-9 pr-4 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+            </div>
 
-    const updateItemField = (productId, field, value) => {
-        setItems((prev) =>
-            prev.map((i) =>
-                i.product.id === productId
-                    ? { ...i, [field]: value }
-                    : i
-            )
-        );
-    };
+            <DataTable
+                showNumber={true}
+                columns={columns}
+                data={purchaseOrders}
+                isLoading={isLoading}
+                actions={false}
 
-    const removeItem = (productId) => {
-        setItems((prev) => prev.filter((i) => i.product.id !== productId));
+                currentPage={currentPage}
+                totalPages={totalPages}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setCurrentPage}
+                onItemsPerPageChange={(val) => { setItemsPerPage(val); setCurrentPage(1); }}
+            />
+        </div>
+    );
+}
+const PurchaseOrder = () => {
+    // --- Helper: Toast ---
+    const [toast, setToast] = useState({ show: false, message: "", type: "success" });
+    const showToast = (message, type = "success") => {
+        setToast({ show: true, message, type });
     };
-
-    const itemsTotal = items.reduce((sum, i) => sum + i.quantity * i.unit_cost, 0);
 
     return (
         <div className="space-y-6">
-            
+            {/* Toast Notification */}
+            {toast.show && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast({ ...toast, show: false })}
+                />
+            )}
+
             {/* Header and Actions */}
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
@@ -257,192 +514,9 @@ const PurchaseOrder = () => {
                 Dashboard {'>'} Stock {'>'} <span className="text-primary">Purchase Orders</span>
             </div>
 
-            {/* Main Content Card (The List Table) */}
-            <div className="bg-card p-6 rounded-lg border border-border shadow-sm space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-1">
-                        <label className="text-sm font-medium">Supplier <span className="text-destructive">*</span></label>
-                        <select
-                            value={selectedSupplier}
-                            onChange={(e) => setSelectedSupplier(e.target.value)}
-                            className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:ring-1 focus:ring-primary"
-                        >
-                            <option value="">Select supplier</option>
-                            {suppliersData.map((s) => (
-                                <option key={s.id} value={s.id}>{s.name}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="space-y-1">
-                        <label className="text-sm font-medium">Order Date</label>
-                        <input
-                            type="date"
-                            value={orderDate}
-                            onChange={(e) => setOrderDate(e.target.value)}
-                            className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:ring-1 focus:ring-primary"
-                        />
-                    </div>
-                </div>
+            <CreationFormTable showToast={showToast} />
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="md:col-span-2">
-                        <label className="text-sm font-medium">Product</label>
-                        <select
-                            value={selectedProduct}
-                            onChange={(e) => setSelectedProduct(e.target.value)}
-                            className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:ring-1 focus:ring-primary"
-                        >
-                            <option value="">Select product</option>
-                            {productsData.map((p) => (
-                                <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div>
-                        <label className="text-sm font-medium">Quantity</label>
-                        <input
-                            type="number"
-                            min="1"
-                            value={itemQty}
-                            onChange={(e) => setItemQty(Math.max(1, Number(e.target.value)))}
-                            className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:ring-1 focus:ring-primary"
-                        />
-                    </div>
-                    <div>
-                        <label className="text-sm font-medium">Unit Cost</label>
-                        <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={itemCost}
-                            onChange={(e) => setItemCost(e.target.value)}
-                            placeholder="Auto from product price"
-                            className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:ring-1 focus:ring-primary"
-                        />
-                    </div>
-                </div>
-                <button
-                    onClick={addItem}
-                    className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm hover:bg-primary/90"
-                >
-                    <Plus className="w-4 h-4" /> Add Item
-                </button>
-
-                {/* Items table */}
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-border">
-                        <thead className="bg-muted">
-                            <tr>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Product</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Qty</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Unit Cost</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Subtotal</th>
-                                <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-background divide-y divide-border">
-                            {items.length ? items.map((it) => (
-                                <tr key={it.product.id}>
-                                    <td className="px-4 py-3 text-sm font-medium">{it.product.name}</td>
-                                    <td className="px-4 py-3 text-sm">
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            value={it.quantity}
-                                            onChange={(e) => updateItemField(it.product.id, "quantity", Math.max(1, Number(e.target.value)))}
-                                            className="w-20 h-9 rounded-md border border-input bg-background px-2 text-sm focus:ring-1 focus:ring-primary"
-                                        />
-                                    </td>
-                                    <td className="px-4 py-3 text-sm">
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            step="0.01"
-                                            value={it.unit_cost}
-                                            onChange={(e) => updateItemField(it.product.id, "unit_cost", Math.max(0, Number(e.target.value)))}
-                                            className="w-28 h-9 rounded-md border border-input bg-background px-2 text-sm focus:ring-1 focus:ring-primary"
-                                        />
-                                    </td>
-                                    <td className="px-4 py-3 text-sm font-semibold">
-                                        ${(it.quantity * it.unit_cost).toFixed(2)}
-                                    </td>
-                                    <td className="px-4 py-3 text-right">
-                                        <button
-                                            onClick={() => removeItem(it.product.id)}
-                                            className="p-2 rounded-md hover:bg-destructive/10 text-destructive"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </td>
-                                </tr>
-                            )) : (
-                                <tr>
-                                    <td colSpan="5" className="px-4 py-6 text-center text-muted-foreground text-sm">
-                                        No items added. Select a product to begin.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                <div className="flex justify-between items-center pt-2">
-                    <div className="text-sm text-muted-foreground">
-                        Items: {items.length}
-                    </div>
-                    <div className="text-lg font-bold">
-                        Total: ${itemsTotal.toFixed(2)}
-                    </div>
-                </div>
-
-                <div className="flex gap-3">
-                    <button
-                        onClick={handleSubmitOrder}
-                        className="bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-4 rounded-md transition-colors shadow-sm"
-                    >
-                        Submit Order
-                    </button>
-                    <button
-                        onClick={handleAddPurchase}
-                        className="bg-secondary hover:bg-secondary/80 text-secondary-foreground font-semibold py-2 px-4 rounded-md transition-colors shadow-sm"
-                    >
-                        Add Purchase
-                    </button>
-                </div>
-            </div>
-
-            {/* Existing list */}
-            <div className="bg-card p-6 rounded-lg border border-border shadow-sm space-y-4">
-                {/* Search */}
-                <div className="relative w-full md:w-80">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <input
-                        type="text"
-                        placeholder="Search by PO ID or Supplier..."
-                        value={searchTerm}
-                        onChange={(e) => {
-                            setSearchTerm(e.target.value);
-                            setCurrentPage(1);
-                        }}
-                        className="w-full h-10 pl-9 pr-4 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                    />
-                </div>
-
-                <DataTable
-                    columns={columns}
-                    data={currentEntries}
-                    showNumber={true}
-                    actions={false}
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    itemsPerPage={entriesPerPage}
-                    onPageChange={(page) => setCurrentPage(page)}
-                    onItemsPerPageChange={(val) => {
-                        setEntriesPerPage(val);
-                        setCurrentPage(1);
-                    }}
-                />
-            </div>
+            <PurchaseOrderList showToast={showToast} />
         </div>
     );
 };

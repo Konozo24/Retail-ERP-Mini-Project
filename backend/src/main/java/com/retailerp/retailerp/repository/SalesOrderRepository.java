@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.retailerp.retailerp.dto.dashboard.TopCategoryDTO;
+import com.retailerp.retailerp.dto.statistic.ProductStatisticProjection;
 import com.retailerp.retailerp.model.SalesOrder;
 
 @Repository
@@ -22,8 +23,8 @@ public interface SalesOrderRepository extends JpaRepository<SalesOrder, Long>, J
     // Find all sales for a specific Customer                                |
     List<SalesOrder> findByCustomerId(Long customerId);
 
-    // DASHBOARD
-        @Query("""
+    // DASHBOARD / STATISTICS
+    @Query("""
         SELECT COALESCE(SUM(so.totalAmount), 0)
         FROM SalesOrder so
         WHERE so.createdAt BETWEEN :start AND :end
@@ -65,4 +66,24 @@ public interface SalesOrderRepository extends JpaRepository<SalesOrder, Long>, J
     """)
     List<TopCategoryDTO> getTopCategories(int year);
 
+    @Query("""
+        SELECT COALESCE(SUM(item.quantity), 0)
+        FROM SalesOrder so
+        JOIN so.items item
+        WHERE so.createdAt BETWEEN :start AND :end
+    """)
+    Long getItemsSoldBetween(OffsetDateTime start, OffsetDateTime end);
+
+    @Query("""
+        SELECT new com.retailerp.retailerp.dto.statistic.ProductStatisticProjection(
+            soi.product, 
+            CAST(SUM(soi.quantity) AS java.math.BigDecimal),
+            CAST(SUM(soi.subtotal) AS java.math.BigDecimal)
+        )
+        FROM SalesOrderItem soi
+        JOIN soi.salesOrder so
+        WHERE so.createdAt BETWEEN :start AND :end
+        GROUP BY soi.product
+    """)
+    List<ProductStatisticProjection> getProductSalesSummary(OffsetDateTime start, OffsetDateTime end);
 }

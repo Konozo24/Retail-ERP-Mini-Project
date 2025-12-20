@@ -8,7 +8,7 @@ import lombok.Builder.Default;
 
 @Getter
 @Builder
-public class CategoryMetricDTO {
+public class DashboardCategoryMetricDTO {
 
     private String category;
     private BigDecimal total;

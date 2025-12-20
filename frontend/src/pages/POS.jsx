@@ -7,10 +7,11 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useDebounce } from 'use-debounce';
-import { useGetCategories, useGetProductsPage } from '../api/products.api';
+import { useGetProductsPage } from '../api/products.api';
+import { useGetCategoriesName } from '../api/categories.api';
 import { useGetCustomersPage, useCreateCustomer } from '../api/customers.api';
 import { useCreateSalesOrder } from '../api/sales-order.api';
-import { getImageUrl } from '../data/categoryImages';
+import { getImageUrlByProduct } from '../data/categoryImages';
 import EditCustomersModal from '../components/ui/EditCustomersModal';
 
 // --- HELPERS ---
@@ -28,7 +29,7 @@ const mapProductToPosItem = (product) => {
         qty: product.stockQty ?? product.stock_qty ?? product.qty ?? 0,
         desc: product.description ?? product.desc ?? '',
         image: product.image || product.image_url || null,
-        category: product.category || 'Others',
+        category: product.category.name || 'Others',
     };
 };
 
@@ -128,7 +129,7 @@ const ProductCard = ({ product, onAddToCart }) => (
         {/* Image Area */}
         <div className="aspect-4/3 bg-muted/50 rounded-lg mb-4 relative overflow-hidden flex items-center justify-center p-4">
             <img
-                src={getImageUrl(product)}
+                src={getImageUrlByProduct(product)}
                 alt={product.name}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             />
@@ -345,7 +346,7 @@ const OrderDetails = ({ cart, selectedCustomer, onSelectCustomer, customers, cus
                     cartItems.map((item) => (
                         <div key={item.id} className="flex gap-3 group">
                             <div className="w-14 h-14 bg-muted rounded-md shrink-0 p-1 border border-border">
-                                <img src={getImageUrl(item)} className="w-full h-full object-cover" alt={item.name} />
+                                <img src={getImageUrlByProduct(item)} className="w-full h-full object-cover" alt={item.name} />
                             </div>
                             <div className="flex-1 min-w-0 flex flex-col gap-2">
                                 {/* Product name and price - better layout */}
@@ -535,7 +536,7 @@ const POS = () => {
         setCart(prevCart => prevCart.filter(item => item.id !== productId));
     };
 
-    const { data: categoriesData } = useGetCategories();
+    const { data: categoriesData } = useGetCategoriesName();
     const categories = useMemo(() => categoriesData ?? [], [categoriesData]);
 
     const { data: customersPage } = useGetCustomersPage(debouncedCustomerSearch, 0, 100);

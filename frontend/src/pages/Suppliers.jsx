@@ -16,7 +16,7 @@ import {
 const Suppliers = () => {
     // --- STATE ---
     const [searchQuery, setSearchQuery] = useState("");
-    const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
+    const [debouncedSearchQuery] = useDebounce(searchQuery, 400);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -80,15 +80,19 @@ const Suppliers = () => {
             address: formData.address,
         };
 
-        if (currentSupplier) {
-            await updateSupplier({
-                supplierId: currentSupplier.id,
-                payload: payload
-            });
-            showToast("Supplier details updated successfully!", "success");
-        } else {
-            await createSupplier(payload);
-            showToast("New supplier added successfully!", "success");
+        try {
+            if (currentSupplier) {
+                await updateSupplier({
+                    supplierId: currentSupplier.id,
+                    payload: payload
+                });
+                showToast("Supplier details updated successfully!", "success");
+            } else {
+                await createSupplier(payload);
+                showToast("New supplier added successfully!", "success");
+            }
+        } catch (error) {
+            showToast("Failed to create supplier.", "error");
         }
     };
 
