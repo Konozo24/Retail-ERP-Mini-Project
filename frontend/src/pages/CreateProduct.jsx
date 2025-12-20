@@ -20,6 +20,7 @@ const CreateProduct = () => {
     const [formData, setFormData] = useState({
         name: "",
         sku: "",
+        stockQty: "",
         categoryId: 0,
         unitPrice: "",
         costPrice: "",
@@ -38,6 +39,7 @@ const CreateProduct = () => {
                 name: productToEdit.name || "",
                 sku: productToEdit.sku || "",
                 categoryId: productToEdit.category?.id || 0,
+                stockQty: productToEdit.stockQty?.toString() || "",
                 unitPrice: productToEdit.unitPrice?.toString() || "",
                 costPrice: productToEdit.costPrice?.toString() || "",
                 reorderLevel: productToEdit.reorderLevel?.toString() || "",
@@ -97,6 +99,7 @@ const CreateProduct = () => {
             name: formData.name.trim(),
             sku: formData.sku.trim(),
             categoryId: formData.categoryId,
+            stockQty: parseInt(formData.stockQty) || 0,
             unitPrice: parseFloat(formData.unitPrice),
             costPrice: parseFloat(formData.costPrice),
             reorderLevel: Math.max(0, parseInt(formData.reorderLevel) || 0),

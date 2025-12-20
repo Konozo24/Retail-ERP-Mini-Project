@@ -22,6 +22,8 @@ const mapProductToPosItem = (product) => {
         ? rawPrice
         : parseFloat(rawPrice.toString().replace(/,/g, '')) || 0;
 
+    const categoryName = product.category?.name || product.category || 'Others';
+
     return {
         id: product.id,
         name: product.name,
@@ -29,7 +31,7 @@ const mapProductToPosItem = (product) => {
         qty: product.stockQty ?? product.stock_qty ?? product.qty ?? 0,
         desc: product.description ?? product.desc ?? '',
         image: product.image || product.image_url || null,
-        category: product.category.name || 'Others',
+        category: categoryName,
     };
 };
 

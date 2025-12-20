@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Barcode from 'react-barcode';
 import { FaSearch, FaFileAlt, FaSync, FaChevronUp, FaPrint, FaUndo, FaTimes } from 'react-icons/fa';
 import { Trash2 } from 'lucide-react';
-import { productsData } from '../data/mockData';
-import DeleteModal from '../components/ui/DeleteModal'; // Ensure you have the DeleteModal file saved
+import { useDebounce } from 'use-debounce';
+import { useGetProductsPage } from '../api/products.api';
+import { getImageUrlByProduct } from '../data/categoryImages';
+import DeleteModal from '../components/ui/DeleteModal';
+import Toast from '../components/ui/Toast';
 
 const PrintBarcode = () => {
     // --- State ---
@@ -19,39 +22,59 @@ const PrintBarcode = () => {
         showPrice: true,
     });
     const [showPreview, setShowPreview] = useState(false);
+    const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
     // Delete Modal State
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [productToDelete, setProductToDelete] = useState(null);
 
+    // --- Data fetching ---
+    const [debouncedSearch] = useDebounce(searchTerm, 300);
+    const { data: productsPage, isLoading } = useGetProductsPage(debouncedSearch, 0, 50, '');
+
+    const mappedResults = useMemo(() => {
+        const items = productsPage?.content ?? [];
+        return items.map((product) => {
+            const rawPrice = product.unitPrice ?? product.unit_price ?? product.price ?? 0;
+            const numericPrice = typeof rawPrice === 'number'
+                ? rawPrice
+                : parseFloat(rawPrice?.toString().replace(/,/g, '')) || 0;
+
+            const categoryName = product.category?.name || product.category || 'Uncategorized';
+            const stockQty = product.stockQty ?? product.stock_qty ?? product.qty ?? product.quantity ?? 0;
+
+            return {
+                id: product.id,
+                name: product.name,
+                sku: product.sku || product.code || product.id,
+                categoryName,
+                category: { name: categoryName },
+                unit_price: numericPrice,
+                image: product.image || product.image_url || product.imageUrl || null,
+                qty: Number(stockQty) || 0,
+            };
+        });
+    }, [productsPage]);
+
+    useEffect(() => {
+        setSearchResults(mappedResults);
+    }, [mappedResults]);
+
     // --- Search & Add Logic ---
     const handleSearchChange = (e) => {
         const value = e.target.value;
         setSearchTerm(value);
-
-        if (value.length > 0) {
-            const filtered = productsData.filter((product) =>
-                product.name.toLowerCase().includes(value.toLowerCase()) ||
-                product.sku.toLowerCase().includes(value.toLowerCase())
-            );
-            setSearchResults(filtered);
-            setIsDropdownOpen(true);
-        } else {
-            setIsDropdownOpen(false);
-        }
+        setIsDropdownOpen(value.length > 0);
     };
 
     const addProduct = (product) => {
         const existing = selectedProducts.find(p => p.id === product.id);
         if (existing) {
-            // If product exists, we increment the qty automatically by 1 (simulating a scan)
-            const updatedProducts = selectedProducts.map(p =>
-                p.id === product.id ? { ...p, qty: p.qty + 1 } : p
-            );
-            setSelectedProducts(updatedProducts);
+            // Keep real inventory qty once selected; avoid inflating on re-select
+            setSelectedProducts(selectedProducts);
         } else {
-            // New product default quantity (e.g., 10)
-            setSelectedProducts([...selectedProducts, { ...product, qty: 10 }]);
+            // Use real stock quantity from backend
+            setSelectedProducts([...selectedProducts, { ...product, qty: product.qty }]);
         }
         setSearchTerm('');
         setIsDropdownOpen(false);
@@ -83,11 +106,29 @@ const PrintBarcode = () => {
 
     const handlePrintTrigger = () => {
         if (selectedProducts.length === 0) {
-            alert("Please select at least one product.");
+            setToast({ show: true, message: 'Please select at least one product.', type: 'error' });
             return;
         }
         setShowPreview(true);
     };
+
+    const layout = paperSize === 'Label'
+        ? {
+            gridClass: 'grid-cols-1 sm:grid-cols-2 print-grid-label',
+            cardClass: 'max-w-[260px] w-full mx-auto',
+            barcodeWidth: 1,
+            barcodeHeight: 60,
+            barcodeFont: 12,
+            gapClass: 'gap-4',
+        }
+        : {
+            gridClass: 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 print-grid-a4',
+            cardClass: 'w-full',
+            barcodeWidth: 1,
+            barcodeHeight: 50,
+            barcodeFont: 12,
+            gapClass: 'gap-6',
+        };
 
     return (
         <div className="min-h-screen bg-gray-50 p-6 font-sans text-gray-700">
@@ -97,7 +138,7 @@ const PrintBarcode = () => {
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800">Print Barcode</h1>
                     <div className="text-sm text-gray-500 mt-1">
-                        <span>Dashboard</span> <span className="mx-1">&gt;</span> <span>Print Barcode</span>
+                       Dashboard {" > "} <span className="text-primary">Print Barcode</span>
                     </div>
                 </div>
             </div>
@@ -126,7 +167,9 @@ const PrintBarcode = () => {
                     {/* Dropdown */}
                     {isDropdownOpen && (
                         <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-md shadow-lg mt-1 max-h-60 overflow-y-auto">
-                            {searchResults.length > 0 ? (
+                            {isLoading ? (
+                                <div className="px-4 py-3 text-sm text-gray-500">Loading products...</div>
+                            ) : searchResults.length > 0 ? (
                                 searchResults.map((product) => (
                                     <div
                                         key={product.id}
@@ -134,13 +177,13 @@ const PrintBarcode = () => {
                                         onClick={() => addProduct(product)}
                                     >
                                         <div className="flex items-center gap-3">
-                                            <img src={product.image} alt={product.name} className="w-8 h-8 rounded object-cover" />
+                                            <img src={getImageUrlByProduct(product)} alt={product.name} className="w-8 h-8 rounded object-cover" />
                                             <div>
                                                 <div className="font-medium text-gray-800">{product.name}</div>
                                                 <div className="text-xs text-gray-500">{product.sku}</div>
                                             </div>
                                         </div>
-                                        <span className="text-sm font-bold text-orange-500">${product.unit_price}</span>
+                                        <span className="text-sm font-bold text-orange-500">RM {product.unit_price}</span>
                                     </div>
                                 ))
                             ) : (
@@ -178,7 +221,7 @@ const PrintBarcode = () => {
                                         <tr key={product.id} className="bg-white hover:bg-gray-50">
                                             <td className="px-6 py-3 font-medium text-gray-800">{product.name}</td>
                                             <td className="px-6 py-3 text-gray-500">{product.sku}</td>
-                                            <td className="px-6 py-3 text-gray-500">{product.category.name}</td>
+                                            <td className="px-6 py-3 text-gray-500">{product.categoryName}</td>
                                             {/* Qty Column: View Only */}
                                             <td className="px-6 py-3 text-center font-medium text-gray-700">
                                                 {product.qty}
@@ -235,7 +278,10 @@ const PrintBarcode = () => {
             {/* --- PREVIEW MODAL / AREA --- */}
             {showPreview && (
                 <div className="fixed inset-0 z-100 bg-black/50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6">
+                    <div
+                        className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 print-preview"
+                        data-size={paperSize}
+                    >
 
                         <div className="flex justify-between items-center mb-6 border-b pb-4">
                             <h2 className="text-2xl font-bold text-gray-800">Print Preview ({paperSize})</h2>
@@ -245,20 +291,25 @@ const PrintBarcode = () => {
                         </div>
 
                         {/* Grid for Barcodes */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8 print:block">
+                        <div className={`grid ${layout.gridClass} ${layout.gapClass} mb-8 print:block`}>
                             {selectedProducts.flatMap((product) =>
                                 // Create an array of length 'qty' to map over
                                 Array.from({ length: product.qty }).map((_, idx) => (
-                                    <div key={`${product.id}-${idx}`} className="border border-gray-200 p-4 flex flex-col items-center justify-center bg-white rounded-lg shadow-sm break-inside-avoid">
+                                    <div
+                                        key={`${product.id}-${idx}`}
+                                        className={`border border-gray-200 p-4 flex flex-col items-center justify-center bg-white rounded-lg shadow-sm break-inside-avoid ${layout.cardClass}`}
+                                    >
                                         {settings.showProductName && (
                                             <div className="font-bold text-sm mb-2 text-center text-gray-800 truncate w-full">{product.name}</div>
                                         )}
 
                                         <Barcode
                                             value={product.sku}
-                                            width={1.5}
-                                            height={50}
-                                            fontSize={14}
+                                            width={layout.barcodeWidth}
+                                            height={layout.barcodeHeight}
+                                            fontSize={layout.barcodeFont}
+                                            margin={4}
+                                            textMargin={4}
                                         />
 
                                         {settings.showPrice && (
@@ -285,6 +336,38 @@ const PrintBarcode = () => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Print-specific sizing for A4 vs 4x6 label */}
+            <style>
+                {`
+                @media print {
+                    .print-preview[data-size="A4"] {
+                        width: 210mm;
+                        min-height: 297mm;
+                        margin: 0 auto;
+                    }
+                    .print-preview[data-size="Label"] {
+                        width: 4in;
+                        min-height: 6in;
+                        margin: 0 auto;
+                    }
+                    .print-grid-label {
+                        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+                    }
+                    .print-grid-a4 {
+                        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+                    }
+                }
+                `}
+            </style>
+
+            {toast.show && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast({ ...toast, show: false })}
+                />
             )}
 
             {/* Delete Confirmation Modal */}

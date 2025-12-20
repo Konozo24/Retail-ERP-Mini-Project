@@ -10,17 +10,27 @@ export const CATEGORY_DEFAULTS = {
 // Generic fallback image
 const DEFAULT_IMAGE = "/images/default.jpg";
 
-// Get image with fallback strategy:
-// 1. Use user-uploaded image if available
-// 2. Use category default placeholder if available
-// 3. Use generic default image
+const resolveCategoryImage = (categoryName) => {
+    if (!categoryName) return DEFAULT_IMAGE;
+    const match = Object.entries(CATEGORY_DEFAULTS)
+        .find(([key]) => key.toLowerCase() === categoryName.toLowerCase());
+    return match?.[1] || DEFAULT_IMAGE;
+};
+
+// Get image with fallback strategy
 export const getImageUrlByProduct = (row) => {
-    if (row.image) {
-        return row.image; // User uploaded specific image
+    const explicitImage = row?.image || row?.image_url;
+    if (explicitImage) {
+        return explicitImage; // User uploaded specific image
     }
-    return CATEGORY_DEFAULTS[row.category.name] || DEFAULT_IMAGE;
+
+    const categoryName = typeof row?.category === 'string'
+        ? row.category
+        : row?.category?.name;
+
+    return resolveCategoryImage(categoryName);
 };
 
 export const getImageUrlByCategory = (categoryName) => {
-    return CATEGORY_DEFAULTS[categoryName] || DEFAULT_IMAGE;
+    return resolveCategoryImage(categoryName);
 };
