@@ -39,6 +39,7 @@ const CreateProduct = () => {
                 name: productToEdit.name || "",
                 sku: productToEdit.sku || "",
                 categoryId: productToEdit.category?.id || 0,
+                stockQty: productToEdit.stockQty?.toString() || "",
                 unitPrice: productToEdit.unitPrice?.toString() || "",
                 costPrice: productToEdit.costPrice?.toString() || "",
                 reorderLevel: productToEdit.reorderLevel?.toString() || "",
