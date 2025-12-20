@@ -101,7 +101,7 @@ public interface SalesOrderRepository extends JpaRepository<SalesOrder, Long>, J
         JOIN soi.product p
         WHERE so.createdAt BETWEEN :start AND :end
         AND (:categoryName IS NULL OR p.category.name = :categoryName)
-        GROUP BY so.id
+        GROUP BY so.id, p.id
     """)
     Page<StatisticProductDTO> getProductSalesSummary(
         String categoryName,

@@ -67,7 +67,7 @@ const LowStocks = () => {
 
   // --- HANDLERS ---
   const handleEdit = (row) => {
-    setSelectedItem(row);
+    setSelectedItem({...row, categoryId: row.category.id});
     setIsEditModalOpen(true);
   };
 
@@ -139,7 +139,7 @@ const LowStocks = () => {
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         onSave={handleSaveEdit}
-        stockItem={selectedItem}
+        product={selectedItem}
         categories={categories}
       />
       <DeleteModal
