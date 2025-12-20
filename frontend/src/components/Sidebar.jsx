@@ -116,10 +116,7 @@ const Sidebar = ({ isCollapsed }) => {
                                             </span>
                                         </div>
 
-                                        {/* Dropdown Arrow - Only show for Dashboard when NOT collapsed */}
-                                        {!isCollapsed && item.name === "Dashboard" && (
-                                            <ChevronDown className={`w-4 h-4 ${isActive ? "text-accent" : "opacity-50"}`} />
-                                        )}
+                                        
                                     </Link>
                                 );
                             })}
