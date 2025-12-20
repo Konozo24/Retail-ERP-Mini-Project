@@ -34,10 +34,12 @@ public class SalesOrderController {
     public ResponseEntity<Page<SalesOrderDTO>> getSalesOrders(
         @RequestParam(defaultValue = "") String search,
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(required = false) String startDate,
+        @RequestParam(required = false) String endDate
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<SalesOrderDTO> dtoPage = salesOrderService.getSalesOrders(search, pageable);
+        Page<SalesOrderDTO> dtoPage = salesOrderService.getSalesOrders(search, pageable, startDate, endDate);
         return ResponseEntity.ok(dtoPage);
     }
 

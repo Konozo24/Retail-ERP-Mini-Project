@@ -35,7 +35,12 @@ public class SalesOrderService {
 
     @Transactional(readOnly = true)
     public Page<SalesOrderDTO> getSalesOrders(String search, Pageable pageable) {
-        Specification<SalesOrder> spec = SalesOrderSpec.getSpecification(search);
+        return getSalesOrders(search, pageable, null, null);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<SalesOrderDTO> getSalesOrders(String search, Pageable pageable, String startDate, String endDate) {
+        Specification<SalesOrder> spec = SalesOrderSpec.getSpecification(search, startDate, endDate);
         return salesOrderRepository.findAll(spec, pageable)
             .map(SalesOrderDTO::fromEntity);
     }
