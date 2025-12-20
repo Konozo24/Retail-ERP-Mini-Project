@@ -36,9 +36,12 @@ export function useCreateSalesOrder() {
   return useMutation({
     mutationFn: (payload) => API.post(`/sales-order`, payload),
     onSuccess: () => {
+        qc.invalidateQueries({
+            predicate: (query) => query.queryKey[0].startsWith('salesStatistic')
+        });
+
         qc.invalidateQueries({ queryKey: ['products'] });
         qc.invalidateQueries({ queryKey: ['dashboard'] });
-        qc.invalidateQueries({ queryKey: ['sales'] });
         qc.invalidateQueries({ queryKey: ['salesOrders'] });
     },
   });

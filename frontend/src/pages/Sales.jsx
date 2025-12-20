@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import DataTable from "../components/ui/DataTable";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -20,6 +20,10 @@ const currencyFormatter = new Intl.NumberFormat("en-MY", {
     maximumFractionDigits: 2,
 });
 
+const dateFormatter = (date) => {
+    return date.replace(/(\d{4})-(\d{2})-(\d{2})/, "$3/$2/$1");
+};
+
 const Sales = () => {
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [startDate, setStartDate] = useState("2024-01-01");
@@ -35,15 +39,15 @@ const Sales = () => {
         return [startDate, endDate];
     }, [startDate, endDate]);
 
-    const { data: statisticData, isLoading, isError } = useGetSalesStatistics(selectedCategory, 0, 500, 
-        fromDate.replace(/(\d{4})-(\d{2})-(\d{2})/, "$3/$2/$1"), toDate.replace(/(\d{4})-(\d{2})-(\d{2})/, "$3/$2/$1")
+    const { data: statisticData, isLoading, isError } = useGetSalesStatistics(selectedCategory, currentPage - 1, itemsPerPage, 
+        dateFormatter(fromDate), dateFormatter(toDate)
     );
-    const productsStatistic = statisticData?.productsStatistic ?? [];
+    const productsStatistic = statisticData?.productsStatistic?.content ?? [];
 
     const { data: categoriesNameData } = useGetCategoriesName();
     const categoriesName = ["All", ...(categoriesNameData || [])];
 
-    const totalPages = Math.max(1, Math.ceil(productsStatistic.length / itemsPerPage));
+    const totalPages = statisticData?.productsStatistic?.totalPages ?? 0;
 
     const handleGenerateReport = () => {
         if (isLoading) return;
@@ -56,7 +60,7 @@ const Sales = () => {
         doc.setFontSize(11);
         doc.setTextColor(100);
         doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
-        doc.text(`Period: ${startDate} to ${endDate}`, 14, 36);
+        doc.text(`Period: ${dateFormatter(fromDate)} to ${dateFormatter(toDate)}`, 14, 36);
         doc.text(`Category Filter: ${selectedCategory}`, 14, 42);
 
         doc.setDrawColor(200);
@@ -90,12 +94,12 @@ const Sales = () => {
             startY: doc.lastAutoTable.finalY + 14,
             head: [["SKU", "Product", "Category", "Sold Qty", "Amount", "Instock Qty"]],
             body: productsStatistic.map((item) => [
-                item.product.sku || "",
-                item.product.name,
-                item.product.category.name || "",
+                item.sku || "",
+                item.productName,
+                item.categoryName || "",
                 item.soldQty,
                 currencyFormatter.format(Number(item.soldAmount || 0)),
-                item.product.stockQty,
+                item.stockQty,
             ]),
             theme: "striped",
             headStyles: { fillColor: [66, 66, 66] },
@@ -109,15 +113,15 @@ const Sales = () => {
         {
             header: "SKU",
             accessor: "sku",
-            render: (row) => <span className="text-muted-foreground">{row.product.sku || ""}</span>,
+            render: (row) => <span className="text-muted-foreground">{row.sku || ""}</span>,
         },
         {
             header: "Product",
             accessor: "product",
             render: (row) => (
                 <div className="flex flex-col">
-                    <span className="font-medium text-foreground">{row.product.name}</span>
-                    <span className="text-xs text-muted-foreground">{row.product.category.name || "Uncategorized"}</span>
+                    <span className="font-medium text-foreground">{row.productName}</span>
+                    <span className="text-xs text-muted-foreground">{row.categoryName || "Uncategorized"}</span>
                 </div>
             ),
         },
@@ -140,8 +144,6 @@ const Sales = () => {
         },
     ];
 
-    if (isLoading || isError) return <div>a</div>;
-
     return (
         <div className="space-y-6">
             <div>
@@ -158,7 +160,7 @@ const Sales = () => {
                     </div>
                     <div>
                         <p className="text-sm text-muted-foreground">Total Revenue</p>
-                        <h3 className="text-xl font-bold text-foreground">{currencyFormatter.format(statisticData.totalRevenue)}</h3>
+                        <h3 className="text-xl font-bold text-foreground">{currencyFormatter.format(statisticData?.totalRevenue || 0)}</h3>
                     </div>
                 </div>
 
@@ -168,7 +170,7 @@ const Sales = () => {
                     </div>
                     <div>
                         <p className="text-sm text-muted-foreground">Total Orders</p>
-                        <h3 className="text-xl font-bold text-foreground">{statisticData.totalOrders.toLocaleString()}</h3>
+                        <h3 className="text-xl font-bold text-foreground">{(statisticData?.totalOrders || 0).toLocaleString()}</h3>
                     </div>
                 </div>
 
@@ -178,7 +180,7 @@ const Sales = () => {
                     </div>
                     <div>
                         <p className="text-sm text-muted-foreground">Item Sold</p>
-                        <h3 className="text-xl font-bold text-foreground">{statisticData.totalItemSold.toLocaleString()}</h3>
+                        <h3 className="text-xl font-bold text-foreground">{(statisticData?.totalItemSold || 0).toLocaleString()}</h3>
                     </div>
                 </div>
 
@@ -188,7 +190,7 @@ const Sales = () => {
                     </div>
                     <div>
                         <p className="text-sm text-muted-foreground">Average Order Value</p>
-                        <h3 className="text-xl font-bold text-foreground">{currencyFormatter.format(statisticData.averageOrderValue)}</h3>
+                        <h3 className="text-xl font-bold text-foreground">{currencyFormatter.format(statisticData?.averageOrderValue || 0)}</h3>
                     </div>
                 </div>
             </div>

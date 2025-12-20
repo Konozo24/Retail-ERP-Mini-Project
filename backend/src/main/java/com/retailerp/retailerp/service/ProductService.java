@@ -61,7 +61,11 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductDTO> getProducts(String search, String category, Pageable pageable) {
+    public Page<ProductDTO> getProducts(
+        String search, 
+        String category, 
+        Pageable pageable
+    ) {
         // Get the existing search specification (Name/SKU)
         Specification<Product> spec = ProductSpec.getSpecification(search, category);
 

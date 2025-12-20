@@ -1,7 +1,8 @@
 package com.retailerp.retailerp.dto.statistic;
 
 import java.math.BigDecimal;
-import java.util.List;
+
+import org.springframework.data.domain.Page;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -15,5 +16,5 @@ public class StatisticDTO {
     private Long totalItemSold;
     private BigDecimal averageOrderValue;
 
-    private List<StatisticProductDTO> productsStatistic;
+    private Page<StatisticProductDTO> productsStatistic;
 }

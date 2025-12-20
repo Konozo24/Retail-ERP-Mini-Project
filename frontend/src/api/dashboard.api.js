@@ -1,3 +1,4 @@
+import { Salad } from "lucide-react";
 import API from "./api";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -11,12 +12,12 @@ export function useGetDashboardStatistics() {
 
 export function useGetSalesStatistics(category, pageNum, pageSize, startDate, endDate) {
   return useQuery({
-    queryKey: ['sales'],
+    queryKey: ['salesStatistic', category, pageNum, pageSize, startDate, endDate],
     queryFn: () => API.get(`/dashboard/sales`, {
         params: {
             category: category,
-            pageNum: pageNum,
-            pageSize: pageSize,
+            page: pageNum,
+            size: pageSize,
             startDate: startDate,
             endDate: endDate
         }
