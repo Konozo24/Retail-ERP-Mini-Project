@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useDebounce } from "use-debounce";
 import DataTable from "../components/ui/DataTable";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -38,9 +39,12 @@ const Sales = () => {
         }
         return [startDate, endDate];
     }, [startDate, endDate]);
+    const [debouncedFromDate] = useDebounce(fromDate, 500);
+    const [debouncedToDate] = useDebounce(toDate, 500);
+
 
     const { data: statisticData, isLoading, isError } = useGetSalesStatistics(selectedCategory, currentPage - 1, itemsPerPage, 
-        dateFormatter(fromDate), dateFormatter(toDate)
+        dateFormatter(debouncedFromDate), dateFormatter(debouncedToDate)
     );
     const productsStatistic = statisticData?.productsStatistic?.content ?? [];
 

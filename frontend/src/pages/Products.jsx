@@ -1,10 +1,10 @@
 import React, { useState } from "react";
+import { useDebounce } from "use-debounce";
 import { useNavigate } from "react-router-dom";
 import DataTable from "../components/ui/DataTable";
 import DeleteModal from "../components/ui/DeleteModal";
 import Toast from "../components/ui/Toast";
 import { Plus, Search, Filter, ImageOff } from "lucide-react";
-import { useDebounce } from "use-debounce";
 
 import { useGetCategoriesName } from "../api/categories.api";
 import { useDeleteProduct, useGetProductsPage } from "../api/products.api";
@@ -39,7 +39,7 @@ const Products = () => {
 
     // --- STATE ---
     const [searchQuery, setSearchQuery] = useState("");
-    const [debouncedSearchQuery] = useDebounce(searchQuery, 400);
+    const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
     const [selectedCategoryName, setSelectedCategoryName] = useState("All");
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);

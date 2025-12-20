@@ -16,7 +16,7 @@ import {
 const Suppliers = () => {
     // --- STATE ---
     const [searchQuery, setSearchQuery] = useState("");
-    const [debouncedSearchQuery] = useDebounce(searchQuery, 400);
+    const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);

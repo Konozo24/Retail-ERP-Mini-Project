@@ -27,6 +27,10 @@ public class StatisticsService {
 
     @Transactional(readOnly = true)
     public StatisticDTO getSalesSatistics(String category, Pageable pageable, StatisticRequestDTO request) {
+        if (category != null && category.trim().isEmpty() || category.equalsIgnoreCase("ALL")) {
+            category = null;
+        }
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         LocalDate startLocal = LocalDate.parse(request.getStartDate(), formatter);
@@ -35,14 +39,10 @@ public class StatisticsService {
         OffsetDateTime startDate = startLocal.atStartOfDay().atOffset(ZoneOffset.ofHours(8)); // Malaysia UTC+8
         OffsetDateTime endDate = endLocal.atTime(23, 59, 59).atOffset(ZoneOffset.ofHours(8));
 
-        BigDecimal totalRevenue = salesOrderRepository.getRevenueBetween(startDate, endDate).orElse(BigDecimal.ZERO);
-        Long totalOrders = salesOrderRepository.countOrdersBetween(startDate, endDate);
-        Long totalItemSold = salesOrderRepository.getItemsSoldBetween(startDate, endDate);
+        BigDecimal totalRevenue = salesOrderRepository.getRevenueBetween(category, startDate, endDate).orElse(BigDecimal.ZERO);
+        Long totalOrders = salesOrderRepository.countOrdersBetween(category, startDate, endDate);
+        Long totalItemSold = salesOrderRepository.getItemsSoldBetween(category, startDate, endDate);
         BigDecimal averageOrderValue = (totalOrders > 0) ? totalRevenue.divide(new BigDecimal(totalOrders), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO;
-;
-        if (category != null && category.trim().isEmpty() || category.equalsIgnoreCase("ALL")) {
-            category = null;
-        }
     
         Page<StatisticProductDTO> productsStatistic = salesOrderRepository.getProductSalesSummary(category, startDate, endDate, pageable);
         return StatisticDTO.builder()

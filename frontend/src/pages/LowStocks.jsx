@@ -19,7 +19,7 @@ const LowStocks = () => {
   // --- STATE ---
   const [activeTab, setActiveTab] = useState("Low Stocks");
   const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearchQuery] = useDebounce(searchQuery, 400);
+  const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [debouncedCategory] = useDebounce(selectedCategory, 300);
   const [isNotifyEnabled, setIsNotifyEnabled] = useState(true);

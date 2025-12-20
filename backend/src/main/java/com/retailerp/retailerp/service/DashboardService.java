@@ -103,7 +103,7 @@ public class DashboardService {
         OffsetDateTime end = month.atEndOfMonth().atTime(23, 59, 59)
             .atOffset(OffsetDateTime.now().getOffset());
 
-        return salesOrderRepository.getRevenueBetween(start, end)
+        return salesOrderRepository.getRevenueBetween(null, start, end)
             .orElse(BigDecimal.ZERO);
     }
 
@@ -112,7 +112,7 @@ public class DashboardService {
         OffsetDateTime end = month.atEndOfMonth().atTime(23, 59, 59)
             .atOffset(OffsetDateTime.now().getOffset());
 
-        return salesOrderRepository.countOrdersBetween(start, end);
+        return salesOrderRepository.countOrdersBetween(null, start, end);
     }
 
     private long getCustomersForMonth(YearMonth month) {
