@@ -6,6 +6,7 @@ import { useDebounce } from 'use-debounce';
 import { useGetProductsPage } from '../api/products.api';
 import { getImageUrlByProduct } from '../data/categoryImages';
 import DeleteModal from '../components/ui/DeleteModal';
+import Toast from '../components/ui/Toast';
 
 const PrintBarcode = () => {
     // --- State ---
@@ -21,6 +22,7 @@ const PrintBarcode = () => {
         showPrice: true,
     });
     const [showPreview, setShowPreview] = useState(false);
+    const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
     // Delete Modal State
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -104,7 +106,7 @@ const PrintBarcode = () => {
 
     const handlePrintTrigger = () => {
         if (selectedProducts.length === 0) {
-            alert("Please select at least one product.");
+            setToast({ show: true, message: 'Please select at least one product.', type: 'error' });
             return;
         }
         setShowPreview(true);
@@ -136,7 +138,7 @@ const PrintBarcode = () => {
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800">Print Barcode</h1>
                     <div className="text-sm text-gray-500 mt-1">
-                        <span>Dashboard</span> <span className="mx-1">&gt;</span> <span>Print Barcode</span>
+                       Dashboard {" > "} <span className="text-primary">Print Barcode</span>
                     </div>
                 </div>
             </div>
@@ -359,6 +361,14 @@ const PrintBarcode = () => {
                 }
                 `}
             </style>
+
+            {toast.show && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast({ ...toast, show: false })}
+                />
+            )}
 
             {/* Delete Confirmation Modal */}
             <DeleteModal
