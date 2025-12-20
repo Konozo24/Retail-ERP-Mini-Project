@@ -43,10 +43,10 @@ const Sales = () => {
     const [itemsPerPage, setItemsPerPage] = useState(10);
 
     // --- FILTER LOGIC ---
-    const categories = ["All", ...new Set(productsData.map(item => item.category))];
+    const categories = ["All", ...new Set(productsData.map(item => item.category.name))];
 
     const filteredData = sales.filter((item) => {
-        const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
+        const matchesCategory = selectedCategory === "All" || item.category.name === selectedCategory;
         return matchesCategory;
     });
 
@@ -106,7 +106,7 @@ const Sales = () => {
             body: filteredData.map(item => [
                 item.sku,
                 item.name,
-                item.category,
+                item.category.name,
                 item.sold_qty,
                 item.sold_amount,
                 item.instock_qty
@@ -143,7 +143,7 @@ const Sales = () => {
         { 
             header: "Category", 
             accessor: "category",
-            render: (row) => <span className="text-muted-foreground">{row.category}</span>
+            render: (row) => <span className="text-muted-foreground">{row.category.name}</span>
         },
         { 
             header: "Sold Qty", 
@@ -304,7 +304,7 @@ const Sales = () => {
                     totalPages={totalPages}
                     itemsPerPage={itemsPerPage}
                     onPageChange={setCurrentPage}
-                    onItemsPerPageChange={setItemsPerPage}
+                    onItemsPerPageChange={(val) => { setItemsPerPage(val); setCurrentPage(1); }}
                 />
             </div>
         </div>

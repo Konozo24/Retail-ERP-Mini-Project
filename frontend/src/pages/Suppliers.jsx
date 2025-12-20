@@ -82,7 +82,7 @@ const Suppliers = () => {
 
         if (currentSupplier) {
             await updateSupplier({
-                supplierId: supplierToEdit.id,
+                supplierId: currentSupplier.id,
                 payload: payload
             });
             showToast("Supplier details updated successfully!", "success");
@@ -177,7 +177,7 @@ const Suppliers = () => {
                     totalPages={totalPages}
                     itemsPerPage={itemsPerPage}
                     onPageChange={setCurrentPage}
-                    onItemsPerPageChange={setItemsPerPage}
+                    onItemsPerPageChange={(val) => { setItemsPerPage(val); setCurrentPage(1); }}
                 />
             </div>
 

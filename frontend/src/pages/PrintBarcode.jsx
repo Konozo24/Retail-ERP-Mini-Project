@@ -178,7 +178,7 @@ const PrintBarcode = () => {
                                         <tr key={product.id} className="bg-white hover:bg-gray-50">
                                             <td className="px-6 py-3 font-medium text-gray-800">{product.name}</td>
                                             <td className="px-6 py-3 text-gray-500">{product.sku}</td>
-                                            <td className="px-6 py-3 text-gray-500">{product.category}</td>
+                                            <td className="px-6 py-3 text-gray-500">{product.category.name}</td>
                                             {/* Qty Column: View Only */}
                                             <td className="px-6 py-3 text-center font-medium text-gray-700">
                                                 {product.qty}

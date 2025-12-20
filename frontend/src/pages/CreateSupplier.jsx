@@ -73,8 +73,6 @@ const CreateSupplier = () => {
         try {
             console.log("Submitting Form Data:", payload);
             if (isEditMode) {
-                alert(formData.name)
-                alert(formData.address)
                 await updateSupplier({
                     supplierId: supplierToEdit.id,
                     payload: payload

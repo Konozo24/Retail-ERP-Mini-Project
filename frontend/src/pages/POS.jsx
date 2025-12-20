@@ -30,7 +30,7 @@ const mapProductToPosItem = (product) => {
             product.image ||
             product.image_url ||
             'https://images.unsplash.com/photo-1512499617640-c2f999098c01?auto=format&fit=crop&w=400&q=80',
-        category: product.category || 'Others',
+        category: product.category.name || 'Others',
     };
 };
 
@@ -149,7 +149,7 @@ const ProductGrid = ({ products, search, setSearch, selectedCategory }) => {
         const matchesCategory =
             !selectedCategory ||
             selectedCategory === 'All' ||
-            p.category?.toLowerCase() === selectedCategory.toLowerCase();
+            p.category.name?.toLowerCase() === selectedCategory.toLowerCase();
         return matchesSearch && matchesCategory;
     });
 
@@ -186,7 +186,7 @@ const ProductGrid = ({ products, search, setSearch, selectedCategory }) => {
                                 {product.qty} Left
                             </span>
                         </div>
-                        <div className="text-xs text-muted-foreground font-medium mb-1">{product.category}</div>
+                        <div className="text-xs text-muted-foreground font-medium mb-1">{product.category.name}</div>
                         <h3 className="font-bold text-foreground text-lg leading-tight mb-3">{product.name}</h3>
 
                         <div className="flex items-center justify-between">
@@ -305,7 +305,7 @@ const POS = () => {
     }, []);
 
     const categories = useMemo(
-        () => Array.from(new Set(products.map((p) => p.category).filter(Boolean))),
+        () => Array.from(new Set(products.map((p) => p.category.name).filter(Boolean))),
         [products]
     );
 

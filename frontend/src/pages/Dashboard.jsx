@@ -45,7 +45,7 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <StatCard
                     title="Total Revenue"
-                    value={"$" + statistics.totalRevenue.value}
+                    value={"RM " + ((statistics.totalRevenue.value || 0)).toLocaleString("en-MY", { minimumFractionDigits: 2 })}
                     subtext={statistics.totalRevenue.changePercentage + "% from last month"}
                     icon={DollarSign}
                 />
@@ -94,7 +94,8 @@ const Dashboard = () => {
                                     fontSize={12}
                                     tickLine={false}
                                     axisLine={false}
-                                    tickFormatter={(value) => `$${value}`}
+                                    tickFormatter={(value) => `${((value || 0)).toLocaleString("en-MY")}`}
+                                    //label={{ value: 'Total [RM]', fontSize: 12, position: 'insideLeft', dx: -4, dy: 24, angle: -90 }}
                                 />
                                 <Tooltip
                                     cursor={{ fill: 'transparent' }}

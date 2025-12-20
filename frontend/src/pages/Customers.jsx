@@ -14,6 +14,7 @@ import {
 } from "../api/customers.api";
 
 const Customers = () => {
+
     // --- STATE ---
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
@@ -76,7 +77,7 @@ const Customers = () => {
 
     const handleSaveCustomer = async (formData) => {
         const payload = {
-            name: formData.name, // backend expects name
+            name: formData.name,
             email: formData.email,
             phone: formData.phone,
         };
@@ -106,7 +107,12 @@ const Customers = () => {
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full border border-border overflow-hidden shrink-0 bg-muted flex items-center justify-center">
                         <img
-                            src={row.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(row.name)}&background=random`}
+                            src={
+                                row.avatar ||
+                                `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                    row.name
+                                )}&background=random`
+                            }
                             alt={row.name}
                             className="w-full h-full object-cover"
                         />
@@ -136,7 +142,7 @@ const Customers = () => {
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight">Customers</h1>
                     <div className="text-sm text-muted-foreground mt-1">
-                        Dashboard {'>'} <span className="text-primary">Customers</span>
+                        Dashboard {" > "} <span className="text-primary">Customers</span>
                     </div>
                 </div>
 
@@ -176,7 +182,7 @@ const Customers = () => {
                     totalPages={totalPages}
                     itemsPerPage={itemsPerPage}
                     onPageChange={setCurrentPage}
-                    onItemsPerPageChange={setItemsPerPage}
+                    onItemsPerPageChange={(val) => { setItemsPerPage(val); setCurrentPage(1); }}
                 />
             </div>
 
