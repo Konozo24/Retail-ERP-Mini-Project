@@ -36,7 +36,7 @@ const Sales = () => {
     }, [startDate, endDate]);
 
     const { data: statisticData, isLoading, isError } = useGetSalesStatistics(selectedCategory, 0, 500, 
-        startDate.replace(/(\d{4})-(\d{2})-(\d{2})/, "$3/$2/$1"), endDate.replace(/(\d{4})-(\d{2})-(\d{2})/, "$3/$2/$1")
+        fromDate.replace(/(\d{4})-(\d{2})-(\d{2})/, "$3/$2/$1"), toDate.replace(/(\d{4})-(\d{2})-(\d{2})/, "$3/$2/$1")
     );
     const productsStatistic = statisticData?.productsStatistic ?? [];
 
