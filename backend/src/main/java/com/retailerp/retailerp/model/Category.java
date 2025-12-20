@@ -55,8 +55,9 @@ public class Category {
     @Column(name = "INACTIVE", nullable = false)
     private boolean inactive = false;
 
-    public Category(String name) {
+    public Category(String name, String prefix) {
         this.name = name;
+        this.prefix = prefix.toUpperCase();
     }
 
     @Transient

@@ -17,7 +17,7 @@ public class CategoryRequestDTO {
 
     @NotBlank
     @Size(max = 20)
-    private String Prefix;
+    private String prefix;
 
     @Nullable
     @Pattern(

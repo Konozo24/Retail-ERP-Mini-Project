@@ -42,7 +42,7 @@ public class CategoryService {
 
     @Transactional
     public CategoryDTO createCategory(CategoryRequestDTO request) {
-        Category category = new Category(request.getName());
+        Category category = new Category(request.getName(), request.getPrefix());
         if (request.getColor() != null) category.setColor(request.getColor());
         return CategoryDTO.fromEntity(categoryRepository.save(category));
     }

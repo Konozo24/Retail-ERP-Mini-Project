@@ -214,7 +214,7 @@ const CreationFormTable = ({showToast}) => {
                     <label className="text-sm font-medium">Cost Price</label>
                     <input
                         type="number"
-                        disabled="true"
+                        disabled={true}
                         value={formData.costPrice}
                         placeholder="Auto from product price"
                         className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:ring-1 focus:ring-primary"
@@ -259,7 +259,7 @@ const CreationFormTable = ({showToast}) => {
                                     <input
                                         type="number"
                                         min="0"
-                                        disabled="true"
+                                        disabled={true}
                                         value={it.product.costPrice}
                                         className="w-28 h-9 rounded-md border border-input bg-background px-2 text-sm focus:ring-1 focus:ring-primary"
                                     />

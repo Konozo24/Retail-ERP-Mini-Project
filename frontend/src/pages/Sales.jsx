@@ -255,7 +255,7 @@ const Sales = () => {
                 <DataTable
                     columns={columns}
                     data={productsStatistic}
-                    showNumber={false}
+                    showNumber={true}
                     actions={false}
                     currentPage={currentPage}
                     totalPages={totalPages}
