@@ -54,13 +54,13 @@ INSERT INTO SUPPLIERS (NAME, PHONE, EMAIL, ADDRESS) VALUES
 ('Upsilon Unlimited', '0188765431', 'upsilon@example.com', '888 Upsilon Lane');
 
 -- CATEGORIES
-INSERT INTO CATEGORIES (NAME, COLOR) VALUES
-('Smartphone', '#ae18d3ff'),
-('Tablet', '#C0C0C0'),
-('Laptop', '#000000'),
-('Desktop', '#808080'),
-('Wearable', '#008000'),
-('Audio', '#0000FF');
+INSERT INTO CATEGORIES (NAME, PREFIX, COLOR) VALUES
+('Smartphone', 'PHONE', '#4F46E5'),
+('Tablet',     'TAB',   '#1F2937'),
+('Laptop',     'LAP',   '#EAB308'),
+('Desktop',    'DESK',  '#F97316'),
+('Wearable',   'WEAR',  '#8B5CF6'),
+('Audio',      'AUD',   '#3C81AC');
 
 -- PRODUCTS with diverse categories
 INSERT INTO PRODUCTS (CREATED_BY, SKU, NAME, CATEGORY_ID, UNIT_PRICE, COST_PRICE, STOCK_QTY, REORDER_LEVEL, CREATED_AT, UPDATED_AT) VALUES

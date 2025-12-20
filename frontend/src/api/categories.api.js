@@ -9,18 +9,16 @@ export function useGetCategories() {
     });
 }
 
-// GET ALL CATEGORIES (GET /categories/name-list)
+// GET ALL CATEGORIES NAME (GET /categories/name-list)
 export function useGetCategoriesName() {
     return useQuery({
         queryKey: ['categoriesName'],
-        queryFn: () => {
-            return API.get(`/categories/name-list`)?.names || []
-        },
+        queryFn: () => API.get(`/categories/name-list`).then(data => data.names),
     });
 }
 
 // GET CATEGORY BY ID (GET /categories/{categoryId})
-export function useGetProduct(categoryId) {
+export function useGetCategory(categoryId) {
     return useQuery({
         queryKey: ['category', categoryId],
         queryFn: () => API.get(`/categories/${categoryId}`),
@@ -29,7 +27,7 @@ export function useGetProduct(categoryId) {
 }
 
 // CREATE CATEGORY (POST /categories)
-export function useCreateProduct() {
+export function useCreateCategory() {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (payload) => API.post(`/categories`, payload),
@@ -37,14 +35,16 @@ export function useCreateProduct() {
             qc.invalidateQueries({
                 predicate: (query) => query.queryKey[0].startsWith('products')
             });
+            qc.invalidateQueries({
+                predicate: (query) => query.queryKey[0].startsWith('categories')
+            });
             qc.invalidateQueries({ queryKey: ['dashboard'] });
-            qc.invalidateQueries({ queryKey: ['categories'] });
         },
     });
 }
 
 // UPDATE CATEGORY (PUT /categories/{categoryId})
-export function useUpdateProduct() {
+export function useUpdateCategory() {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: ({ categoryId, payload }) => API.put(`/categories/${categoryId}`, payload),
@@ -52,15 +52,17 @@ export function useUpdateProduct() {
             qc.invalidateQueries({
                 predicate: (query) => query.queryKey[0].startsWith('products')
             });
+            qc.invalidateQueries({
+                predicate: (query) => query.queryKey[0].startsWith('categories')
+            });
             qc.invalidateQueries({ queryKey: ['dashboard'] });
             qc.invalidateQueries({ queryKey: ['category', categoryId] });
-            qc.invalidateQueries({ queryKey: ['categories'] });
         },
     });
 }
 
 // DELETE CATEGORY (DELETE /categories/{categoryId})
-export function useDeleteProduct() {
+export function useDeleteCategory() {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (categoryId) => API.delete(`/categories/${categoryId}`),
@@ -68,10 +70,11 @@ export function useDeleteProduct() {
             qc.invalidateQueries({
                 predicate: (query) => query.queryKey[0].startsWith('products')
             });
-
+            qc.invalidateQueries({
+                predicate: (query) => query.queryKey[0].startsWith('categories')
+            });
             qc.invalidateQueries({ queryKey: ['dashboard'] });
             qc.invalidateQueries({ queryKey: ['category', categoryId] });
-            qc.invalidateQueries({ queryKey: ['categories'] });
         },
     });
 }

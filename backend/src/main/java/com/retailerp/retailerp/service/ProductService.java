@@ -1,6 +1,7 @@
 package com.retailerp.retailerp.service;
 
 import java.util.NoSuchElementException;
+import java.util.Random;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -85,7 +86,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public Page<ProductDTO> getLowStockProducts(String search, String category, Pageable pageable) {
         Long categoryId = null;
-        if (!category.trim().isEmpty() || !category.equalsIgnoreCase("ALL")) {
+        if (!category.trim().isEmpty() && !category.equalsIgnoreCase("ALL")) {
             categoryId = categoryRepository.findByName(category).orElseThrow(
                 () -> new NoSuchElementException("Category with name, " + category + " doesn't exist!"))
                 .getId();
@@ -96,11 +97,29 @@ public class ProductService {
                 .map(ProductDTO::fromEntity);
     }
 
+    @Transactional(readOnly = true)
+    public String generateSKUById(Long categoryId) {
+        String categoryPrefix = categoryId == null
+            ? "PROD"
+            : categoryRepository.findById(categoryId)
+                    .map(Category::getPrefix)
+                    .orElse("PROD");
+
+        int randomNum = 1000 + new Random().nextInt(9000); // 4-digit number
+
+        String randomSuffix = Long.toString(
+                Math.abs(new Random().nextLong()), 36
+        ).substring(0, 3).toUpperCase(); // 3 chars
+
+        return String.format("%s%d-%s", categoryPrefix, randomNum, randomSuffix);
+    }
+
+
     // Fetch all out of stock products
     @Transactional(readOnly = true)
     public Page<ProductDTO> getOutOfStockProducts(String search, String category, Pageable pageable) {
         Long categoryId = null;
-        if (!category.trim().isEmpty() || !category.equalsIgnoreCase("ALL")) {
+        if (!category.trim().isEmpty() && !category.equalsIgnoreCase("ALL")) {
             categoryId = categoryRepository.findByName(category).orElseThrow(
                 () -> new NoSuchElementException("Category with name, " + category + " doesn't exist!"))
                 .getId();

@@ -46,6 +46,9 @@ public class Category {
     @Column(name = "NAME", length = 100, nullable = false)
     private String name;
 
+    @Column(name = "PREFIX", length = 10, nullable = false)
+    private String prefix;
+
     @Column(name = "COLOR", length = 9, nullable = false)
     private String color = "#FFFFFF";
 

@@ -58,6 +58,13 @@ export function useGetOutOfStockProducts(searchQuery, pageNum, pageSize, categor
     });
 }
 
+// GENERATE SKU (GET /products/generate-sku)
+export async function generateSKUById(categoryId = null) {
+    return await API.get(`/products/generate-sku`, {
+        params: categoryId ? { categoryId } : {}
+    });
+}
+
 // CREATE PRODUCT (POST /products)
 export function useCreateProduct() {
     const qc = useQueryClient();

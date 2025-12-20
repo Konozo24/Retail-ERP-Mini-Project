@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import com.retailerp.retailerp.dto.dashboard.TopCategoryDTO;
 import com.retailerp.retailerp.model.SalesOrder;
 
 @Repository
@@ -51,12 +52,17 @@ public interface SalesOrderRepository extends JpaRepository<SalesOrder, Long>, J
     List<Object[]> getMonthlyRevenue(int year);
 
     @Query("""
-        SELECT soi.product.category.name, SUM(soi.quantity)
+        SELECT new com.retailerp.retailerp.dto.dashboard.TopCategoryDTO(
+            soi.product.category.name,
+            soi.product.category.color,
+            CAST(SUM(soi.quantity) AS java.math.BigDecimal)
+        )
         FROM SalesOrderItem soi
         JOIN soi.salesOrder so
-        WHERE YEAR(so.createdAt) = :year
+        WHERE FUNCTION('YEAR', so.createdAt) = :year
         GROUP BY soi.product.category.name
         ORDER BY SUM(soi.quantity) DESC
     """)
-    List<Object[]> getTopCategories(int year);
+    List<TopCategoryDTO> getTopCategories(int year);
+
 }

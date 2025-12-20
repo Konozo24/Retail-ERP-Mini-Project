@@ -53,6 +53,7 @@ public class CategoryService {
                 () -> new NoSuchElementException("Category with id, " + categoryId + " doesn't exist!"));
 
         existing.setName(request.getName());
+        existing.setPrefix(request.getPrefix().toUpperCase());
         existing.setColor(request.getColor() != null ? request.getColor() : existing.getColor());
         categoryRepository.save(existing);
     }    
@@ -67,4 +68,5 @@ public class CategoryService {
             categoryRepository.save(existing);
         }
     }
+
 }

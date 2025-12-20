@@ -11,6 +11,7 @@ public class CategoryDTO {
     
     private long id;
     private String name;
+    private String prefix;
     private String color;
     private Integer productCount;
 
@@ -18,6 +19,7 @@ public class CategoryDTO {
         return CategoryDTO.builder()
             .id(category.getId())
             .name(category.getName())
+            .prefix(category.getPrefix())
             .color(category.getColor())
             .productCount(category.getProductCount())
             .build();

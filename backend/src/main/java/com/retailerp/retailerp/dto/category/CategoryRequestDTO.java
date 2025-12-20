@@ -15,6 +15,10 @@ public class CategoryRequestDTO {
     @Size(max = 100)
     private String name;
 
+    @NotBlank
+    @Size(max = 20)
+    private String Prefix;
+
     @Nullable
     @Pattern(
         regexp = "^#([A-Fa-f0-9]{6})$",

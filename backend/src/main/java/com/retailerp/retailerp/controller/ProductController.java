@@ -79,6 +79,13 @@ public class ProductController {
         return ResponseEntity.ok(dtoPage);
     }
     
+    @GetMapping("/generate-sku")
+    public ResponseEntity<String> getNewSKUById(
+        @RequestParam(required = false) Long categoryId
+    ) {
+        return ResponseEntity.ok(productService.generateSKUById(categoryId));
+    }
+
     @PostMapping
     public ResponseEntity<ProductDTO> createProduct(
         @Valid @RequestBody ProductCreationDTO request

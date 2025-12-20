@@ -13,7 +13,11 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.retailerp.retailerp.dto.dashboard.*;
+import com.retailerp.retailerp.dto.dashboard.CategoryMetricDTO;
+import com.retailerp.retailerp.dto.dashboard.DashboardDTO;
+import com.retailerp.retailerp.dto.dashboard.MetricDTO;
+import com.retailerp.retailerp.dto.dashboard.MonthlyMetricDTO;
+import com.retailerp.retailerp.dto.dashboard.TopCategoryDTO;
 import com.retailerp.retailerp.repository.CustomerRepository;
 import com.retailerp.retailerp.repository.ProductRepository;
 import com.retailerp.retailerp.repository.SalesOrderRepository;
@@ -141,69 +145,50 @@ public class DashboardService {
         return result;
     }
 
-    private static String getColorFromString(String input) {
-        int hash = input.hashCode();
-
-        // Extract RGB from hash
-        int r = (hash & 0xFF0000) >> 16;
-        int g = (hash & 0x00FF00) >> 8;
-        int b = hash & 0x0000FF;
-
-        // Make sure values are positive
-        r = (r + 256) % 256;
-        g = (g + 256) % 256;
-        b = (b + 256) % 256;
-
-        return String.format("#%02X%02X%02X", r, g, b);
-    }
-
     private List<CategoryMetricDTO> getTopCategories() {
-        List<Object[]> raw = salesOrderRepository.getTopCategories(Year.now().getValue());
+        List<TopCategoryDTO> raw = salesOrderRepository.getTopCategories(Year.now().getValue());
 
-        // Convert raw data to a map: category -> amount
-        List<Map.Entry<String, BigDecimal>> sortedCategories = raw.stream()
-            .map(r -> Map.entry((String) r[0], ((Number) r[1]).doubleValue()))
-            .map(e -> Map.entry(e.getKey(), BigDecimal.valueOf(e.getValue())))
-            .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
-            .toList();
+        // Calculate total quantity for percentages
+        BigDecimal totalSum = raw.stream()
+                .map(TopCategoryDTO::getTotalQuantity)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         List<CategoryMetricDTO> result = new ArrayList<>();
         BigDecimal othersTotal = BigDecimal.ZERO;
-        BigDecimal totalSum = sortedCategories.stream()
-            .map(Map.Entry::getValue)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        for (int i = 0; i < sortedCategories.size(); i++) {
-            Map.Entry<String, BigDecimal> entry = sortedCategories.get(i);
+        for (int i = 0; i < raw.size(); i++) {
+            TopCategoryDTO dto = raw.get(i);
 
-            if (i < 4) {
-                // Top 4 categories
+            if (i < 4) { // Top 4 categories
                 BigDecimal percentage = totalSum.compareTo(BigDecimal.ZERO) > 0
-                    ? entry.getValue().multiply(BigDecimal.valueOf(100)).divide(totalSum, 2, RoundingMode.HALF_UP)
-                    : BigDecimal.ZERO;
+                        ? dto.getTotalQuantity()
+                            .multiply(BigDecimal.valueOf(100))
+                            .divide(totalSum, 2, RoundingMode.HALF_UP)
+                        : BigDecimal.ZERO;
 
                 result.add(CategoryMetricDTO.builder()
-                        .category(entry.getKey())
-                        .total(entry.getValue())
+                        .category(dto.getCategoryName())
+                        .total(dto.getTotalQuantity())
                         .percentage(percentage)
-                        .color(getColorFromString(entry.getKey()))
+                        .color(dto.getColor())
                         .build());
-            } else {
-                // Sum the rest
-                othersTotal = othersTotal.add(entry.getValue());
+            } else { // Rest go into "Others"
+                othersTotal = othersTotal.add(dto.getTotalQuantity());
             }
         }
 
-        // Add "Others" category if there is any remaining
+        // Add "Others" if any
         if (othersTotal.compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal othersPercentage = totalSum.compareTo(BigDecimal.ZERO) > 0
-                ? othersTotal.multiply(BigDecimal.valueOf(100)).divide(totalSum, 2, RoundingMode.HALF_UP)
-                : BigDecimal.ZERO;
+                    ? othersTotal.multiply(BigDecimal.valueOf(100))
+                            .divide(totalSum, 2, RoundingMode.HALF_UP)
+                    : BigDecimal.ZERO;
 
             result.add(CategoryMetricDTO.builder()
                     .category("Others")
                     .total(othersTotal)
                     .percentage(othersPercentage)
+                    .color("#CCCCCC") // Optional: fixed color for Others
                     .build());
         }
 
