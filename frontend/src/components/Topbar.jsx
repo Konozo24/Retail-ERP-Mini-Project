@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from "react-router-dom";
 import {
@@ -32,6 +32,8 @@ const QUICK_LINKS = [
 const Topbar = ({ sidebarOpen, setSidebarOpen }) => {
     const navigate = useNavigate();
 
+    const searchInputRef = useRef(null);
+
     const {logout} = useAuth();
     const [profileOpen, setProfileOpen] = useState(false);
 
@@ -48,6 +50,8 @@ const Topbar = ({ sidebarOpen, setSidebarOpen }) => {
         navigate(path);
         setSearchTerm("");
         setOpenSuggestions(false);
+
+        searchInputRef.current?.blur();
     };
 
     const handleSearchKey = (e) => {
@@ -92,6 +96,7 @@ const Topbar = ({ sidebarOpen, setSidebarOpen }) => {
                 <div className="relative w-full max-w-md hidden sm:block">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <input
+                        ref={searchInputRef}
                         type="text"
                         placeholder="Type a page: dashboard, purchase order…"
                         className="w-full h-10 pl-10 pr-4 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 placeholder:text-muted-foreground"
