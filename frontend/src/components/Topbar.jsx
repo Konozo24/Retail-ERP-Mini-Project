@@ -149,12 +149,6 @@ const Topbar = ({ sidebarOpen, setSidebarOpen }) => {
                     <Maximize className="w-5 h-5" />
                 </button>
 
-                {/* Notifications */}
-                <button className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors relative">
-                    <Bell className="w-5 h-5" />
-                    {/* Notification Dot */}
-                    <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full border-2 border-card"></span>
-                </button>
 
                 {/* Settings */}
                 <button

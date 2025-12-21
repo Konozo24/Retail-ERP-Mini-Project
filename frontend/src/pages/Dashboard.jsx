@@ -10,26 +10,8 @@ import {
     Pie,
     Cell
 } from 'recharts';
-import { DollarSign, ShoppingCart, Users, AlertTriangle } from 'lucide-react'; // Import AlertTriangle
+import { DollarSign, ShoppingCart, Users, AlertTriangle } from 'lucide-react';
 import { useGetDashboardStatistics } from "../api/dashboard.api";
-
-// --- Reusable Stat Card Component ---
-const StatCard = ({ title, value, subtext, icon: Icon, iconColor, bgColor }) => (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <div className="flex justify-between items-start">
-            <div>
-                <p className="text-sm font-medium text-gray-500">{title}</p>
-                <h3 className="text-2xl font-bold text-gray-900 mt-2">{value}</h3>
-            </div>
-            <div className={`p-2 rounded-lg ${bgColor || 'bg-gray-50'}`}>
-                <Icon className={`w-5 h-5 ${iconColor || 'text-gray-500'}`} />
-            </div>
-        </div>
-        <p className="text-xs text-gray-500 mt-2">
-            {subtext}
-        </p>
-    </div>
-);
 
 const Dashboard = () => {
     // --- DATA ---
@@ -38,39 +20,59 @@ const Dashboard = () => {
     if (isLoading) return <div>Loading data...</div>;
 
     return (
-        <div className="p-6 bg-gray-50 min-h-screen">
-            <h1 className="text-2xl font-bold mb-6 text-gray-900">Dashboard</h1>
+        <div className="space-y-6">
+            <div>
+                <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+                <div className="text-sm text-muted-foreground mt-1">
+                    Welcome back! Here's your business overview.
+                </div>
+            </div>
 
             {/* --- Top Stats Row --- */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <StatCard
-                    title="Total Revenue"
-                    value={"RM " + ((statistics.totalRevenue.value || 0)).toLocaleString("en-MY", { minimumFractionDigits: 2 })}
-                    subtext={statistics.totalRevenue.changePercentage + "% from last month"}
-                    icon={DollarSign}
-                />
-                <StatCard
-                    title="Sales"
-                    value={"+" + statistics.sales.value}
-                    subtext={statistics.sales.changePercentage + "% from last month"}
-                    icon={ShoppingCart}
-                />
-                <StatCard
-                    title="New Customers"
-                    value={"+" + statistics.newCustomers.value}
-                    subtext={statistics.newCustomers.changePercentage + "% from last month"}
-                    icon={Users}
-                />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-card p-5 rounded-lg border border-green-500/50 shadow-sm flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                        <DollarSign className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p className="text-sm text-muted-foreground">Total Revenue</p>
+                        <h3 className="text-xl font-bold text-foreground">{"RM " + ((statistics.totalRevenue.value || 0)).toLocaleString("en-MY", { minimumFractionDigits: 2 })}</h3>
+                        <p className="text-xs text-muted-foreground mt-1">{statistics.totalRevenue.changePercentage}% from last month</p>
+                    </div>
+                </div>
 
-                {/* REPLACED CARD: Low Stock Alerts */}
-                <StatCard
-                    title="Low Stock Items"
-                    value={statistics.lowStockItems}
-                    subtext={statistics.lowStockItems > 0 ? "Requires attention immediately" : "Stocks are enough"}
-                    icon={AlertTriangle}
-                    iconColor="text-red-500" // Red icon for urgency
-                    bgColor="bg-red-50"      // Light red background
-                />
+                <div className="bg-card p-5 rounded-lg border border-blue-500/50 shadow-sm flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                        <ShoppingCart className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p className="text-sm text-muted-foreground">Total Sales</p>
+                        <h3 className="text-xl font-bold text-foreground">{"+" + statistics.sales.value}</h3>
+                        <p className="text-xs text-muted-foreground mt-1">{statistics.sales.changePercentage}% from last month</p>
+                    </div>
+                </div>
+
+                <div className="bg-card p-5 rounded-lg border border-orange-500/50 shadow-sm flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
+                        <Users className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p className="text-sm text-muted-foreground">New Customers</p>
+                        <h3 className="text-xl font-bold text-foreground">{"+" + statistics.newCustomers.value}</h3>
+                        <p className="text-xs text-muted-foreground mt-1">{statistics.newCustomers.changePercentage}% from last month</p>
+                    </div>
+                </div>
+
+                <div className="bg-card p-5 rounded-lg border border-red-400/50 shadow-sm flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-red-500">
+                        <AlertTriangle className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p className="text-sm text-muted-foreground">Low Stock Items</p>
+                        <h3 className="text-xl font-bold text-foreground">{statistics.lowStockItems}</h3>
+                        <p className="text-xs text-muted-foreground mt-1">{statistics.lowStockItems > 0 ? "Requires attention" : "Stocks are good"}</p>
+                    </div>
+                </div>
             </div>
 
             {/* --- Charts Section --- */}
