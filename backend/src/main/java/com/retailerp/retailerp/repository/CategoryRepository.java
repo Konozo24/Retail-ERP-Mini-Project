@@ -12,5 +12,4 @@ import com.retailerp.retailerp.model.Category;
 public interface CategoryRepository extends JpaRepository<Category, Long>, JpaSpecificationExecutor<Category> {
 
     public Optional<Category> findByName(String name);
-    
 }

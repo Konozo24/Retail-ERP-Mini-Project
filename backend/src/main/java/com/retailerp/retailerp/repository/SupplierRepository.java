@@ -8,8 +8,4 @@ import com.retailerp.retailerp.model.Supplier;
 
 @Repository
 public interface SupplierRepository extends JpaRepository<Supplier, Long>, JpaSpecificationExecutor<Supplier> {
-    
-    // Find supplier name (useful for search)
-    Supplier findByName(String name);
-    
 }
