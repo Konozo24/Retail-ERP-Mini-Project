@@ -11,8 +11,7 @@ const EditCustomersModal = ({ isOpen, onClose, onSubmit, initialData, title }) =
         firstName: "",
         lastName: "",
         email: "",
-        phone: "",
-        avatar: null,
+        phone: ""
     });
 
     // --- Reset/Populate Form on Open ---
@@ -29,15 +28,13 @@ const EditCustomersModal = ({ isOpen, onClose, onSubmit, initialData, title }) =
                 lastName: nameParts.slice(1).join(" ") || "",
                 email: initialData.email || "",
                 phone: initialData.phone || "",
-                avatar: initialData.avatar || null,
             });
         } else {
             setFormData({
                 firstName: "",
                 lastName: "",
                 email: "",
-                phone: "",
-                avatar: null,
+                phone: ""
             });
         }
 
@@ -109,14 +106,6 @@ const EditCustomersModal = ({ isOpen, onClose, onSubmit, initialData, title }) =
             formId="customer-form"
         >
 
-            {/* Image Upload Section */}
-            <AvatarUpload
-                value={formData.avatar}
-                onChange={handleImageChange}
-                onRemove={() =>
-                    setFormData((prev) => ({ ...prev, avatar: null }))
-                }
-            />
 
             {/* Form Fields Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
