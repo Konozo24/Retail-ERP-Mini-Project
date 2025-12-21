@@ -51,20 +51,23 @@ const EditCategoryModal = ({ isOpen, onClose, onSave, category, isEditMode = fal
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
       setFormData((prev) => ({
         ...prev,
-        image: file,
-        imagePreview: URL.createObjectURL(file)
+        image: event.target.result,
+        imagePreview: event.target.result,
       }));
-    }
+    };
+    reader.readAsDataURL(file);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      onSave(formData);
-      onClose();
+      await onSave(formData);
     } catch (error) {
       if (error?.response?.data) {
         setErrors(error.response.data);

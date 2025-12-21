@@ -26,4 +26,8 @@ public class CategoryRequestDTO {
     )
     private String color;
 
+    // Base64 encoded image (optional)
+    @Nullable
+    private String image;
+
 }

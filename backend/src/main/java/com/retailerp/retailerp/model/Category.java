@@ -11,6 +11,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -51,6 +52,10 @@ public class Category {
 
     @Column(name = "COLOR", length = 9, nullable = false)
     private String color = "#FFFFFF";
+
+    @Lob
+    @Column(name = "IMAGE", columnDefinition = "LONGTEXT")
+    private String image;
 
     @Column(name = "INACTIVE", nullable = false)
     private boolean inactive = false;

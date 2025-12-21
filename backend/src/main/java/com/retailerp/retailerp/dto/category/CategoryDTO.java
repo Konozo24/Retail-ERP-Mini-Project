@@ -13,6 +13,7 @@ public class CategoryDTO {
     private String name;
     private String prefix;
     private String color;
+    private String image;
     private Integer productCount;
 
     public static CategoryDTO fromEntity(Category category) {
@@ -21,6 +22,7 @@ public class CategoryDTO {
             .name(category.getName())
             .prefix(category.getPrefix())
             .color(category.getColor())
+            .image(category.getImage())
             .productCount(category.getProductCount())
             .build();
     }
