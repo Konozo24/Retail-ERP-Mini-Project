@@ -31,6 +31,18 @@ export const getImageUrlByProduct = (row) => {
     return resolveCategoryImage(categoryName);
 };
 
-export const getImageUrlByCategory = (categoryName) => {
+export const getImageUrlByCategory = (category) => {
+    // Prefer explicit image when provided (base64 or URL)
+    const explicitImage =
+        typeof category === 'object' && category !== null
+            ? category.image || category.image_url
+            : null;
+
+    if (explicitImage) return explicitImage;
+
+    const categoryName = typeof category === 'string'
+        ? category
+        : category?.name;
+
     return resolveCategoryImage(categoryName);
 };

@@ -23,11 +23,11 @@ public class UserSpec {
                 // Filter out inactive products
                 predicates.add(criteriaBuilder.isFalse(root.get("inactive")));
 
-                // Search by name or email
+                // Search by email
                 if (search != null && !search.trim().isEmpty()) {
                     String pattern = "%" + search.toLowerCase() + "%";
-                    Predicate nameLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), pattern);
-                    predicates.add(nameLike);
+                    Predicate emailLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("email")), pattern);
+                    predicates.add(emailLike);
                 }
 
                 return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

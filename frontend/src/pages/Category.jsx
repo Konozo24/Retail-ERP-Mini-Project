@@ -61,13 +61,18 @@ const Category = () => {
     };
 
     const handleSaveCategory = async (categoryData) => {
+        const payload = {
+            name: categoryData.name?.trim() || "",
+            prefix: categoryData.prefix?.trim().toUpperCase() || "",
+            image: categoryData.image || null,
+        };
         try {
             if (isEditMode && categoryToEdit) {
-                await updateCategory({ categoryId: categoryToEdit.id, payload: categoryData });
-                showToast(`Updated category "${categoryData.name}" successfully.`, "success");
+                await updateCategory({ categoryId: categoryToEdit.id, payload });
+                showToast(`Updated category "${payload.name}" successfully.`, "success");
             } else {
-                await createCategory(categoryData);
-                showToast(`Added category "${categoryData.name}" successfully.`, "success");
+                await createCategory(payload);
+                showToast(`Added category "${payload.name}" successfully.`, "success");
             }
         } catch (err) {
             showToast("Failed to save category.", "error");
@@ -105,7 +110,7 @@ const Category = () => {
             accessor: "image",
             render: (row) => (
                 <div className="w-10 h-10 rounded-md border border-border overflow-hidden shrink-0 bg-muted flex items-center justify-center">
-                    <img src={getImageUrlByCategory(row.name)} alt={row.name} className="w-full h-full object-cover" />
+                    <img src={getImageUrlByCategory(row)} alt={row.name} className="w-full h-full object-cover" />
                 </div>
             )
         },

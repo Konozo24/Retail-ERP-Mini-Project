@@ -75,17 +75,16 @@ const EditCategoryModal = ({ isOpen, onClose, onSave, category, isEditMode = fal
         reader.readAsDataURL(file);
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        try {
-            onSave(formData);
-            onClose();
-        } catch (error) {
-            if (error?.response?.data) {
-                setErrors(error.response.data);
-            }
-        }
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await onSave(formData);
+    } catch (error) {
+      if (error?.response?.data) {
+        setErrors(error.response.data);
+      }
+    }
+  };
 
     return (
         <BaseEditModal

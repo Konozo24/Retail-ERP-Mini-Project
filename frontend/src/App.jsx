@@ -25,6 +25,7 @@ import Dashboard from "./pages/Dashboard";
 import PurchaseOrder from "./pages/PurchaseOrder";
 import Suppliers from "./pages/Suppliers";
 import Sales from "./pages/Sales";
+import Settings from "./pages/Settings";
 
 
 // --- Protection Logic ---
@@ -101,6 +102,7 @@ function App() {
                                 <Route path="/sales" element={<Sales />} />
                                 <Route path="/customers" element={<Customers />} />
                                 <Route path="/suppliers" element={<Suppliers />} />
+                                <Route path="/settings" element={<Settings />} />
                             </Route>
 
                             {/* Fullscreen POS (no sidebar/header layout) */}

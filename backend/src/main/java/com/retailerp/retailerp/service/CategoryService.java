@@ -44,6 +44,7 @@ public class CategoryService {
     public CategoryDTO createCategory(CategoryRequestDTO request) {
         Category category = new Category(request.getName(), request.getPrefix());
         if (request.getColor() != null) category.setColor(request.getColor());
+        if (request.getImage() != null) category.setImage(request.getImage());
         return CategoryDTO.fromEntity(categoryRepository.save(category));
     }
 
@@ -55,6 +56,7 @@ public class CategoryService {
         existing.setName(request.getName());
         existing.setPrefix(request.getPrefix().toUpperCase());
         existing.setColor(request.getColor() != null ? request.getColor() : existing.getColor());
+        existing.setImage(request.getImage() != null ? request.getImage() : existing.getImage());
         categoryRepository.save(existing);
     }    
 

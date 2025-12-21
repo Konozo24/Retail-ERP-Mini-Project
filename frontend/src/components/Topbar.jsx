@@ -27,6 +27,7 @@ const QUICK_LINKS = [
     { label: "Customers", path: "/customers" },
     { label: "Suppliers", path: "/suppliers" },
     { label: "POS", path: "/pos" },
+    { label: "Settings", path: "/settings" },
 ];
 
 const Topbar = ({ sidebarOpen, setSidebarOpen }) => {
@@ -156,7 +157,10 @@ const Topbar = ({ sidebarOpen, setSidebarOpen }) => {
                 </button>
 
                 {/* Settings */}
-                <button className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors">
+                <button
+                    onClick={() => navigate("/settings")}
+                    className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
+                >
                     <Settings className="w-5 h-5" />
                 </button>
 
