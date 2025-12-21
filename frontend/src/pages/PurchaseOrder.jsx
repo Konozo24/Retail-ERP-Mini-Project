@@ -431,12 +431,12 @@ const PurchaseOrderList = ({showToast}) => {
                         )}
                     </button>
                     <button
-                        onClick={() => navigate('/purchase-order-history')}
+                        onClick={() => navigate('/purchase-order-details', {state: row.id})}
                         className="px-3 py-2 rounded-md border border-border text-sm hover:bg-muted transition-colors flex items-center gap-2"
-                        title="View history"
+                        title="View details"
                     >
                         <HistoryIcon className="w-4 h-4 text-primary" />
-                        History
+                        View Details
                     </button>
                 </div>
             ),

@@ -19,7 +19,7 @@ const resolveCategoryImage = (categoryName) => {
 
 // Get image with fallback strategy
 export const getImageUrlByProduct = (row) => {
-    const explicitImage = row?.image || row?.image_url;
+    const explicitImage = row?.image;
     if (explicitImage) {
         return explicitImage; // User uploaded specific image
     }
@@ -27,7 +27,7 @@ export const getImageUrlByProduct = (row) => {
     const categoryName = typeof row?.category === 'string'
         ? row.category
         : row?.category?.name;
-
+    
     return resolveCategoryImage(categoryName);
 };
 

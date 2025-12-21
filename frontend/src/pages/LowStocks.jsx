@@ -71,17 +71,17 @@ const LowStocks = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleSaveEdit = async (updatedProduct) => {
+  const handleSaveEdit = async (formData) => {
     try {
       const payload = {
-        ...updatedProduct,
-        stockQty: Math.max(0, updatedProduct.stockQty || 0),
-        reorderLevel: Math.max(0, updatedProduct.reorderLevel || 0)
+        ...formData,
+        stockQty: Math.max(0, formData.stockQty || 0),
+        reorderLevel: Math.max(0, formData.reorderLevel || 0)
       };
-      await updateProduct({ productId: updatedProduct.id, payload });
+      await updateProduct({ productId: formData.id, payload });
       setIsEditModalOpen(false);
       setSelectedItem(null);
-      showToast(`Updated ${updatedProduct.name} successfully!`, "success");
+      showToast(`Updated ${formData.name} successfully!`, "success");
     } catch {
       showToast("Failed to update product.", "error");
     }

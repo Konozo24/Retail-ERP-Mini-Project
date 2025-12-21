@@ -74,7 +74,7 @@ public class Product {
     private Integer reorderLevel;
 
     @Lob
-    @Column(name = "IMAGE", columnDefinition = "LONGTEXT")
+    @Column(name = "IMAGE", columnDefinition = "LONGTEXT", nullable = true)
     private String image;
 
     @CreationTimestamp

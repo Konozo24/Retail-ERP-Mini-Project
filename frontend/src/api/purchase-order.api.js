@@ -25,6 +25,23 @@ export function useGetPurchaseOrder(purchaseOrderId) {
   });
 }
 
+// GET PURCHASE ORDER ITEMS PAGE (GET /purchase-order/{purchaseOrderId}/items-page)
+export function useGetPurchaseOrderItems(purchaseOrderId, searchQuery, category, pageNum, pageSize) {
+  return useQuery({
+    queryKey: ['purchaseOrderItems', purchaseOrderId, searchQuery, category, pageNum, pageSize],
+    queryFn: () => API.get(`/purchase-order/${purchaseOrderId}/items-page`, {
+        params: {
+            search: searchQuery,
+            category: category,
+            page: pageNum,
+            size: pageSize
+        }
+    }),
+    enabled: !!purchaseOrderId,
+  });
+}
+
+
 // CREATE PURCHASE ORDER (POST /purchase-order)
 export function useCreatePurchaseOrder() {
   const qc = useQueryClient();

@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.retailerp.retailerp.auth.JwtUtil;
 import com.retailerp.retailerp.dto.purchases.PurchaseOrderCreationDTO;
 import com.retailerp.retailerp.dto.purchases.PurchaseOrderDTO;
+import com.retailerp.retailerp.dto.purchases.PurchaseOrderItemDTO;
 import com.retailerp.retailerp.dto.purchases.PurchaseOrderUpdateDTO;
 import com.retailerp.retailerp.enums.PurchaseOrderStatus;
 import com.retailerp.retailerp.model.Product;
@@ -18,6 +19,7 @@ import com.retailerp.retailerp.model.PurchaseOrder;
 import com.retailerp.retailerp.model.PurchaseOrderItem;
 import com.retailerp.retailerp.model.Supplier;
 import com.retailerp.retailerp.model.User;
+import com.retailerp.retailerp.repository.PurchaseOrderItemRepository;
 import com.retailerp.retailerp.repository.PurchaseOrderRepository;
 import com.retailerp.retailerp.repository.SupplierRepository;
 import com.retailerp.retailerp.repository.spec.PurchaseOrderSpec;
@@ -32,6 +34,7 @@ public class PurchaseOrderService {
     private final ProductService productService;
 
     private final PurchaseOrderRepository purchaseOrderRepository;
+    private final PurchaseOrderItemRepository purchaseOrderItemRepository;
     private final SupplierRepository supplierRepository;
     private final JwtUtil jwtUtil;
 
@@ -48,6 +51,17 @@ public class PurchaseOrderService {
             () -> new NoSuchElementException("Purchase order with id, " + purchaseOrderId + " doesn't exist!")
         );
         return PurchaseOrderDTO.fromEntity(purchaseOrder);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PurchaseOrderItemDTO> getPurchaseOrderItemPage(Long purchaseOrderId, String search, String category, Pageable pageable) {
+        purchaseOrderRepository.findById(purchaseOrderId).orElseThrow(
+            () -> new NoSuchElementException("Purchase order with id, " + purchaseOrderId + " doesn't exist!")
+        );
+
+        Specification<PurchaseOrderItem> spec = PurchaseOrderSpec.getItemsSpecification(purchaseOrderId, search, category);
+        return purchaseOrderItemRepository.findAll(spec, pageable)
+            .map(PurchaseOrderItemDTO::fromEntity);
     }
 
     @Transactional

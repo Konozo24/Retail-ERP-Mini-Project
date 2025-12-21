@@ -28,7 +28,7 @@ const ManageStock = () => {
     const [toast, setToast] = useState({ show: false, message: "", type: "success" });
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
-    const [isStockModalOpen, setIsStockModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [currentStockItem, setCurrentStockItem] = useState(null);
 
     // --- DATA ---
@@ -62,22 +62,27 @@ const ManageStock = () => {
     // --- HANDLERS ---
     const handleAddClick = () => {
         setCurrentStockItem(null);
-        setIsStockModalOpen(true);
+        setIsEditModalOpen(true);
     };
 
     const handleEditClick = (row) => {
-        setCurrentStockItem(row);
-        setIsStockModalOpen(true);
+        setCurrentStockItem({...row, categoryId: row.category.id});
+        setIsEditModalOpen(true);
     };
 
-    const handleSaveStock = async (formData) => {
+    const handleSaveEdit = async (formData) => {
         try {
-            await updateProduct({ productId: formData.id, payload: formData });
-            setIsStockModalOpen(false);
-            setCurrentStockItem(null);
-            showToast(`Stock for ${formData.name} updated successfully!`, "success");
-        } catch (err) {
-            showToast("Failed to update stock.", "error");
+        const payload = {
+            ...formData,
+            stockQty: Math.max(0, formData.stockQty || 0),
+            reorderLevel: Math.max(0, formData.reorderLevel || 0)
+        };
+        await updateProduct({ productId: formData.id, payload });
+        setIsEditModalOpen(false);
+        setSelectedItem(null);
+        showToast(`Updated ${formData.name} successfully!`, "success");
+        } catch {
+        showToast("Failed to update product.", "error");
         }
     };
 
@@ -209,9 +214,9 @@ const ManageStock = () => {
 
             {/* Edit Modal */}
             <EditStockModal
-                isOpen={isStockModalOpen}
-                onClose={() => setIsStockModalOpen(false)}
-                onSave={handleSaveStock}
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                onSave={handleSaveEdit}
                 product={currentStockItem}
                 categories={categories}
             />

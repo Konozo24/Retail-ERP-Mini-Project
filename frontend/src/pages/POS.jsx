@@ -30,7 +30,7 @@ const mapProductToPosItem = (product) => {
         price: numericPrice,
         qty: product.stockQty ?? product.stock_qty ?? product.qty ?? 0,
         desc: product.description ?? product.desc ?? '',
-        image: product.image || product.image_url || null,
+        image: product.image || null,
         category: categoryName,
     };
 };

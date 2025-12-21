@@ -3,6 +3,7 @@ package com.retailerp.retailerp.dto.sales;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.retailerp.retailerp.dto.product.ProductDTO;
 import com.retailerp.retailerp.model.SalesOrderItem;
 
 import lombok.Builder;
@@ -13,7 +14,7 @@ import lombok.Getter;
 public class SalesOrderItemDTO {
     
     private Long id;
-    private String product;
+    private ProductDTO product;
     private Integer quantity;
     private BigDecimal unitPrice;
     private BigDecimal subtotal;
@@ -21,7 +22,7 @@ public class SalesOrderItemDTO {
     public static SalesOrderItemDTO fromEntity(SalesOrderItem purchaseOrderItem) {
         return SalesOrderItemDTO.builder()
             .id(purchaseOrderItem.getId())
-            .product(purchaseOrderItem.getProduct().getName())
+            .product(ProductDTO.fromEntity(purchaseOrderItem.getProduct()))
             .quantity(purchaseOrderItem.getQuantity())
             .unitPrice(purchaseOrderItem.getUnitPrice())
             .subtotal(purchaseOrderItem.getSubtotal())

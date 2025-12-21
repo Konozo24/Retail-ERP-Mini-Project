@@ -50,7 +50,7 @@ const PrintBarcode = () => {
                 categoryName,
                 category: { name: categoryName },
                 unit_price: numericPrice,
-                image: product.image || product.image_url || product.imageUrl || null,
+                image: product.image || null,
                 qty: Number(stockQty) || 0,
             };
         });

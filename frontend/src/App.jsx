@@ -19,7 +19,7 @@ import LowStocks from "./pages/LowStocks";
 import Category from "./pages/Category";
 import PrintBarcode from "./pages/PrintBarcode";
 import POS from "./pages/POS";
-import PurchaseOrderHistory from "./pages/PurchaseOrderHistory";
+import PurchaseOrderDetails from "./pages/PurchaseOrderDetails";
 import ManageStock from "./pages/ManageStock";
 import Dashboard from "./pages/Dashboard";
 import PurchaseOrder from "./pages/PurchaseOrder";
@@ -33,7 +33,7 @@ const ProtectedRoute = () => {
 
     if (isLoading) {
         return (
-            <div className="fixed inset-0 z-[9999] bg-background flex items-center justify-center">
+            <div className="fixed inset-0 z-9999 bg-background flex items-center justify-center">
                 <PageLoader />
             </div>
         );
@@ -53,7 +53,7 @@ const PublicRoute = ({ children }) => {
 
     if (isLoading) {
         return (
-             <div className="fixed inset-0 z-[9999] bg-background flex items-center justify-center">
+             <div className="fixed inset-0 z-9999 bg-background flex items-center justify-center">
                 <PageLoader />
             </div>
         );
@@ -97,7 +97,7 @@ function App() {
                                 <Route path="/print-barcode" element={<PrintBarcode />} />
                                 <Route path="/manage-stock" element={<ManageStock />} />
                                 <Route path="/purchase-order" element={<PurchaseOrder />} />
-                                <Route path="/purchase-order-history" element={<PurchaseOrderHistory />} />
+                                <Route path="/purchase-order-details" element={<PurchaseOrderDetails />} />
                                 <Route path="/sales" element={<Sales />} />
                                 <Route path="/customers" element={<Customers />} />
                                 <Route path="/suppliers" element={<Suppliers />} />

@@ -3,36 +3,12 @@ import { useDebounce } from "use-debounce";
 import { useNavigate } from "react-router-dom";
 import DataTable from "../components/ui/DataTable";
 import DeleteModal from "../components/ui/DeleteModal";
+import ProductNameCell from "../components/ui/ProductNameCell";
 import Toast from "../components/ui/Toast";
-import { Plus, Search, Filter, ImageOff } from "lucide-react";
+import { Plus, Search, Filter } from "lucide-react";
 
 import { useGetCategoriesName } from "../api/categories.api";
 import { useDeleteProduct, useGetProductsPage } from "../api/products.api";
-import { getImageUrlByProduct } from "../data/categoryImages";
-
-// --- Reusable Product Name Cell Component ---
-const ProductNameCell = ({ product }) => (
-    <div className="flex items-center gap-3">
-        <div className="relative w-10 h-10 rounded-md border border-border overflow-hidden shrink-0 bg-muted">
-            <img
-                src={getImageUrlByProduct(product)}
-                alt={product.name}
-                className="absolute inset-0 w-full h-full object-cover"
-                onError={(e) => {
-                    e.currentTarget.classList.add("hidden");
-                    e.currentTarget.parentElement?.querySelector(".img-fallback-icon")?.classList.remove("hidden");
-                }}
-                onLoad={(e) => {
-                    e.currentTarget.parentElement?.querySelector(".img-fallback-icon")?.classList.add("hidden");
-                }}
-            />
-            <div className="absolute inset-0 flex items-center justify-center">
-                <ImageOff className="img-fallback-icon w-5 h-5 text-muted-foreground/50 hidden" />
-            </div>
-        </div>
-        <span className="font-medium text-foreground">{product.name}</span>
-    </div>
-);
 
 const Products = () => {
     const navigate = useNavigate();
