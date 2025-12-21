@@ -13,7 +13,6 @@ const EditSuppliersModal = ({ isOpen, onClose, onSubmit, initialData, title }) =
         phone: "",
         email: "",
         address: "",
-        avatar: null,
     });
 
     // --- Reset/Populate Form on Open ---
@@ -25,16 +24,14 @@ const EditSuppliersModal = ({ isOpen, onClose, onSubmit, initialData, title }) =
                 name: initialData.name || "",
                 email: initialData.email || "",
                 phone: initialData.phone || "",
-                address: initialData.address || "",
-                avatar: initialData.avatar || null,
+                address: initialData.address || ""
             });
         } else {
             setFormData({
                 name: "",
                 email: "",
                 phone: "",
-                address: "",
-                avatar: null,
+                address: ""
             });
         }
 
@@ -90,14 +87,6 @@ const EditSuppliersModal = ({ isOpen, onClose, onSubmit, initialData, title }) =
             formId="supplier-form"
         >
 
-            {/* Image Upload Section */}
-            <AvatarUpload
-                value={formData.avatar}
-                onChange={handleImageChange}
-                onRemove={() =>
-                    setFormData((prev) => ({ ...prev, avatar: null }))
-                }
-            />
 
             {/* Form Fields Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
