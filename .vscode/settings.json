@@ -3,7 +3,11 @@
     // Editor behavior
     // =========================
     "files.autoSave": "afterDelay",
+    "editor.tabSize": 4,
+    "editor.insertSpaces": false,
     "editor.detectIndentation": false,
+	"editor.formatOnPaste": true,
+	"editor.formatOnSave": true,
     "editor.minimap.enabled": false,
     "editor.fontLigatures": false,
     "diffEditor.ignoreTrimWhitespace": false,
