@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { useNavigate } from 'react-router-dom';
 import Toast from "../components/ui/Toast"; // Import Toast
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import { Search, ClipboardList, CheckCircle, RotateCcw, FilePlus2, Download, History as HistoryIcon, Trash2, Plus } from 'lucide-react';
 import DataTable from '../components/ui/DataTable';
 
@@ -329,6 +331,8 @@ const PurchaseOrderList = ({showToast}) => {
     const {data: purchaseOrderPage, isLoading} = useGetPurchaseOrdersPage(debouncedSearchQuery, currentPage - 1, itemsPerPage);
     const purchaseOrders = purchaseOrderPage?.content ?? [];
     const totalPages = purchaseOrderPage?.totalPages ?? 0;
+    const { data: allPurchaseOrdersPage } = useGetPurchaseOrdersPage(debouncedSearchQuery, 0, 1000);
+    const allPurchaseOrders = allPurchaseOrdersPage?.content ?? [];
 
     // --- DATA MUTATIONS ---
     const { mutateAsync: updatePurchaseOrder } = useUpdatePurchaseOrder();
@@ -372,6 +376,72 @@ const PurchaseOrderList = ({showToast}) => {
         }
     };
 
+    const handleGenerateReport = () => {
+        if (isLoading) return;
+
+        const currencyFormatter = new Intl.NumberFormat("en-MY", {
+            style: "currency",
+            currency: "MYR",
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        });
+
+        const doc = new jsPDF();
+
+        doc.setFontSize(20);
+        doc.text("Purchase Orders Report", 14, 22);
+
+        doc.setFontSize(11);
+        doc.setTextColor(100);
+        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+        doc.text(`Total Purchase Orders: ${allPurchaseOrders.length}`, 14, 36);
+
+        doc.setDrawColor(200);
+        doc.line(14, 42, 196, 42);
+
+        doc.setFontSize(12);
+        doc.setTextColor(0);
+        doc.text("Purchase Orders Summary:", 14, 50);
+
+        const summaryData = [
+            ["Total Orders", allPurchaseOrders.length.toLocaleString()],
+            ["Total Cost", currencyFormatter.format(allPurchaseOrders.reduce((sum, po) => sum + (po.items.reduce((itemSum, i) => itemSum + i.subtotal, 0) || 0), 0))],
+            ["Pending Orders", allPurchaseOrders.filter(po => po.status === 'PENDING').length.toLocaleString()],
+            ["Delivered Orders", allPurchaseOrders.filter(po => po.status === 'DELIVERED').length.toLocaleString()],
+        ];
+
+        autoTable(doc, {
+            startY: 54,
+            head: [["Metric", "Value"]],
+            body: summaryData,
+            theme: "plain",
+            styles: { fontSize: 10, cellPadding: 2 },
+            headStyles: { fillColor: [240, 240, 240], textColor: 50, fontStyle: "bold" },
+            columnStyles: { 0: { fontStyle: "bold", width: 60 } },
+            margin: { left: 14 },
+        });
+
+        doc.text("Detailed Purchase Orders:", 14, doc.lastAutoTable.finalY + 10);
+
+        autoTable(doc, {
+            startY: doc.lastAutoTable.finalY + 14,
+            head: [["PO ID", "Date", "Supplier", "Items", "Total Cost", "Status"]],
+            body: allPurchaseOrders.map((po) => [
+                `PO-${String(po.id).padStart(5, '0')}`,
+                po.createdAt || "",
+                po.supplier || "",
+                po.items.length.toString(),
+                currencyFormatter.format(po.items.reduce((sum, i) => sum + i.subtotal, 0) || 0),
+                po.status || "",
+            ]),
+            theme: "striped",
+            headStyles: { fillColor: [66, 66, 66] },
+            styles: { fontSize: 9 },
+        });
+
+        doc.save(`Purchase_Orders_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+    };
+
     const columns = [
         {
             header: "PO ID",
@@ -396,11 +466,17 @@ const PurchaseOrderList = ({showToast}) => {
         {
             header: "Total Cost",
             accessor: "total_cost",
-            render: (row) => <span className="font-medium">
-                ${
-                    ((row.items.reduce((sum, i) => sum + i.subtotal, 0) || 0)).toLocaleString("en-MY")
-                }
-            </span>,
+            render: (row) => {
+                const currencyFormatter = new Intl.NumberFormat("en-MY", {
+                    style: "currency",
+                    currency: "MYR",
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                });
+                return <span className="font-medium">
+                    {currencyFormatter.format(row.items.reduce((sum, i) => sum + i.subtotal, 0) || 0)}
+                </span>;
+            },
         },
         {
             header: "Status",
@@ -445,19 +521,28 @@ const PurchaseOrderList = ({showToast}) => {
 
     return (
         <div className="bg-card p-6 rounded-lg border border-border shadow-sm space-y-4">
-            {/* Search */}
-            <div className="relative w-full md:w-80">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input
-                    type="text"
-                    placeholder="Search by PO ID or Supplier..."
-                    value={searchQuery}
-                    onChange={(e) => {
-                        setSearchQuery(e.target.value);
-                        setCurrentPage(1);
-                    }}
-                    className="w-full h-10 pl-9 pr-4 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                />
+            {/* Search and Generate Report */}
+            <div className="flex flex-col md:flex-row gap-4 md:items-end md:justify-between">
+                <div className="relative w-full md:w-80">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                        type="text"
+                        placeholder="Search by PO ID or Supplier..."
+                        value={searchQuery}
+                        onChange={(e) => {
+                            setSearchQuery(e.target.value);
+                            setCurrentPage(1);
+                        }}
+                        className="w-full h-10 pl-9 pr-4 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                </div>
+                <button
+                    onClick={handleGenerateReport}
+                    className="w-full md:w-auto bg-accent hover:bg-accent/90 text-white px-6 h-10 rounded-md font-medium text-sm transition-colors shadow-sm whitespace-nowrap flex items-center justify-center gap-2"
+                >
+                    <Download className="w-4 h-4" />
+                    Generate Report
+                </button>
             </div>
 
             <DataTable
@@ -499,14 +584,6 @@ const PurchaseOrder = () => {
                 <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
                     <ClipboardList className="w-6 h-6 text-primary"/> Purchase Orders
                 </h1>
-                <div className="flex gap-2">
-                    <button className="bg-muted hover:bg-muted/80 text-foreground px-4 py-2 rounded-md flex items-center gap-2 transition-colors font-medium text-sm border border-input">
-                        <FilePlus2 className="w-4 h-4"/> New PO
-                    </button>
-                    <button className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md flex items-center gap-2 transition-colors font-medium text-sm">
-                        <Download className="w-4 h-4"/> Export
-                    </button>
-                </div>
             </div>
 
             {/* Path */}
