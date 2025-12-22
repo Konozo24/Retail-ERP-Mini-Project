@@ -29,131 +29,133 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
+	private final UserRepository userRepository;
 
-    private final JwtUtil jwtUtil;
-    private final PasswordEncoder passwordEncoder;
+	private final JwtUtil jwtUtil;
+	private final PasswordEncoder passwordEncoder;
 
-    @Transactional(readOnly = true)
-    public Page<UserDTO> getUsers(String search, Pageable pageable) {
-        Specification<User> spec = UserSpec.getSpecification(search);
-        return userRepository.findAll(spec, pageable)
-                .map(UserDTO::fromEntity);
-    }
+	@Transactional(readOnly = true)
+	public Page<UserDTO> getUsers(String search, Pageable pageable) {
+		Specification<User> spec = UserSpec.getSpecification(search);
+		return userRepository.findAll(spec, pageable)
+				.map(UserDTO::fromEntity);
+	}
 
-    @Transactional(readOnly = true)
-    public UserDTO getUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(
-            () -> new NoSuchElementException("User with id, " + userId + " doesn't exist!")
-        );
-        return UserDTO.fromEntity(user);
-    }
+	@Transactional(readOnly = true)
+	public UserDTO getUser(Long userId) {
+		User user = userRepository.findById(userId).orElseThrow(
+				() -> new NoSuchElementException("User with id, " + userId + " doesn't exist!"));
+		return UserDTO.fromEntity(user);
+	}
 
-    @Transactional
-    public void updateUser(Long userId, AuthRequestDTO request) {
-        User existing = userRepository.findById(userId).orElseThrow(
-            () -> new NoSuchElementException("User with id, " + userId + " doesn't exist!")
-        );
+	@Transactional
+	public void updateUser(Long userId, AuthRequestDTO request) {
+		User existing = userRepository.findById(userId).orElseThrow(
+				() -> new NoSuchElementException("User with id, " + userId + " doesn't exist!"));
 
-        String cipherText = passwordEncoder.encode(request.getRawPassword());
-        existing.setEmail(request.getEmail());
-        existing.setCipherText(cipherText);
-        userRepository.save(existing);
-    }
+		String cipherText = passwordEncoder.encode(request.getRawPassword());
+		existing.setEmail(request.getEmail());
+		existing.setCipherText(cipherText);
+		userRepository.save(existing);
+	}
 
-    @Transactional
-    public void removeUser(Long userId) {
-        User existing = userRepository.findById(userId).orElseThrow(
-            () -> new NoSuchElementException("User with id, " + userId + " doesn't exist!")
-        );
-        
-        if (!existing.isInactive()) {
-            existing.setInactive(true);
-            userRepository.save(existing);
-        }
-    }
+	@Transactional
+	public void removeUser(Long userId) {
+		User existing = userRepository.findById(userId).orElseThrow(
+				() -> new NoSuchElementException("User with id, " + userId + " doesn't exist!"));
 
-    //--------------------------------------------------
-    //| USER AUTH SECTION
-    //--------------------------------------------------
-    @Transactional(readOnly = true)
-    public AuthResponseDTO loginUser(AuthRequestDTO request, HttpServletResponse response) throws LoginException {
-        User user = userRepository.findByEmail(request.getEmail())
-            .orElseThrow(() -> new LoginException("Invalid login credentials"));
+		if (!existing.isInactive()) {
+			existing.setInactive(true);
+			userRepository.save(existing);
+		}
+	}
 
-        if (passwordEncoder.matches(request.getRawPassword(), user.getCipherText())) {
-            String accessToken = jwtUtil.generateAccessToken(user.getId());
-            String refreshToken = jwtUtil.generateRefreshToken(user.getId());
+	// --------------------------------------------------
+	// | USER AUTH SECTION
+	// --------------------------------------------------
+	@Transactional(readOnly = true)
+	public AuthResponseDTO loginUser(AuthRequestDTO request, HttpServletResponse response) throws LoginException {
+		User user = userRepository.findByEmail(request.getEmail())
+				.orElseThrow(() -> new LoginException("Invalid login credentials"));
 
-             ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
-                .httpOnly(true)
-                .secure(true) // set false for local dev if not https, !isLocalEnvironment()
-                .path("/auth")
-                .maxAge(7 * 24 * 60 * 60) // 7 days
-                .sameSite("Strict")
-                .build();
-            response.addHeader("Set-Cookie", cookie.toString());
+		if (passwordEncoder.matches(request.getRawPassword(), user.getCipherText())) {
+			String accessToken = jwtUtil.generateAccessToken(user.getId());
+			String refreshToken = jwtUtil.generateRefreshToken(user.getId());
 
-            return AuthResponseDTO.builder()
-                .access_token(accessToken)
-                .message("Login successful")
-                .build();
-        } else {
-            throw new LoginException("Invalid login credentials");
-        }
-    }
+			ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+					.httpOnly(true)
+					.secure(true) // set false for local dev if not https, !isLocalEnvironment()
+					.path("/auth")
+					.maxAge(7 * 24 * 60 * 60) // 7 days
+					.sameSite("Strict")
+					.build();
+			response.addHeader("Set-Cookie", cookie.toString());
 
-    @Transactional
-    public AuthResponseDTO registerUser(AuthRequestDTO request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new EntityExistsException("Email already been registered before");
-        }
-        String cipherText = passwordEncoder.encode(request.getRawPassword());
+			return AuthResponseDTO.builder()
+					.access_token(accessToken)
+					.email(user.getEmail())
+					.role(user.getRole())
+					.message("Login successful")
+					.build();
+		} else {
+			throw new LoginException("Invalid login credentials");
+		}
+	}
 
-        User newUser = userRepository.save(
-            new User(request.getEmail(), cipherText)
-        );
+	@Transactional
+	public AuthResponseDTO registerUser(AuthRequestDTO request) {
+		if (userRepository.existsByEmail(request.getEmail())) {
+			throw new EntityExistsException("Email already been registered before");
+		}
+		String cipherText = passwordEncoder.encode(request.getRawPassword());
 
-        String token = jwtUtil.generateAccessToken(newUser.getId());
+		User newUser = userRepository.save(
+				new User(request.getEmail(), cipherText));
 
-        return AuthResponseDTO.builder()
-            .access_token(token)
-            .message("User registration successful!")
-            .build();
-    }
+		String token = jwtUtil.generateAccessToken(newUser.getId());
 
-    @Transactional(readOnly = true)
-    public void logoutUser(HttpServletResponse response) {
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
-            .httpOnly(true)
-            .secure(true)
-            .path("/auth")
-            .maxAge(0)
-            .build();
-        response.addHeader("Set-Cookie", cookie.toString());
-    }
+		return AuthResponseDTO.builder()
+				.access_token(token)
+				.email(newUser.getEmail())
+				.role(newUser.getRole())
+				.message("User registration successful!")
+				.build();
+	}
 
-    @Transactional(readOnly = true)
-    public AuthResponseDTO refreshUserToken(String refreshToken) {
-        if (refreshToken == null || refreshToken.isEmpty()) {
-            throw new UnauthorizedException("Refresh token missing");
-        }
+	@Transactional(readOnly = true)
+	public void logoutUser(HttpServletResponse response) {
+		ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
+				.httpOnly(true)
+				.secure(true)
+				.path("/auth")
+				.maxAge(0)
+				.build();
+		response.addHeader("Set-Cookie", cookie.toString());
+	}
 
-        if (!jwtUtil.validateToken(refreshToken)) {
-            throw new UnauthorizedException("Invalid refresh token");
-        }
+	@Transactional(readOnly = true)
+	public AuthResponseDTO refreshUserToken(String refreshToken) {
+		if (refreshToken == null || refreshToken.isEmpty()) {
+			throw new UnauthorizedException("Refresh token missing");
+		}
 
-        Long userId = jwtUtil.extractUserId(refreshToken);
+		if (!jwtUtil.validateToken(refreshToken)) {
+			throw new UnauthorizedException("Invalid refresh token");
+		}
 
-        userRepository.findById(userId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
+		Long userId = jwtUtil.extractUserId(refreshToken);
 
-        String newAccessToken = jwtUtil.generateAccessToken(userId);
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new UnauthorizedException("User not found"));
 
-        return AuthResponseDTO.builder()
-                .access_token(newAccessToken)
-                .message("Token refreshed")
-                .build();
-        }
+		String newAccessToken = jwtUtil.generateAccessToken(userId);
+
+		return AuthResponseDTO.builder()
+				.access_token(newAccessToken)
+				.email(user.getEmail())
+				.role(user.getRole())
+				.message("Token refreshed")
+				.build();
+	}
 
 }

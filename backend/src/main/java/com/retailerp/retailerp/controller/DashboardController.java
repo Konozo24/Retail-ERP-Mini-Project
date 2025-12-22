@@ -22,31 +22,31 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/dashboard")
 @RequiredArgsConstructor
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ADMIN')")
 public class DashboardController {
-    
-    private final DashboardService dashboardService;
-    private final StatisticsService statisticsService;
 
-    @GetMapping("/statistics")
-    public ResponseEntity<DashboardDTO> getDashboardStatistics() {
-        DashboardDTO dto = dashboardService.getDashboardStatistics();
-        return ResponseEntity.ok(dto);
-    }
+	private final DashboardService dashboardService;
+	private final StatisticsService statisticsService;
 
-    @GetMapping("/sales")
-    public ResponseEntity<StatisticDTO> getSalesStatistics(
-        @RequestParam(defaultValue = "") String category,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size,
-        @Schema(example = "01/01/2024") @RequestParam String startDate,
-        @Schema(example = "01/01/2026") @RequestParam String endDate
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        StatisticRequestDTO request = new StatisticRequestDTO();
-        request.setStartDate(startDate);
-        request.setEndDate(endDate);
+	@GetMapping("/statistics")
+	public ResponseEntity<DashboardDTO> getDashboardStatistics() {
+		DashboardDTO dto = dashboardService.getDashboardStatistics();
+		return ResponseEntity.ok(dto);
+	}
 
-        StatisticDTO dto = statisticsService.getSalesSatistics(category, pageable, request);
-        return ResponseEntity.ok(dto);
-    }
+	@GetMapping("/sales")
+	public ResponseEntity<StatisticDTO> getSalesStatistics(
+			@RequestParam(defaultValue = "") String category,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size,
+			@Schema(example = "01/01/2024") @RequestParam String startDate,
+			@Schema(example = "01/01/2026") @RequestParam String endDate) {
+		Pageable pageable = PageRequest.of(page, size);
+		StatisticRequestDTO request = new StatisticRequestDTO();
+		request.setStartDate(startDate);
+		request.setEndDate(endDate);
+
+		StatisticDTO dto = statisticsService.getSalesSatistics(category, pageable, request);
+		return ResponseEntity.ok(dto);
+	}
 }

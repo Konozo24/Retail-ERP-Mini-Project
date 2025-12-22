@@ -38,15 +38,19 @@ export const AuthProvider = ({ children }) => {
         }
         const data = await loginUser(userData);
 
-        // Update state
-        setUser(userData);
+        // Update state with email and role from response
+        const userInfo = {
+            email: data.email,
+            role: data.role
+        };
+        setUser(userInfo);
         setIsLoggedIn(true);
 
         if (rememberMe) {
-            localStorage.setItem('user', JSON.stringify(userData))
+            localStorage.setItem('user', JSON.stringify(userInfo))
             localStorage.setItem('access_token', data.access_token);
         } else {
-            sessionStorage.setItem('user', JSON.stringify(userData));
+            sessionStorage.setItem('user', JSON.stringify(userInfo));
             sessionStorage.setItem('access_token', data.access_token);
         }
 

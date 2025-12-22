@@ -30,65 +30,61 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/purchase-order")
 @RequiredArgsConstructor
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ADMIN')")
 public class PurchaseOrderController {
-    
-    private final PurchaseOrderService purchaseOrderService;
 
-    @GetMapping
-    public ResponseEntity<Page<PurchaseOrderDTO>> getPurchaseOrders(
-        @RequestParam(defaultValue = "") String search,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<PurchaseOrderDTO> dtoPage = purchaseOrderService.getPurchaseOrders(search, pageable);
-        return ResponseEntity.ok(dtoPage);
-    }
+	private final PurchaseOrderService purchaseOrderService;
 
-    @GetMapping("/{purchaseOrderId}")
-    public ResponseEntity<PurchaseOrderDTO> getPurchaseOrder(
-        @PathVariable Long purchaseOrderId
-    ) {
-        PurchaseOrderDTO dto = purchaseOrderService.getPurchaseOrder(purchaseOrderId);
-        return ResponseEntity.ok(dto);
-    }
+	@GetMapping
+	public ResponseEntity<Page<PurchaseOrderDTO>> getPurchaseOrders(
+			@RequestParam(defaultValue = "") String search,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<PurchaseOrderDTO> dtoPage = purchaseOrderService.getPurchaseOrders(search, pageable);
+		return ResponseEntity.ok(dtoPage);
+	}
 
-    @GetMapping("/{purchaseOrderId}/items-page")
-    public ResponseEntity<Page<PurchaseOrderItemDTO>> getPurchaseOrderItems(
-        @PathVariable Long purchaseOrderId,
-        @RequestParam(defaultValue = "") String search,
-        @RequestParam(defaultValue = "") String category,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<PurchaseOrderItemDTO> dto = purchaseOrderService.getPurchaseOrderItemPage(purchaseOrderId, search, category, pageable);
-        return ResponseEntity.ok(dto);
-    }
+	@GetMapping("/{purchaseOrderId}")
+	public ResponseEntity<PurchaseOrderDTO> getPurchaseOrder(
+			@PathVariable Long purchaseOrderId) {
+		PurchaseOrderDTO dto = purchaseOrderService.getPurchaseOrder(purchaseOrderId);
+		return ResponseEntity.ok(dto);
+	}
 
-    @PostMapping
-    public ResponseEntity<PurchaseOrderDTO> createPurchaseOrder(
-        @Valid @RequestBody PurchaseOrderCreationDTO request
-    ) {
-        PurchaseOrderDTO dto = purchaseOrderService.createPurchaseOrder(request);
-        URI location = URI.create("/purchaseOrder/" + dto.getId());
-        return ResponseEntity.created(location).body(dto);
-    }
+	@GetMapping("/{purchaseOrderId}/items-page")
+	public ResponseEntity<Page<PurchaseOrderItemDTO>> getPurchaseOrderItems(
+			@PathVariable Long purchaseOrderId,
+			@RequestParam(defaultValue = "") String search,
+			@RequestParam(defaultValue = "") String category,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<PurchaseOrderItemDTO> dto = purchaseOrderService.getPurchaseOrderItemPage(purchaseOrderId, search,
+				category, pageable);
+		return ResponseEntity.ok(dto);
+	}
 
-    @PutMapping("/{purchaseOrderId}")
-    public ResponseEntity<String> updatePurchaseOrder(
-        @PathVariable Long purchaseOrderId,
-        @Valid @RequestBody PurchaseOrderUpdateDTO request
-    ) {
-        purchaseOrderService.updatePurchaseOrder(purchaseOrderId, request);
-        return ResponseEntity.ok("Update was succesful");
-    }
+	@PostMapping
+	public ResponseEntity<PurchaseOrderDTO> createPurchaseOrder(
+			@Valid @RequestBody PurchaseOrderCreationDTO request) {
+		PurchaseOrderDTO dto = purchaseOrderService.createPurchaseOrder(request);
+		URI location = URI.create("/purchaseOrder/" + dto.getId());
+		return ResponseEntity.created(location).body(dto);
+	}
 
-    @DeleteMapping("/{purchaseOrderId}")
-    public ResponseEntity<String> removePurchaseOrder(
-        @PathVariable Long purchaseOrderId
-    ) {
-        purchaseOrderService.removePurchaseOrder(purchaseOrderId);
-        return ResponseEntity.ok("Delete was succesful");
-    }
+	@PutMapping("/{purchaseOrderId}")
+	public ResponseEntity<String> updatePurchaseOrder(
+			@PathVariable Long purchaseOrderId,
+			@Valid @RequestBody PurchaseOrderUpdateDTO request) {
+		purchaseOrderService.updatePurchaseOrder(purchaseOrderId, request);
+		return ResponseEntity.ok("Update was succesful");
+	}
+
+	@DeleteMapping("/{purchaseOrderId}")
+	public ResponseEntity<String> removePurchaseOrder(
+			@PathVariable Long purchaseOrderId) {
+		purchaseOrderService.removePurchaseOrder(purchaseOrderId);
+		return ResponseEntity.ok("Delete was succesful");
+	}
 }

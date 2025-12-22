@@ -28,52 +28,48 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/suppliers")
 @RequiredArgsConstructor
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ADMIN')")
 public class SupplierController {
-    
-    private final SupplierService supplierService;
 
-    @GetMapping
-    public ResponseEntity<Page<SupplierDTO>> getSuppliers(
-        @RequestParam(defaultValue = "") String search,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<SupplierDTO> dtoPage = supplierService.getSuppliers(search, pageable);
-        return ResponseEntity.ok(dtoPage);
-    }
+	private final SupplierService supplierService;
 
-    @GetMapping("/{supplierId}")
-    public ResponseEntity<SupplierDTO> getSupplier(
-        @PathVariable Long supplierId
-    ) {
-        SupplierDTO dto = supplierService.getSupplier(supplierId);
-        return ResponseEntity.ok(dto);
-    }
+	@GetMapping
+	public ResponseEntity<Page<SupplierDTO>> getSuppliers(
+			@RequestParam(defaultValue = "") String search,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<SupplierDTO> dtoPage = supplierService.getSuppliers(search, pageable);
+		return ResponseEntity.ok(dtoPage);
+	}
 
-    @PostMapping
-    public ResponseEntity<SupplierDTO> createSupplier(
-        @Valid @RequestBody SupplierRequestDTO request
-    ) {
-        SupplierDTO dto = supplierService.createSupplier(request);
-        URI location = URI.create("/suppliers/" + dto.getId());
-        return ResponseEntity.created(location).body(dto);
-    }
+	@GetMapping("/{supplierId}")
+	public ResponseEntity<SupplierDTO> getSupplier(
+			@PathVariable Long supplierId) {
+		SupplierDTO dto = supplierService.getSupplier(supplierId);
+		return ResponseEntity.ok(dto);
+	}
 
-    @PutMapping("/{supplierId}")
-    public ResponseEntity<String> updateSupplier(
-        @PathVariable Long supplierId,
-        @Valid @RequestBody SupplierRequestDTO request
-    ) {
-        supplierService.updateSupplier(supplierId, request);
-        return ResponseEntity.ok("Update was succesful");
-    }
+	@PostMapping
+	public ResponseEntity<SupplierDTO> createSupplier(
+			@Valid @RequestBody SupplierRequestDTO request) {
+		SupplierDTO dto = supplierService.createSupplier(request);
+		URI location = URI.create("/suppliers/" + dto.getId());
+		return ResponseEntity.created(location).body(dto);
+	}
 
-    @DeleteMapping("/{supplierId}")
-    public ResponseEntity<String> removeSupplier(
-        @PathVariable Long supplierId
-    ) {
-        supplierService.removeSupplier(supplierId);
-        return ResponseEntity.ok("Delete was succesful");
-    }
+	@PutMapping("/{supplierId}")
+	public ResponseEntity<String> updateSupplier(
+			@PathVariable Long supplierId,
+			@Valid @RequestBody SupplierRequestDTO request) {
+		supplierService.updateSupplier(supplierId, request);
+		return ResponseEntity.ok("Update was succesful");
+	}
+
+	@DeleteMapping("/{supplierId}")
+	public ResponseEntity<String> removeSupplier(
+			@PathVariable Long supplierId) {
+		supplierService.removeSupplier(supplierId);
+		return ResponseEntity.ok("Delete was succesful");
+	}
 }

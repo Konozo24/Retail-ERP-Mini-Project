@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom"; // Use Link for navigation
+import { useAuth } from "../contexts/AuthContext";
 import {
     LayoutGrid,
     Box,
@@ -58,6 +59,19 @@ const menuItems = [
 
 const Sidebar = ({ isCollapsed }) => {
     const location = useLocation(); // To track current URL
+    const { user } = useAuth(); // Get user role
+
+    // Filter menu items based on user role
+    const getFilteredMenuItems = () => {
+        // CASHIER should not see any sidebar items (they only access POS)
+        if (user?.role === 'CASHIER') {
+            return [];
+        }
+        // ADMIN sees everything
+        return menuItems;
+    };
+
+    const filteredMenuItems = getFilteredMenuItems();
 
     return (
         <aside className={`h-screen border-r border-sidebar-border bg-sidebar text-sidebar-foreground flex flex-col transition-all duration-300 ${isCollapsed ? "w-[70px]" : "w-64"}`}>
@@ -75,7 +89,7 @@ const Sidebar = ({ isCollapsed }) => {
 
             {/* Scrollable Menu Area */}
             <div className="flex-1 overflow-y-auto py-2 custom-scrollbar overflow-x-hidden">
-                {menuItems.map((section, index) => (
+                {filteredMenuItems.map((section, index) => (
                     <div key={index} className="mb-6">
 
                         {/* Section Header - Hide when collapsed */}

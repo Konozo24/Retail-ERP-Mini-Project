@@ -25,44 +25,41 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ADMIN')")
 public class UserController {
-    
-    private final UserService userService;
 
-    @GetMapping
-    public ResponseEntity<Page<UserDTO>> getUsers(
-        @RequestParam(defaultValue = "") String search,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<UserDTO> dtoPage = userService.getUsers(search, pageable);
-        return ResponseEntity.ok(dtoPage);
-    }
+	private final UserService userService;
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<UserDTO> getUser(
-        @PathVariable Long userId
-    ) {
-        UserDTO dto = userService.getUser(userId);
-        return ResponseEntity.ok(dto);
-    }
+	@GetMapping
+	public ResponseEntity<Page<UserDTO>> getUsers(
+			@RequestParam(defaultValue = "") String search,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<UserDTO> dtoPage = userService.getUsers(search, pageable);
+		return ResponseEntity.ok(dtoPage);
+	}
 
-    @PutMapping("/{userId}")
-    public ResponseEntity<String> updateUser(
-        @PathVariable Long userId,
-        @Valid @RequestBody AuthRequestDTO request
-    ) {
-        userService.updateUser(userId, request);
-        return ResponseEntity.ok("Update was succesful");
-    }
+	@GetMapping("/{userId}")
+	public ResponseEntity<UserDTO> getUser(
+			@PathVariable Long userId) {
+		UserDTO dto = userService.getUser(userId);
+		return ResponseEntity.ok(dto);
+	}
 
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> removeUser(
-        @PathVariable Long userId
-    ) {
-        userService.removeUser(userId);
-        return ResponseEntity.noContent().build();
-    }
+	@PutMapping("/{userId}")
+	public ResponseEntity<String> updateUser(
+			@PathVariable Long userId,
+			@Valid @RequestBody AuthRequestDTO request) {
+		userService.updateUser(userId, request);
+		return ResponseEntity.ok("Update was succesful");
+	}
+
+	@DeleteMapping("/{userId}")
+	public ResponseEntity<Void> removeUser(
+			@PathVariable Long userId) {
+		userService.removeUser(userId);
+		return ResponseEntity.noContent().build();
+	}
 
 }

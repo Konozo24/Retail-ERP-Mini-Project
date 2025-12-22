@@ -28,52 +28,48 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/customers")
 @RequiredArgsConstructor
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ADMIN')")
 public class CustomerController {
-    
-    private final CustomerService customerService;
 
-    @GetMapping
-    public ResponseEntity<Page<CustomerDTO>> getCustomers(
-        @RequestParam(defaultValue = "") String search,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<CustomerDTO> dtoPage = customerService.getCustomers(search, pageable);
-        return ResponseEntity.ok(dtoPage);
-    }
+	private final CustomerService customerService;
 
-    @GetMapping("/{customerId}")
-    public ResponseEntity<CustomerDTO> getCustomer(
-        @PathVariable Long customerId
-    ) {
-        CustomerDTO dto = customerService.getCustomer(customerId);
-        return ResponseEntity.ok(dto);
-    }
+	@GetMapping
+	public ResponseEntity<Page<CustomerDTO>> getCustomers(
+			@RequestParam(defaultValue = "") String search,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<CustomerDTO> dtoPage = customerService.getCustomers(search, pageable);
+		return ResponseEntity.ok(dtoPage);
+	}
 
-    @PostMapping
-    public ResponseEntity<CustomerDTO> createCustomer(
-        @Valid @RequestBody CustomerRequestDTO request
-    ) {
-        CustomerDTO dto = customerService.createCustomer(request);
-        URI location = URI.create("/customers/" + dto.getId());
-        return ResponseEntity.created(location).body(dto);
-    }
+	@GetMapping("/{customerId}")
+	public ResponseEntity<CustomerDTO> getCustomer(
+			@PathVariable Long customerId) {
+		CustomerDTO dto = customerService.getCustomer(customerId);
+		return ResponseEntity.ok(dto);
+	}
 
-    @PutMapping("/{customerId}")
-    public ResponseEntity<String> updateCustomer(
-        @PathVariable Long customerId,
-        @Valid @RequestBody CustomerRequestDTO request
-    ) {
-        customerService.updateCustomer(customerId, request);
-        return ResponseEntity.ok("Update was succesful");
-    }
+	@PostMapping
+	public ResponseEntity<CustomerDTO> createCustomer(
+			@Valid @RequestBody CustomerRequestDTO request) {
+		CustomerDTO dto = customerService.createCustomer(request);
+		URI location = URI.create("/customers/" + dto.getId());
+		return ResponseEntity.created(location).body(dto);
+	}
 
-    @DeleteMapping("/{customerId}")
-    public ResponseEntity<String> removeCustomer(
-        @PathVariable Long customerId
-    ) {
-        customerService.removeCustomer(customerId);
-        return ResponseEntity.ok("Delete was succesful");
-    }
+	@PutMapping("/{customerId}")
+	public ResponseEntity<String> updateCustomer(
+			@PathVariable Long customerId,
+			@Valid @RequestBody CustomerRequestDTO request) {
+		customerService.updateCustomer(customerId, request);
+		return ResponseEntity.ok("Update was succesful");
+	}
+
+	@DeleteMapping("/{customerId}")
+	public ResponseEntity<String> removeCustomer(
+			@PathVariable Long customerId) {
+		customerService.removeCustomer(customerId);
+		return ResponseEntity.ok("Delete was succesful");
+	}
 }

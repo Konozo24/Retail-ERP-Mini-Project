@@ -26,45 +26,43 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/sales-order")
 @RequiredArgsConstructor
+@org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('ADMIN', 'CASHIER')")
 public class SalesOrderController {
-    
-    private final SalesOrderService salesOrderService;
 
-    @GetMapping
-    public ResponseEntity<Page<SalesOrderDTO>> getSalesOrders(
-        @RequestParam(defaultValue = "") String search,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size,
-        @RequestParam(required = false) String startDate,
-        @RequestParam(required = false) String endDate
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<SalesOrderDTO> dtoPage = salesOrderService.getSalesOrders(search, pageable, startDate, endDate);
-        return ResponseEntity.ok(dtoPage);
-    }
+	private final SalesOrderService salesOrderService;
 
-    @GetMapping("/{salesOrderId}")
-    public ResponseEntity<SalesOrderDTO> getSalesOrder(
-        @PathVariable Long salesOrderId
-    ) {
-        SalesOrderDTO dto = salesOrderService.getSalesOrder(salesOrderId);
-        return ResponseEntity.ok(dto);
-    }
+	@GetMapping
+	public ResponseEntity<Page<SalesOrderDTO>> getSalesOrders(
+			@RequestParam(defaultValue = "") String search,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size,
+			@RequestParam(required = false) String startDate,
+			@RequestParam(required = false) String endDate) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<SalesOrderDTO> dtoPage = salesOrderService.getSalesOrders(search, pageable, startDate, endDate);
+		return ResponseEntity.ok(dtoPage);
+	}
 
-    @PostMapping
-    public ResponseEntity<SalesOrderDTO> createSalesOrder(
-        @Valid @RequestBody SalesOrderCreationDTO request
-    ) {
-        SalesOrderDTO dto = salesOrderService.createSalesOrder(request);
-        URI location = URI.create("/salesOrder/" + dto.getId());
-        return ResponseEntity.created(location).body(dto);
-    }
+	@GetMapping("/{salesOrderId}")
+	public ResponseEntity<SalesOrderDTO> getSalesOrder(
+			@PathVariable Long salesOrderId) {
+		SalesOrderDTO dto = salesOrderService.getSalesOrder(salesOrderId);
+		return ResponseEntity.ok(dto);
+	}
 
-    // @DeleteMapping("/{salesOrderId}")
-    // public ResponseEntity<String> removeSalesOrder(
-    //     @PathVariable Long salesOrderId
-    // ) {
-    //     salesOrderService.removeSalesOrder(salesOrderId);
-    //     return ResponseEntity.ok().build("Delete was succesful");
-    // }
+	@PostMapping
+	public ResponseEntity<SalesOrderDTO> createSalesOrder(
+			@Valid @RequestBody SalesOrderCreationDTO request) {
+		SalesOrderDTO dto = salesOrderService.createSalesOrder(request);
+		URI location = URI.create("/salesOrder/" + dto.getId());
+		return ResponseEntity.created(location).body(dto);
+	}
+
+	// @DeleteMapping("/{salesOrderId}")
+	// public ResponseEntity<String> removeSalesOrder(
+	// @PathVariable Long salesOrderId
+	// ) {
+	// salesOrderService.removeSalesOrder(salesOrderId);
+	// return ResponseEntity.ok().build("Delete was succesful");
+	// }
 }
