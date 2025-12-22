@@ -29,86 +29,79 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor
+@org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ADMIN')")
 public class ProductController {
-    
-    private final ProductService productService;
 
-    @GetMapping
-    public ResponseEntity<Page<ProductDTO>> getProducts(
-        @RequestParam(defaultValue = "") String search,
-        @RequestParam(defaultValue = "") String category,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<ProductDTO> dtoPage = productService.getProducts(search, category, pageable);
-        return ResponseEntity.ok(dtoPage);
-    }
+	private final ProductService productService;
 
-    @GetMapping("/{productId}")
-    public ResponseEntity<ProductDTO> getProduct(
-        @PathVariable Long productId
-    ) {
-        ProductDTO dto = productService.getProduct(productId);
-        return ResponseEntity.ok(dto);
-    }
+	@GetMapping
+	public ResponseEntity<Page<ProductDTO>> getProducts(
+			@RequestParam(defaultValue = "") String search,
+			@RequestParam(defaultValue = "") String category,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<ProductDTO> dtoPage = productService.getProducts(search, category, pageable);
+		return ResponseEntity.ok(dtoPage);
+	}
 
-    // Get all low stock products
-    @GetMapping("/low-stock")
-    public ResponseEntity<Page<ProductDTO>> getLowStockProducts(
-        @RequestParam(defaultValue = "") String search,
-        @RequestParam(defaultValue = "") String category,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<ProductDTO> dtoPage = productService.getLowStockProducts(search, category, pageable);
-        return ResponseEntity.ok(dtoPage);
-    }
+	@GetMapping("/{productId}")
+	public ResponseEntity<ProductDTO> getProduct(
+			@PathVariable Long productId) {
+		ProductDTO dto = productService.getProduct(productId);
+		return ResponseEntity.ok(dto);
+	}
 
-    // Get all out of stock products
-    @GetMapping("/out-of-stock")
-    public ResponseEntity<Page<ProductDTO>> getOutOfStockProducts(
-        @RequestParam(defaultValue = "") String search,
-        @RequestParam(defaultValue = "") String category,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<ProductDTO> dtoPage = productService.getOutOfStockProducts(search, category, pageable);
-        return ResponseEntity.ok(dtoPage);
-    }
-    
-    @GetMapping("/generate-sku")
-    public ResponseEntity<String> getNewSKUById(
-        @RequestParam(required = false) Long categoryId
-    ) {
-        return ResponseEntity.ok(productService.generateSKUById(categoryId));
-    }
+	// Get all low stock products
+	@GetMapping("/low-stock")
+	public ResponseEntity<Page<ProductDTO>> getLowStockProducts(
+			@RequestParam(defaultValue = "") String search,
+			@RequestParam(defaultValue = "") String category,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<ProductDTO> dtoPage = productService.getLowStockProducts(search, category, pageable);
+		return ResponseEntity.ok(dtoPage);
+	}
 
-    @PostMapping
-    public ResponseEntity<ProductDTO> createProduct(
-        @Valid @RequestBody ProductCreationDTO request
-    ) {
-        ProductDTO dto = productService.createProduct(request);
-        URI location = URI.create("/products/" + dto.getId());
-        return ResponseEntity.created(location).body(dto);
-    }
+	// Get all out of stock products
+	@GetMapping("/out-of-stock")
+	public ResponseEntity<Page<ProductDTO>> getOutOfStockProducts(
+			@RequestParam(defaultValue = "") String search,
+			@RequestParam(defaultValue = "") String category,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<ProductDTO> dtoPage = productService.getOutOfStockProducts(search, category, pageable);
+		return ResponseEntity.ok(dtoPage);
+	}
 
-    @PutMapping("/{productId}")
-    public ResponseEntity<String> updateProduct(
-        @PathVariable Long productId,
-        @Valid @RequestBody ProductUpdateDTO request
-    ) {
-        productService.updateProduct(productId, request);
-        return ResponseEntity.ok("Update was succesful");
-    }
+	@GetMapping("/generate-sku")
+	public ResponseEntity<String> getNewSKUById(
+			@RequestParam(required = false) Long categoryId) {
+		return ResponseEntity.ok(productService.generateSKUById(categoryId));
+	}
 
-    @DeleteMapping("/{productId}")
-    public ResponseEntity<String> removeProduct(
-        @PathVariable Long productId
-    ) {
-        productService.removeProduct(productId);
-        return ResponseEntity.ok("Delete was succesful");
-    }
+	@PostMapping
+	public ResponseEntity<ProductDTO> createProduct(
+			@Valid @RequestBody ProductCreationDTO request) {
+		ProductDTO dto = productService.createProduct(request);
+		URI location = URI.create("/products/" + dto.getId());
+		return ResponseEntity.created(location).body(dto);
+	}
+
+	@PutMapping("/{productId}")
+	public ResponseEntity<String> updateProduct(
+			@PathVariable Long productId,
+			@Valid @RequestBody ProductUpdateDTO request) {
+		productService.updateProduct(productId, request);
+		return ResponseEntity.ok("Update was succesful");
+	}
+
+	@DeleteMapping("/{productId}")
+	public ResponseEntity<String> removeProduct(
+			@PathVariable Long productId) {
+		productService.removeProduct(productId);
+		return ResponseEntity.ok("Delete was succesful");
+	}
 }
