@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,18 +33,21 @@ public class CategoryController {
 	private final CategoryService categoryService;
 
 	@GetMapping
+	@PreAuthorize("hasAnyAuthority('ADMIN','CASHIER')")
 	public ResponseEntity<List<CategoryDTO>> getCategories() {
 		List<CategoryDTO> dtoPage = categoryService.getCategories();
 		return ResponseEntity.ok(dtoPage);
 	}
 
 	@GetMapping("/name-list")
+	@PreAuthorize("hasAnyAuthority('ADMIN','CASHIER')")
 	public ResponseEntity<CategoriesNameDTO> getCategoriesName() {
 		CategoriesNameDTO dto = categoryService.getCategoriesName();
 		return ResponseEntity.ok(dto);
 	}
 
 	@GetMapping("/{categoryId}")
+	@PreAuthorize("hasAnyAuthority('ADMIN','CASHIER')")
 	public ResponseEntity<CategoryDTO> getCategory(
 			@PathVariable Long categoryId) {
 		CategoryDTO dto = categoryService.getCategory(categoryId);
