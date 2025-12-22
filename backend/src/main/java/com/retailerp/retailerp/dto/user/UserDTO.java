@@ -13,17 +13,22 @@ import lombok.Getter;
 public class UserDTO {
 
 	private Long id;
+
 	private String email;
+
 	private UserRoleEnum role;
+
 	private String createdAt;
 
-	public static UserDTO fromEntity(User user) {
+	public static UserDTO fromEntity(User user)
+	{
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM yyyy");
 		return UserDTO.builder()
-				.id(user.getId())
-				.email(user.getEmail())
-				.role(user.getRole())
-				.createdAt(user.getCreatedAt().format(formatter))
-				.build();
+			.id(user.getId())
+			.email(user.getEmail())
+			.role(user.getRole())
+			.createdAt(user.getCreatedAt().format(formatter))
+			.build();
 	}
+
 }

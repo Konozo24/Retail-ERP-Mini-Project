@@ -7,8 +7,8 @@ import lombok.Getter;
 
 @Getter
 public class PurchaseOrderUpdateDTO {
-    
-    @NotNull
-    private PurchaseOrderStatus status;
+
+	@NotNull
+	private PurchaseOrderStatus status;
 
 }

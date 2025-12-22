@@ -18,77 +18,85 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtUtil {
 
-    // TODO: test frontend auto refresh
-    private static final long TOKEN_LIFETIME = 1000 * 60 * 60; // 1 hour
-    private static final long REFRESH_TOKEN_LIFETIME = 1000L * 60 * 60 * 24 * 7; // 7 days
+	// TODO: test frontend auto refresh
+	private static final Long TOKEN_LIFETIME = 1000L * 60 * 60; // 1 hour
 
-    //private final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final String SECRET_KEY = "IWANTDRINKMILLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO";
+	private static final Long REFRESH_TOKEN_LIFETIME = 1000L * 60 * 60 * 24 * 7; // 7 days
 
-    SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
-        return Keys.hmacShaKeyFor(keyBytes);
-        //return SECRET_KEY;
-    }
+	// private final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+	private final String SECRET_KEY = "IWANTDRINKMILLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO";
 
-    public String generateAccessToken(Long userId) {
-        return Jwts.builder()
-                .setSubject(userId.toString())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + TOKEN_LIFETIME))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
+	SecretKey getSigningKey()
+	{
+		byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+		return Keys.hmacShaKeyFor(keyBytes);
+		// return SECRET_KEY;
+	}
 
-    public String generateRefreshToken(Long userId) {
-        return Jwts.builder()
-                .setSubject(userId.toString())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_LIFETIME))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
+	public String generateAccessToken(Long userId)
+	{
+		return Jwts.builder()
+			.setSubject(userId.toString())
+			.setIssuedAt(new Date())
+			.setExpiration(new Date(System.currentTimeMillis() + TOKEN_LIFETIME))
+			.signWith(getSigningKey(), SignatureAlgorithm.HS256)
+			.compact();
+	}
 
-    public Long extractUserId(String token) {
-        return Long.valueOf(
-            Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject()
-        );
-    }
+	public String generateRefreshToken(Long userId)
+	{
+		return Jwts.builder()
+			.setSubject(userId.toString())
+			.setIssuedAt(new Date())
+			.setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_LIFETIME))
+			.signWith(getSigningKey(), SignatureAlgorithm.HS256)
+			.compact();
+	}
 
-    public User getUserTokens() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	public Long extractUserId(String token)
+	{
+		return Long.valueOf(
+			Jwts.parserBuilder()
+				.setSigningKey(getSigningKey())
+				.build()
+				.parseClaimsJws(token)
+				.getBody()
+				.getSubject());
+	}
 
-        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal() instanceof String) {
-            throw new UnauthorizedException("User is not authenticated");
-        }
+	public User getUserTokens()
+	{
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        AuthUser authUser = (AuthUser) auth.getPrincipal();
-        return authUser.getUser();
-    }
+		if (auth == null || !auth.isAuthenticated() || auth.getPrincipal() instanceof String) {
+			throw new UnauthorizedException("User is not authenticated");
+		}
 
-    public User getAuthenticatedUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		AuthUser authUser = (AuthUser) auth.getPrincipal();
+		return authUser.getUser();
+	}
 
-        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal() instanceof String) {
-            throw new UnauthorizedException("User is not authenticated");
-        }
+	public User getAuthenticatedUser()
+	{
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        AuthUser authUser = (AuthUser) auth.getPrincipal();
-        return authUser.getUser();
-    }
+		if (auth == null || !auth.isAuthenticated() || auth.getPrincipal() instanceof String) {
+			throw new UnauthorizedException("User is not authenticated");
+		}
 
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parserBuilder().setSigningKey(getSigningKey()).build()
-            .parseClaimsJws(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
+		AuthUser authUser = (AuthUser) auth.getPrincipal();
+		return authUser.getUser();
+	}
+
+	public boolean validateToken(String token)
+	{
+		try {
+			Jwts.parserBuilder().setSigningKey(getSigningKey()).build()
+				.parseClaimsJws(token);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
 }

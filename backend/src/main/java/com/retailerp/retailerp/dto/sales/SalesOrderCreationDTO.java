@@ -11,16 +11,16 @@ import lombok.Getter;
 
 @Getter
 public class SalesOrderCreationDTO {
- 
-    @NotNull
-    private Long customerId;
 
-    @NotNull
-    private PaymentMethod paymentMethod;
+	@NotNull
+	private Long customerId;
 
-    @NotNull
-    @NotEmpty
-    @Valid
-    private List<SalesOrderItemCreationDTO> items;
-    
+	@NotNull
+	private PaymentMethod paymentMethod;
+
+	@NotNull
+	@NotEmpty
+	@Valid
+	private List<SalesOrderItemCreationDTO> items;
+
 }

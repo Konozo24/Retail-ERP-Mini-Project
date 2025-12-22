@@ -4,9 +4,6 @@ import java.util.NoSuchElementException;
 
 import javax.security.auth.login.LoginException;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,9 +16,7 @@ import com.retailerp.retailerp.dto.auth.AuthResponseDTO;
 import com.retailerp.retailerp.dto.user.UserDTO;
 import com.retailerp.retailerp.model.User;
 import com.retailerp.retailerp.repository.UserRepository;
-import com.retailerp.retailerp.repository.spec.UserSpec;
 
-import jakarta.persistence.EntityExistsException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -32,26 +27,19 @@ public class UserService {
 	private final UserRepository userRepository;
 
 	private final JwtUtil jwtUtil;
+
 	private final PasswordEncoder passwordEncoder;
 
 	@Transactional(readOnly = true)
-	public Page<UserDTO> getUsers(String search, Pageable pageable) {
-		Specification<User> spec = UserSpec.getSpecification(search);
-		return userRepository.findAll(spec, pageable)
-				.map(UserDTO::fromEntity);
-	}
-
-	@Transactional(readOnly = true)
-	public UserDTO getUser(Long userId) {
-		User user = userRepository.findById(userId).orElseThrow(
-				() -> new NoSuchElementException("User with id, " + userId + " doesn't exist!"));
-		return UserDTO.fromEntity(user);
+	public UserDTO getUser(Long userId)
+	{
+		return UserDTO.fromEntity(getUserEntitiy(userId));
 	}
 
 	@Transactional
-	public void updateUser(Long userId, AuthRequestDTO request) {
-		User existing = userRepository.findById(userId).orElseThrow(
-				() -> new NoSuchElementException("User with id, " + userId + " doesn't exist!"));
+	public void updateUser(Long userId, AuthRequestDTO request)
+	{
+		User existing = getUserEntitiy(userId);
 
 		String cipherText = passwordEncoder.encode(request.getRawPassword());
 		existing.setEmail(request.getEmail());
@@ -59,82 +47,55 @@ public class UserService {
 		userRepository.save(existing);
 	}
 
-	@Transactional
-	public void removeUser(Long userId) {
-		User existing = userRepository.findById(userId).orElseThrow(
-				() -> new NoSuchElementException("User with id, " + userId + " doesn't exist!"));
-
-		if (!existing.isInactive()) {
-			existing.setInactive(true);
-			userRepository.save(existing);
-		}
-	}
-
 	// --------------------------------------------------
 	// | USER AUTH SECTION
 	// --------------------------------------------------
-	@Transactional(readOnly = true)
-	public AuthResponseDTO loginUser(AuthRequestDTO request, HttpServletResponse response) throws LoginException {
+	@Transactional(readOnly = true, rollbackFor = Exception.class)
+	public AuthResponseDTO loginUser(AuthRequestDTO request, HttpServletResponse response) throws LoginException
+	{
 		User user = userRepository.findByEmail(request.getEmail())
-				.orElseThrow(() -> new LoginException("Invalid login credentials"));
+			.orElseThrow(() -> new LoginException("Invalid login credentials"));
 
 		if (passwordEncoder.matches(request.getRawPassword(), user.getCipherText())) {
 			String accessToken = jwtUtil.generateAccessToken(user.getId());
 			String refreshToken = jwtUtil.generateRefreshToken(user.getId());
 
 			ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
-					.httpOnly(true)
-					.secure(true) // set false for local dev if not https, !isLocalEnvironment()
-					.path("/auth")
-					.maxAge(7 * 24 * 60 * 60) // 7 days
-					.sameSite("Strict")
-					.build();
+				.httpOnly(true)
+				.secure(true) // set false for local dev if not https, !isLocalEnvironment()
+				.path("/auth")
+				.maxAge(7 * 24 * 60 * 60) // 7 days
+				.sameSite("Strict")
+				.build();
 			response.addHeader("Set-Cookie", cookie.toString());
 
 			return AuthResponseDTO.builder()
-					.access_token(accessToken)
-					.email(user.getEmail())
-					.role(user.getRole())
-					.message("Login successful")
-					.build();
+				.access_token(accessToken)
+				.id(user.getId())
+				.email(user.getEmail())
+				.role(user.getRole())
+				.message("Login successful")
+				.build();
 		} else {
 			throw new LoginException("Invalid login credentials");
 		}
 	}
 
-	@Transactional
-	public AuthResponseDTO registerUser(AuthRequestDTO request) {
-		if (userRepository.existsByEmail(request.getEmail())) {
-			throw new EntityExistsException("Email already been registered before");
-		}
-		String cipherText = passwordEncoder.encode(request.getRawPassword());
-
-		User newUser = userRepository.save(
-				new User(request.getEmail(), cipherText));
-
-		String token = jwtUtil.generateAccessToken(newUser.getId());
-
-		return AuthResponseDTO.builder()
-				.access_token(token)
-				.email(newUser.getEmail())
-				.role(newUser.getRole())
-				.message("User registration successful!")
-				.build();
-	}
-
 	@Transactional(readOnly = true)
-	public void logoutUser(HttpServletResponse response) {
+	public void logoutUser(HttpServletResponse response)
+	{
 		ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
-				.httpOnly(true)
-				.secure(true)
-				.path("/auth")
-				.maxAge(0)
-				.build();
+			.httpOnly(true)
+			.secure(true)
+			.path("/auth")
+			.maxAge(0)
+			.build();
 		response.addHeader("Set-Cookie", cookie.toString());
 	}
 
 	@Transactional(readOnly = true)
-	public AuthResponseDTO refreshUserToken(String refreshToken) {
+	public AuthResponseDTO refreshUserToken(String refreshToken)
+	{
 		if (refreshToken == null || refreshToken.isEmpty()) {
 			throw new UnauthorizedException("Refresh token missing");
 		}
@@ -146,16 +107,23 @@ public class UserService {
 		Long userId = jwtUtil.extractUserId(refreshToken);
 
 		User user = userRepository.findById(userId)
-				.orElseThrow(() -> new UnauthorizedException("User not found"));
+			.orElseThrow(() -> new UnauthorizedException("User not found"));
 
 		String newAccessToken = jwtUtil.generateAccessToken(userId);
 
 		return AuthResponseDTO.builder()
-				.access_token(newAccessToken)
-				.email(user.getEmail())
-				.role(user.getRole())
-				.message("Token refreshed")
-				.build();
+			.access_token(newAccessToken)
+			.id(user.getId())
+			.email(user.getEmail())
+			.role(user.getRole())
+			.message("Token refreshed")
+			.build();
+	}
+
+	public User getUserEntitiy(Long userId)
+	{
+		return userRepository.findById(userId).orElseThrow(
+			() -> new NoSuchElementException("User with id, " + userId + " doesn't exist!"));
 	}
 
 }

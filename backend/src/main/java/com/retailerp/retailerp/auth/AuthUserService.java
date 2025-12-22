@@ -12,18 +12,21 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class AuthUserService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+	private final UserRepository userRepository;
 
-    @Override
-    public AuthUser loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByEmail(username)
-            .map(AuthUser::new)
-            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    }
+	@Override
+	public AuthUser loadUserByUsername(String username) throws UsernameNotFoundException
+	{
+		return userRepository.findByEmail(username)
+			.map(AuthUser::new)
+			.orElseThrow(() -> new UsernameNotFoundException("User not found"));
+	}
 
-    public AuthUser loadUserByUserId(Long userId) throws UsernameNotFoundException {
-        return userRepository.findById(userId)
-            .map(AuthUser::new)
-            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    }
+	public AuthUser loadUserByUserId(Long userId) throws UsernameNotFoundException
+	{
+		return userRepository.findById(userId)
+			.map(AuthUser::new)
+			.orElseThrow(() -> new UsernameNotFoundException("User not found"));
+	}
+
 }

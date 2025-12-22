@@ -22,51 +22,57 @@ import lombok.ToString;
 
 @Entity
 @Table(
-    name = "CATEGORIES",
-    uniqueConstraints = {
-        @UniqueConstraint(
-            name = "UK_CATEGORY_NAME",
-            columnNames = "NAME"
-        )
-    }
-)
+	name = "CATEGORIES",
+	uniqueConstraints = {
+			@UniqueConstraint(
+				name = "UK_CATEGORY_NAME",
+				columnNames = "NAME")
+	})
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString
 public class Category {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "CATEGORY_ID")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "CATEGORY_ID")
+	private Long id;
 
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Product> products;
+	@OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private List<Product> products;
 
-    @Column(name = "NAME", length = 100, nullable = false)
-    private String name;
+	@Column(name = "NAME", length = 100, nullable = false)
+	private String name;
 
-    @Column(name = "PREFIX", length = 10, nullable = false)
-    private String prefix;
+	@Column(name = "PREFIX", length = 10, nullable = false)
+	private String prefix;
 
-    @Column(name = "COLOR", length = 9, nullable = false)
-    private String color = "#FFFFFF";
+	@Column(name = "COLOR", length = 9, nullable = false)
+	private String color = "#FFFFFF";
 
-    @Lob
-    @Column(name = "IMAGE", columnDefinition = "LONGTEXT", nullable = true)
-    private String image;
+	@Lob
+	@Column(name = "IMAGE", columnDefinition = "LONGTEXT", nullable = true)
+	private String image = null;
 
-    @Column(name = "INACTIVE", nullable = false)
-    private boolean inactive = false;
+	@Column(name = "INACTIVE", nullable = false)
+	private boolean inactive = false;
 
-    public Category(String name, String prefix) {
-        this.name = name;
-        this.prefix = prefix.toUpperCase();
-    }
+	public Category(String name, String prefix, String image) {
+		this.name = name;
+		this.prefix = prefix.toUpperCase();
+		this.image = image != null && !image.trim().isEmpty() ? image : null;
+	}
 
-    @Transient
-    public int getProductCount() {
-        return products == null ? 0 : products.size();
-    }
+	public Category(String name, String prefix, String color, String image) {
+		this(name, prefix, image);
+		this.color = color != null && !image.trim().isEmpty() ? color : "#FFFFFF";
+	}
+
+	@Transient
+	public Integer getProductCount()
+	{
+		return products == null ? 0 : products.size();
+	}
+
 }

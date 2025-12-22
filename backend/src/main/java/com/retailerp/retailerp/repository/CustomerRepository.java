@@ -12,14 +12,13 @@ import com.retailerp.retailerp.model.Customer;
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSpecificationExecutor<Customer> {
 
-    // DASHBOARD
-    @Query("""
-        SELECT COUNT(c)
-        FROM Customer c
-        WHERE c.createdAt BETWEEN :start AND :end
-    """)
-    long countCustomersBetween(
-        OffsetDateTime start,
-        OffsetDateTime end
-    );
+	@Query("""
+		    SELECT COUNT(c)
+		    FROM Customer c
+		    WHERE c.createdAt BETWEEN :start AND :end
+		""")
+	Long countCustomersBetween(
+		OffsetDateTime start,
+		OffsetDateTime end);
+
 }

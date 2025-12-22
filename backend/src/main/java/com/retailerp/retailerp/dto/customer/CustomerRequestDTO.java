@@ -9,19 +9,18 @@ import lombok.Getter;
 @Getter
 public class CustomerRequestDTO {
 
-    @NotBlank
-    @Size(max = 100)
-    private String name;
+	@NotBlank
+	@Size(max = 100)
+	private String name;
 
-    @NotBlank
-    @Pattern(
-        regexp = "^\\+?6?(?:01[0-46-9]\\d{7,8}|0\\d{8})$",
-        message = "Invalid phone number format. Example: +60123456789 or 0123456789"
-    )
-    private String phone;
+	@NotBlank
+	@Pattern(
+		regexp = "^\\+?6?(?:01[0-46-9]\\d{7,8}|0\\d{8})$",
+		message = "Invalid phone number format. Example: +60123456789 or 0123456789")
+	private String phone;
 
-    @NotBlank
-    @Email
-    private String email;
+	@NotBlank
+	@Email
+	private String email;
 
 }

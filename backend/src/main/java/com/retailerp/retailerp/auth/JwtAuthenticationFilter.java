@@ -19,29 +19,33 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtUtil jwtUtil;
-    private final AuthUserService authUserService;
+	private final JwtUtil jwtUtil;
 
-    private Optional<String> getTokenFromRequest(HttpServletRequest request) {
-        //request.getHeaderNames().asIterator().forEachRemaining(c -> {System.out.println(request.getHeader(c));});
-        String header = request.getHeader("Authorization");
-        return (header != null && header.startsWith("Bearer ")) ? Optional.of(header.substring(7)) : Optional.empty();
-    }
+	private final AuthUserService authUserService;
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-            throws ServletException, IOException {
-        getTokenFromRequest(request).ifPresent(token -> {
-            if (jwtUtil.validateToken(token)) {
-                Long userId = jwtUtil.extractUserId(token);
-                AuthUser authUser = authUserService.loadUserByUserId(userId);
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        authUser, null, authUser.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
-        });
+	private Optional<String> getTokenFromRequest(HttpServletRequest request)
+	{
+		// request.getHeaderNames().asIterator().forEachRemaining(c -> {System.out.println(request.getHeader(c));});
+		String header = request.getHeader("Authorization");
+		return (header != null && header.startsWith("Bearer ")) ? Optional.of(header.substring(7)) : Optional.empty();
+	}
 
-        chain.doFilter(request, response);
-    }
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+		throws ServletException, IOException
+	{
+		getTokenFromRequest(request).ifPresent(token -> {
+			if (jwtUtil.validateToken(token)) {
+				Long userId = jwtUtil.extractUserId(token);
+				AuthUser authUser = authUserService.loadUserByUserId(userId);
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+					authUser, null, authUser.getAuthorities());
+				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+			}
+		});
+
+		chain.doFilter(request, response);
+	}
+
 }

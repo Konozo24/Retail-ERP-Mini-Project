@@ -1,13 +1,7 @@
 package com.retailerp.retailerp.service;
 
-import java.util.NoSuchElementException;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.retailerp.retailerp.auth.JwtUtil;
 import com.retailerp.retailerp.dto.sales.SalesOrderCreationDTO;
 import com.retailerp.retailerp.dto.sales.SalesOrderDTO;
@@ -16,74 +10,52 @@ import com.retailerp.retailerp.model.Product;
 import com.retailerp.retailerp.model.SalesOrder;
 import com.retailerp.retailerp.model.SalesOrderItem;
 import com.retailerp.retailerp.model.User;
-import com.retailerp.retailerp.repository.CustomerRepository;
 import com.retailerp.retailerp.repository.SalesOrderRepository;
-import com.retailerp.retailerp.repository.spec.SalesOrderSpec;
-
 import lombok.RequiredArgsConstructor;
-
 
 @Service
 @RequiredArgsConstructor
 public class SalesOrderService {
-    
-    private final ProductService productService;
 
-    private final SalesOrderRepository salesOrderRepository;
-    private final CustomerRepository customerRepository;
-    private final JwtUtil jwtUtil;
+	private final SalesOrderRepository salesOrderRepository;
 
-    @Transactional(readOnly = true)
-    public Page<SalesOrderDTO> getSalesOrders(String search, Pageable pageable) {
-        return getSalesOrders(search, pageable, null, null);
-    }
+	private final CustomerService customerService;
 
-    @Transactional(readOnly = true)
-    public Page<SalesOrderDTO> getSalesOrders(String search, Pageable pageable, String startDate, String endDate) {
-        Specification<SalesOrder> spec = SalesOrderSpec.getSpecification(search, startDate, endDate);
-        return salesOrderRepository.findAll(spec, pageable)
-            .map(SalesOrderDTO::fromEntity);
-    }
+	private final ProductService productService;
 
-    @Transactional(readOnly = true)
-    public SalesOrderDTO getSalesOrder(Long salesOrderId) {
-        SalesOrder salesOrder = salesOrderRepository.findById(salesOrderId).orElseThrow(
-            () -> new NoSuchElementException("Sales order with id, " + salesOrderId + " doesn't exist!")
-        );
-        return SalesOrderDTO.fromEntity(salesOrder);
-    }
+	private final JwtUtil jwtUtil;
 
-    @Transactional(rollbackFor = Exception.class)
-    public SalesOrderDTO createSalesOrder(SalesOrderCreationDTO request) {
-        Customer customer = customerRepository.findById(request.getCustomerId()).orElseThrow(
-            () -> new IllegalArgumentException("Customer doesnt exist")
-        );
+	@Transactional(rollbackFor = Exception.class)
+	public SalesOrderDTO createSalesOrder(SalesOrderCreationDTO request)
+	{
+		Customer customer = customerService.getCustomerEntitiy(request.getCustomerId());
+		User user = jwtUtil.getAuthenticatedUser();
 
-        User user = jwtUtil.getAuthenticatedUser();
-        
-        SalesOrder newSalesOrder = new SalesOrder(request.getPaymentMethod());
-        newSalesOrder.setCustomer(customer);
-        newSalesOrder.setUser(user);
-        
-        newSalesOrder = salesOrderRepository.save(newSalesOrder);
+		SalesOrder newSalesOrder = new SalesOrder(request.getPaymentMethod());
+		newSalesOrder.setCustomer(customer);
+		newSalesOrder.setUser(user);
+		newSalesOrder = salesOrderRepository.save(newSalesOrder);
 
-        for (var itemDTO : request.getItems()) {
-            Product product = productService.getProductEntity(itemDTO.getProductId());
+		for (var itemDTO : request.getItems()) {
+			Product product = productService.getProductEntity(itemDTO.getProductId());
 
-            productService.checkAndReduceStock(itemDTO.getProductId(), itemDTO.getQuantity());
+			checkAndReduceStock(itemDTO.getProductId(), itemDTO.getQuantity());
 
-            SalesOrderItem newItem = new SalesOrderItem(itemDTO.getQuantity(), product.getUnitPrice());
-            newItem.setProduct(product);
-            newSalesOrder.addItem(newItem);
-        }
-        return SalesOrderDTO.fromEntity(salesOrderRepository.save(newSalesOrder));
-    }
+			SalesOrderItem newItem = new SalesOrderItem(itemDTO.getQuantity(), product.getUnitPrice());
+			newItem.setProduct(product);
+			newSalesOrder.addItem(newItem);
+		}
+		return SalesOrderDTO.fromEntity(salesOrderRepository.save(newSalesOrder));
+	}
 
-    @Transactional
-    public void removeSalesOrder(Long salesOrderId) {
-        salesOrderRepository.findById(salesOrderId).orElseThrow(
-            () -> new NoSuchElementException("Sales order with id, " + salesOrderId + " doesn't exist!")
-        );
-        salesOrderRepository.deleteById(salesOrderId);
-    }
+	private void checkAndReduceStock(Long productId, Integer quantity)
+	{
+		Product existing = productService.getProductEntity(productId);
+		if (existing.getStockQty() < quantity) {
+			throw new IllegalArgumentException(
+				"Not enough stock for product " + existing.getName() + ". Available: " + existing.getStockQty());
+		}
+		existing.setStockQty(existing.getStockQty() - quantity);
+	}
+
 }

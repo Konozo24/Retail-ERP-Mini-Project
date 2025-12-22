@@ -1,13 +1,11 @@
 package com.retailerp.retailerp.service;
 
 import java.util.NoSuchElementException;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.retailerp.retailerp.auth.JwtUtil;
 import com.retailerp.retailerp.dto.purchases.PurchaseOrderCreationDTO;
 import com.retailerp.retailerp.dto.purchases.PurchaseOrderDTO;
@@ -21,98 +19,102 @@ import com.retailerp.retailerp.model.Supplier;
 import com.retailerp.retailerp.model.User;
 import com.retailerp.retailerp.repository.PurchaseOrderItemRepository;
 import com.retailerp.retailerp.repository.PurchaseOrderRepository;
-import com.retailerp.retailerp.repository.SupplierRepository;
+import com.retailerp.retailerp.repository.spec.PurchaseOrderItemSpec;
 import com.retailerp.retailerp.repository.spec.PurchaseOrderSpec;
-
 import lombok.RequiredArgsConstructor;
-
 
 @Service
 @RequiredArgsConstructor
 public class PurchaseOrderService {
-    
-    private final ProductService productService;
 
-    private final PurchaseOrderRepository purchaseOrderRepository;
-    private final PurchaseOrderItemRepository purchaseOrderItemRepository;
-    private final SupplierRepository supplierRepository;
-    private final JwtUtil jwtUtil;
+	private final PurchaseOrderRepository purchaseOrderRepository;
 
-    @Transactional(readOnly = true)
-    public Page<PurchaseOrderDTO> getPurchaseOrders(String search, Pageable pageable) {
-        Specification<PurchaseOrder> spec = PurchaseOrderSpec.getSpecification(search);
-        return purchaseOrderRepository.findAll(spec, pageable)
-            .map(PurchaseOrderDTO::fromEntity);
-    }
+	private final PurchaseOrderItemRepository purchaseOrderItemRepository;
 
-    @Transactional(readOnly = true)
-    public PurchaseOrderDTO getPurchaseOrder(Long purchaseOrderId) {
-        PurchaseOrder purchaseOrder = purchaseOrderRepository.findById(purchaseOrderId).orElseThrow(
-            () -> new NoSuchElementException("Purchase order with id, " + purchaseOrderId + " doesn't exist!")
-        );
-        return PurchaseOrderDTO.fromEntity(purchaseOrder);
-    }
+	private final ProductService productService;
 
-    @Transactional(readOnly = true)
-    public Page<PurchaseOrderItemDTO> getPurchaseOrderItemPage(Long purchaseOrderId, String search, String category, Pageable pageable) {
-        purchaseOrderRepository.findById(purchaseOrderId).orElseThrow(
-            () -> new NoSuchElementException("Purchase order with id, " + purchaseOrderId + " doesn't exist!")
-        );
+	private final SupplierService supplierService;
 
-        Specification<PurchaseOrderItem> spec = PurchaseOrderSpec.getItemsSpecification(purchaseOrderId, search, category);
-        return purchaseOrderItemRepository.findAll(spec, pageable)
-            .map(PurchaseOrderItemDTO::fromEntity);
-    }
+	private final JwtUtil jwtUtil;
 
-    @Transactional
-    public PurchaseOrderDTO createPurchaseOrder(PurchaseOrderCreationDTO request) {
-        Supplier supplier = supplierRepository.findById(request.getSupplierId())
-            .orElseThrow(() -> new IllegalArgumentException("Supplier with id, " + request.getSupplierId() + " doesn't exist"));
+	@Transactional(readOnly = true)
+	public Page<PurchaseOrderDTO> getPurchaseOrdersPage(String search, Pageable pageable)
+	{
+		Specification<PurchaseOrder> spec = PurchaseOrderSpec.getSpec(search);
+		return purchaseOrderRepository.findAll(spec, pageable)
+			.map(PurchaseOrderDTO::fromEntity);
+	}
 
-        User user = jwtUtil.getAuthenticatedUser();
+	@Transactional(readOnly = true)
+	public Page<PurchaseOrderItemDTO> getPurchaseOrderItemPage(
+		Long purchaseOrderId,
+		String search,
+		Long categoryId,
+		Pageable pageable)
+	{
+		getPurchaseOrderEntity(purchaseOrderId); // Exist validation
 
-        PurchaseOrder newPurchaseOrder = new PurchaseOrder();
-        newPurchaseOrder.setSupplier(supplier);
-        newPurchaseOrder.setUser(user);
+		Specification<PurchaseOrderItem> spec = PurchaseOrderItemSpec.getItemsSpec(purchaseOrderId, search, categoryId);
+		return purchaseOrderItemRepository.findAll(spec, pageable)
+			.map(PurchaseOrderItemDTO::fromEntity);
+	}
 
-        newPurchaseOrder = purchaseOrderRepository.save(newPurchaseOrder);
+	@Transactional(rollbackFor = Exception.class)
+	public PurchaseOrderDTO createPurchaseOrder(PurchaseOrderCreationDTO request)
+	{
+		Supplier supplier = supplierService.getSupplierEntitiy(request.getSupplierId());
+		User user = jwtUtil.getAuthenticatedUser();
 
-        for (var itemDTO : request.getItems()) {
-            Product product = productService.getProductEntity(itemDTO.getProductId());
+		PurchaseOrder newPurchaseOrder = new PurchaseOrder();
+		newPurchaseOrder.setSupplier(supplier);
+		newPurchaseOrder.setUser(user);
+		newPurchaseOrder = purchaseOrderRepository.save(newPurchaseOrder);
 
-            PurchaseOrderItem newItem = new PurchaseOrderItem(itemDTO.getQuantity(), product.getCostPrice());
-            newItem.setProduct(product);
-            newPurchaseOrder.addItem(newItem);
-        }
-        return PurchaseOrderDTO.fromEntity(purchaseOrderRepository.save(newPurchaseOrder));
-    }
+		for (var itemDTO : request.getItems()) {
+			Product product = productService.getProductEntity(itemDTO.getProductId());
 
-    @Transactional(rollbackFor = Exception.class)
-    public void updatePurchaseOrder(Long purchaseOrderId, PurchaseOrderUpdateDTO request) {
-        PurchaseOrder existing = purchaseOrderRepository.findById(purchaseOrderId)
-            .orElseThrow(() -> new NoSuchElementException("Purchase order with id " + purchaseOrderId + " doesn't exist!"));
+			PurchaseOrderItem newItem = new PurchaseOrderItem(itemDTO.getQuantity(), product.getCostPrice());
+			newItem.setProduct(product);
+			newPurchaseOrder.addItem(newItem);
+		}
+		return PurchaseOrderDTO.fromEntity(purchaseOrderRepository.save(newPurchaseOrder));
+	}
 
-        if (existing.getStatus() == PurchaseOrderStatus.DELIVERED) {
-            throw new IllegalStateException("Cannot update a completed purchase order");
-        }
+	@Transactional
+	public void updatePurchaseOrder(Long purchaseOrderId, PurchaseOrderUpdateDTO request)
+	{
+		PurchaseOrder existing = purchaseOrderRepository.findById(purchaseOrderId)
+			.orElseThrow(
+				() -> new NoSuchElementException("Purchase order with id " + purchaseOrderId + " doesn't exist!"));
 
-        if (existing.getStatus() != request.getStatus()) {
-            existing.setStatus(request.getStatus());
+		if (existing.getStatus() == PurchaseOrderStatus.DELIVERED) {
+			throw new IllegalStateException("Cannot update a completed purchase order");
+		}
 
-            if (request.getStatus() == PurchaseOrderStatus.DELIVERED) {
-                productService.completePurchaseOrder(existing);
-            }
-        }
-    }
+		if (existing.getStatus() != request.getStatus()) {
+			existing.setStatus(request.getStatus());
 
-    @Transactional
-    public void removePurchaseOrder(Long purchaseOrderId) {
-        PurchaseOrder existing = purchaseOrderRepository.findById(purchaseOrderId).orElseThrow(
-            () -> new NoSuchElementException("Purchase order with id, " + purchaseOrderId + " doesn't exist!")
-        );
-        if (!existing.isInactive()) {
-            existing.setInactive(true);
-            purchaseOrderRepository.save(existing);
-        }
-    }
+			if (request.getStatus() == PurchaseOrderStatus.DELIVERED) {
+				completePurchaseOrder(existing);
+			}
+		}
+	}
+
+	public PurchaseOrder getPurchaseOrderEntity(Long purchaseOrderId)
+	{
+		return purchaseOrderRepository.findById(purchaseOrderId).orElseThrow(
+			() -> new NoSuchElementException("Purchase order with id, " + purchaseOrderId + " doesn't exist!"));
+	}
+
+	private void completePurchaseOrder(PurchaseOrder purchaseOrder)
+	{
+		if (purchaseOrder.getStatus() != PurchaseOrderStatus.DELIVERED) {
+			throw new IllegalStateException("Purchase order is not completed yet.");
+		}
+
+		for (PurchaseOrderItem item : purchaseOrder.getItems()) {
+			Product product = item.getProduct();
+			product.setStockQty(product.getStockQty() + item.getQuantity());
+		}
+	}
 }

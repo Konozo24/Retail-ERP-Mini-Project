@@ -12,26 +12,33 @@ import lombok.Getter;
 @Getter
 @Builder
 public class PurchaseOrderItemDTO {
-    
-    private Long id;
-    private ProductDTO product;
-    private Integer quantity;
-    private BigDecimal unitCost;
-    private BigDecimal subtotal;
-    
-    public static PurchaseOrderItemDTO fromEntity(PurchaseOrderItem purchaseOrderItem) {
-        return PurchaseOrderItemDTO.builder()
-            .id(purchaseOrderItem.getId())
-            .product(ProductDTO.fromEntity(purchaseOrderItem.getProduct()))
-            .quantity(purchaseOrderItem.getQuantity())
-            .unitCost(purchaseOrderItem.getUnitCost())
-            .subtotal(purchaseOrderItem.getSubtotal())
-            .build();
-    }
 
-    public static List<PurchaseOrderItemDTO> fromEntities(List<PurchaseOrderItem> purchaseOrderItems) {
-        return purchaseOrderItems.stream()
-            .map(PurchaseOrderItemDTO::fromEntity)
-            .toList();
-    }
+	private Long id;
+
+	private ProductDTO product;
+
+	private Integer quantity;
+
+	private BigDecimal unitCost;
+
+	private BigDecimal subtotal;
+
+	public static PurchaseOrderItemDTO fromEntity(PurchaseOrderItem purchaseOrderItem)
+	{
+		return PurchaseOrderItemDTO.builder()
+			.id(purchaseOrderItem.getId())
+			.product(ProductDTO.fromEntity(purchaseOrderItem.getProduct()))
+			.quantity(purchaseOrderItem.getQuantity())
+			.unitCost(purchaseOrderItem.getUnitCost())
+			.subtotal(purchaseOrderItem.getSubtotal())
+			.build();
+	}
+
+	public static List<PurchaseOrderItemDTO> fromEntities(List<PurchaseOrderItem> purchaseOrderItems)
+	{
+		return purchaseOrderItems.stream()
+			.map(PurchaseOrderItemDTO::fromEntity)
+			.toList();
+	}
+
 }

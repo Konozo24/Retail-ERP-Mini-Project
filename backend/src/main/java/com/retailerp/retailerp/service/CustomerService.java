@@ -19,53 +19,54 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CustomerService {
-    
-    private final CustomerRepository customerRepository;
 
-    @Transactional(readOnly = true)
-    public Page<CustomerDTO> getCustomers(String search, Pageable pageable) {
-        Specification<Customer> spec = CustomerSpec.getSpecification(search);
-        return customerRepository.findAll(spec, pageable)
-            .map(CustomerDTO::fromEntity);
-    }
+	private final CustomerRepository customerRepository;
 
-    @Transactional(readOnly = true)
-    public CustomerDTO getCustomer(Long customerId) {
-        Customer customer = customerRepository.findById(customerId).orElseThrow(
-            () -> new NoSuchElementException("Customer with id, " + customerId + " doesn't exist!")
-        );
-        return CustomerDTO.fromEntity(customer);
-    }
+	@Transactional(readOnly = true)
+	public Page<CustomerDTO> getCustomersPage(String search, Pageable pageable)
+	{
+		Specification<Customer> spec = CustomerSpec.getSpec(search);
+		return customerRepository.findAll(spec, pageable)
+			.map(CustomerDTO::fromEntity);
+	}
 
-    @Transactional
-    public CustomerDTO createCustomer(CustomerRequestDTO request) {
-        Customer newCustomer = customerRepository.save(
-            new Customer(request.getName(), request.getPhone(), request.getEmail())
-        );
-        return CustomerDTO.fromEntity(newCustomer);
-    }
+	@Transactional
+	public CustomerDTO createCustomer(CustomerRequestDTO request)
+	{
+		Customer newCustomer = customerRepository.save(
+			new Customer(request.getName(), request.getPhone(), request.getEmail()));
+		return CustomerDTO.fromEntity(newCustomer);
+	}
 
-    @Transactional
-    public void updateCustomer(Long customerId, CustomerRequestDTO request) {
-        Customer existing = customerRepository.findById(customerId).orElseThrow(
-            () -> new NoSuchElementException("Customer with id, " + customerId + " doesn't exist!")
-        );
+	@Transactional
+	public void updateCustomer(Long customerId, CustomerRequestDTO request)
+	{
+		Customer existing = getCustomerEntitiy(customerId);
 
-        existing.setName(request.getName());
-        existing.setPhone(request.getPhone());
-        existing.setEmail(request.getEmail());
-        customerRepository.save(existing);
-    }
+		if (existing.isInactive()) {
+			throw new IllegalStateException("Inactive customer cannot be updated.");
+		}
 
-    @Transactional
-    public void removeCustomer(Long customerId) {
-        Customer existing = customerRepository.findById(customerId).orElseThrow(
-            () -> new NoSuchElementException("Customer with id, " + customerId + " doesn't exist!")
-        );
-        
-        if (!existing.isInactive()) {
-            existing.setInactive(true);
-            customerRepository.save(existing);
-        }
-    }
+		existing.setName(request.getName());
+		existing.setPhone(request.getPhone());
+		existing.setEmail(request.getEmail());
+		customerRepository.save(existing);
+	}
+
+	@Transactional
+	public void removeCustomer(Long customerId)
+	{
+		Customer existing = getCustomerEntitiy(customerId);
+		if (!existing.isInactive()) {
+			existing.setInactive(true);
+			customerRepository.save(existing);
+		}
+	}
+
+	public Customer getCustomerEntitiy(Long customerId)
+	{
+		return customerRepository.findById(customerId).orElseThrow(
+			() -> new NoSuchElementException("Customer with id, " + customerId + " doesn't exist!"));
+	}
+
 }

@@ -11,13 +11,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PurchaseOrderCreationDTO {
-    
-    @NotNull
-    private Long supplierId;
 
-    @NotNull
-    @NotEmpty
-    @Valid
-    private List<PurchaseOrderItemCreationDTO> items;
+	@NotNull
+	private Long supplierId;
+
+	@NotNull
+	@NotEmpty
+	@Valid
+	private List<PurchaseOrderItemCreationDTO> items;
 
 }

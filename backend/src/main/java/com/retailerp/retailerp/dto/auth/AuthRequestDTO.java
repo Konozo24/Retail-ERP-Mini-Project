@@ -15,13 +15,14 @@ import lombok.Setter;
 @Builder
 public class AuthRequestDTO {
 
-    @Schema(example = "user@gmail.com")
-    @NotBlank
-    @Email
-    private String email;
+	@Schema(example = "user@gmail.com")
+	@NotBlank
+	@Email
+	private String email;
 
-    @Schema(example = "password")
-    @NotBlank
-    @Size(min = 6, message = "Password must be at least 6 characters")
-    private String rawPassword;
+	@Schema(example = "password")
+	@NotBlank
+	@Size(min = 6, message = "Password must be at least 6 characters")
+	private String rawPassword;
+
 }

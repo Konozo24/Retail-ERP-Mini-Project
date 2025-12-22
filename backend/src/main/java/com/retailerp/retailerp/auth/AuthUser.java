@@ -17,46 +17,56 @@ public class AuthUser implements UserDetails {
 	private final User user;
 
 	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
+	public Collection<? extends GrantedAuthority> getAuthorities()
+	{
 		return Collections.singletonList(
-				new SimpleGrantedAuthority(user.getRole().name()));
+			new SimpleGrantedAuthority(user.getRole().name()));
 	}
 
 	@Override
-	public String getPassword() {
+	public String getPassword()
+	{
 		return user.getCipherText();
 	}
 
 	@Override
-	public String getUsername() {
+	public String getUsername()
+	{
 		return user.getEmail();
 	}
 
-	public Long getId() {
+	public Long getId()
+	{
 		return user.getId();
 	}
 
-	public User getUser() {
+	public User getUser()
+	{
 		return user;
 	}
 
 	@Override
-	public boolean isAccountNonExpired() {
+	public boolean isAccountNonExpired()
+	{
 		return true;
 	}
 
 	@Override
-	public boolean isAccountNonLocked() {
+	public boolean isAccountNonLocked()
+	{
 		return true;
 	}
 
 	@Override
-	public boolean isCredentialsNonExpired() {
+	public boolean isCredentialsNonExpired()
+	{
 		return true;
 	}
 
 	@Override
-	public boolean isEnabled() {
+	public boolean isEnabled()
+	{
 		return true;
 	}
+
 }

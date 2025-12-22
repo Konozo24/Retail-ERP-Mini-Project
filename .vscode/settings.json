@@ -3,19 +3,27 @@
     // Editor behavior
     // =========================
     "files.autoSave": "afterDelay",
+
     "editor.tabSize": 4,
     "editor.insertSpaces": false,
     "editor.detectIndentation": false,
-	"editor.formatOnPaste": true,
+	"editor.formatOnPaste": false,
 	"editor.formatOnSave": true,
     "editor.minimap.enabled": false,
     "editor.fontLigatures": false,
+	"editor.rulers": [120],
     "diffEditor.ignoreTrimWhitespace": false,
 
     // For tailwindCSS
     "editor.quickSuggestions": {
         "strings": "on"
     },
+
+	"[java]": {
+		"editor.defaultFormatter": "redhat.java",
+		"editor.insertSpaces": false,
+		"editor.detectIndentation": false
+	},
 
     // =========================
     // Git settings
@@ -29,8 +37,10 @@
     // Java (backend)
     // =========================
     "java.compile.nullAnalysis.mode": "disabled",
+	"java.saveActions.organizeImports": true,
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.inlayHints.parameterNames.enabled": "none",
+	"java.format.settings.url": ".vscode/eclipse-java-style.xml",
 
     // =========================
     // Tailwind CSS (frontend)

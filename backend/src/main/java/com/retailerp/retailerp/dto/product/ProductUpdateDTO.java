@@ -13,34 +13,30 @@ import lombok.Getter;
 @Getter
 public class ProductUpdateDTO {
 
-    @NotBlank
-    private String sku;
+	@NotBlank
+	private String sku;
 
-    @NotBlank
-    @Size(max = 150)
-    private String name;
+	@NotBlank
+	@Size(max = 150)
+	private String name;
 
-    @NotNull
-    private Long categoryId;
+	@NotNull
+	private Long categoryId;
 
-    @NotNull
-    @Digits(integer = 8, fraction = 2)
-    private BigDecimal unitPrice;
+	@NotNull
+	@Digits(integer = 8, fraction = 2)
+	private BigDecimal unitPrice;
 
-    @NotNull
-    @Digits(integer = 8, fraction = 2)
-    private BigDecimal costPrice;
+	@NotNull
+	@Digits(integer = 8, fraction = 2)
+	private BigDecimal costPrice;
 
-    @NotNull
-    @Min(0)
-    private Integer stockQty;
-    
-    @NotNull
-    @Min(0)
-    private Integer reorderLevel;
+	@NotNull
+	@Min(0)
+	private Integer reorderLevel;
 
-    // Base64 encoded image (optional)
-    @Nullable
-    private String image;
-    
+	// Base64 encoded image (optional)
+	@Nullable
+	private String image;
+
 }

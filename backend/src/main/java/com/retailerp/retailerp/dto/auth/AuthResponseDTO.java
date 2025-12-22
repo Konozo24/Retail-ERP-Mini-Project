@@ -8,8 +8,15 @@ import lombok.Getter;
 @Getter
 @Builder
 public class AuthResponseDTO {
-    private String access_token;
-    private String message;
-    private String email;
-    private UserRoleEnum role;
+
+	private String access_token;
+
+	private Long id;
+
+	private String message;
+
+	private String email;
+
+	private UserRoleEnum role;
+
 }

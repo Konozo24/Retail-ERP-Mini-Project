@@ -25,23 +25,28 @@ import lombok.AllArgsConstructor;
 public class SecurityConfig {
 
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
 	private final AuthUserService authUserService;
+
 	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
 	@Bean
-	public PasswordEncoder passwordEncoder() {
+	public PasswordEncoder passwordEncoder()
+	{
 		return new BCryptPasswordEncoder(10);
 	}
 
 	@Bean
-	public DaoAuthenticationProvider authenticationProvider() {
+	public DaoAuthenticationProvider authenticationProvider()
+	{
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(authUserService);
 		provider.setPasswordEncoder(passwordEncoder());
 		return provider;
 	}
 
 	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
+	public CorsConfigurationSource corsConfigurationSource()
+	{
 		CorsConfiguration config = new CorsConfiguration();
 
 		config.addAllowedOrigin("http://localhost:5173");
@@ -56,25 +61,26 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
+	{
 		http
-				.csrf(csrf -> csrf.disable())
-				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-				.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
-				.authorizeHttpRequests(auth -> auth
-						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-						.requestMatchers(
-								"/auth/**",
-								"/v3/api-docs/**",
-								"/swagger-ui/**",
-								"/swagger-ui.html",
-								"/h2-console/**")
-						.permitAll()
-						.anyRequest().authenticated())
-				.exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authenticationProvider(authenticationProvider())
-				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+			.csrf(csrf -> csrf.disable())
+			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+			.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
+			.authorizeHttpRequests(auth -> auth
+				.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+				.requestMatchers(
+					"/auth/**",
+					"/v3/api-docs/**",
+					"/swagger-ui/**",
+					"/swagger-ui.html",
+					"/h2-console/**")
+				.permitAll()
+				.anyRequest().authenticated())
+			.exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.authenticationProvider(authenticationProvider())
+			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
