@@ -13,14 +13,11 @@ const refreshUserToken = async (originalRequest) => {
         originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
         return API(originalRequest);
     } catch (err) {
-        // if (err.response?.status === 400 || err.response?.status === 401) {
-        //     localStorage.removeItem('access_token');
-        //     // optionally redirect to login page
-        //     window.location.href = '/login';
-        // }
-        window.location.href = '/login';
-        localStorage.removeItem('access_token');
-        return Promise.reject(err);
+        if (err.response?.status === 400 || err.response?.status === 401) {
+            window.location.href = '/login';
+            localStorage.removeItem('access_token');
+            return Promise.reject(err);
+        }
     }
 }
 
