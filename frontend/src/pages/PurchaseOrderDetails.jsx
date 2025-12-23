@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDebounce } from "use-debounce";
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Search, Filter, ClipboardList, MoveLeft } from 'lucide-react';
 import DataTable from '../components/ui/DataTable';
 import ProductNameCell from "../components/ui/ProductNameCell";
@@ -70,11 +70,11 @@ const PurchaseOrderDetails = () => {
 					<ClipboardList className="w-6 h-6 text-primary" /> Purchase Order Items
 				</h1>
 				<div className="flex gap-2">
-					<button
-						//onClick={navigate('/purchase-order')}
+					<Link
+						to={"/purchase-order"}
 						className="bg-muted hover:bg-muted/80 text-foreground px-4 py-2 rounded-md flex items-center gap-2 transition-colors font-medium text-sm border border-input">
 						<MoveLeft className="w-4 h-4" /> Back
-					</button>
+					</Link>
 				</div>
 			</div>
 

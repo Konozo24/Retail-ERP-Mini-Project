@@ -63,9 +63,18 @@ const CreationFormTable = ({ showToast }) => {
 	};
 
 	const handleAddItem = () => {
-		if (!formData.supplierId) return;
-		if (!formData.productId) return;
-		if (formData.quantity < 0) return;
+		if (!formData.supplierId) {
+			showToast("Please select a supplier.", "error"); 
+			return
+		};
+		if (!formData.productId) {
+			showToast("Please select a product.", "error"); 
+			return
+		}
+			if (!formData.quantity < 0) {
+			showToast("Quantity cant be less than 1.", "error"); 
+			return
+		}
 
 		const product = products.find(p => p.id === Number(formData.productId));
 
@@ -218,7 +227,13 @@ const CreationFormTable = ({ showToast }) => {
 			<button
 				disabled={!formData.supplierId || !formData.productId}
 				onClick={handleAddItem}
-				className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm hover:bg-primary/90"
+				className={
+					`inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm 
+					${!formData.supplierId || !formData.productId 
+						? "bg-gray-300 text-gray-500 cursor-not-allowed" 
+						: "bg-primary text-primary-foreground hover:bg-primary/90"
+					}`
+				}
 			>
 				<Plus className="w-4 h-4" /> Add Item
 			</button>
@@ -237,7 +252,7 @@ const CreationFormTable = ({ showToast }) => {
 					</thead>
 					<tbody className="bg-background divide-y divide-border">
 						{items.length ? items.map((it) => (
-							<tr key={it.productId}>
+							<tr key={it.product.id}>
 								<td className="px-4 py-3 text-sm font-medium">{it.product.name}</td>
 								<td className="px-4 py-3 text-sm">
 									<input
