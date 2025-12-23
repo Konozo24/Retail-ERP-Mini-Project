@@ -41,10 +41,21 @@ API.interceptors.response.use(
 		const hasToken = !!(localStorage.getItem('access_token') || sessionStorage.getItem('access_token'));
 		const isForgotPasswordFlow = originalRequest?.url?.includes('/forgot-password/');
 
+		// Network error: no response received
+        if (!error.response) {
+            console.error("Network error:", error.message);
+            alert("Network error. Server might be down or a internet connection issue.");
+            return Promise.reject(error);
+        }
+
+		// Unauthorized error handling
 		if (error.response?.status === 401 && hasToken && !isForgotPasswordFlow && !originalRequest._retry) {
 			originalRequest._retry = true;
 			return await refreshUserToken(originalRequest);
 		}
+
+		// Other response errors
+		alert("Unhandled error")
 		return Promise.reject(error);
 	}
 );
