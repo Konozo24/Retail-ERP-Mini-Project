@@ -19,7 +19,7 @@ public interface SalesOrderRepository extends JpaRepository<SalesOrder, Long>, J
 
 	// STATISTICS
 	@Query("""
-		    SELECT COUNT(DISTINCT so)
+		    SELECT COUNT(DISTINCT so.id)
 		    FROM SalesOrder so
 		    JOIN so.items si
 		    JOIN si.product p

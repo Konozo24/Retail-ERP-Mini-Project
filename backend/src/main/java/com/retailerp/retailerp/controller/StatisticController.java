@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,14 +36,14 @@ public class StatisticController {
 		return ResponseEntity.ok(dto);
 	}
 
-	@GetMapping("/sales/summary")
+	@PostMapping("/sales/summary")
 	public ResponseEntity<SalesSummaryDTO> getSalesSummaryStats(@Valid @RequestBody SalesStatsRequestDTO request)
 	{
 		SalesSummaryDTO dto = statisticService.getSalesSummary(request);
 		return ResponseEntity.ok(dto);
 	}
 
-	@GetMapping("/sales/products")
+	@PostMapping("/sales/products")
 	@PageableAsQueryParam
 	public ResponseEntity<Page<SalesProductDTO>> getSalesProductsPageStats(
 		@Valid @RequestBody SalesStatsRequestDTO request,

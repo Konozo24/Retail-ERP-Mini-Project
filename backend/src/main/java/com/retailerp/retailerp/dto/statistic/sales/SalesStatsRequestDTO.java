@@ -1,5 +1,6 @@
 package com.retailerp.retailerp.dto.statistic.sales;
 
+import io.micrometer.common.lang.Nullable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -8,6 +9,7 @@ import lombok.Getter;
 @Getter
 public class SalesStatsRequestDTO {
 
+	@Nullable
 	private Long categoryId;
 
 	@Schema(example = "01/01/2024")
