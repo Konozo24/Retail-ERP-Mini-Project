@@ -12,8 +12,11 @@ import {
 	useUpdateCategory,
 	useDeleteCategory
 } from "../api/categories.api";
+import { useLocation } from "react-router-dom";
 
 const Category = () => {
+	const location = useLocation();
+
 	// STATE
 	const [searchQuery, setSearchQuery] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
@@ -21,7 +24,7 @@ const Category = () => {
 	const [selectedCategoryFilter, setSelectedCategoryFilter] = useState("All");
 
 	// Modal & Toast State
-	const [isEditCategoryModalOpen, setIsEditCategoryModalOpen] = useState(false);
+	const [isEditCategoryModalOpen, setIsEditCategoryModalOpen] = useState(location.state === true);
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 	const [categoryToEdit, setCategoryToEdit] = useState(null);
 	const [categoryToDelete, setCategoryToDelete] = useState(null);
@@ -36,7 +39,7 @@ const Category = () => {
 
 	// Compute Filtered Categories
 	const filteredCategories = categoriesData
-		.filter(cat => cat.name.toLowerCase().includes(searchQuery.toLowerCase()))
+		.filter(cat => cat.name.toLowerCase().includes(searchQuery.toLowerCase()) || cat.prefix.toLowerCase().includes(searchQuery.toLowerCase()))
 		.filter(cat => selectedCategoryFilter === "All" || cat.name === selectedCategoryFilter);
 
 	// Pagination
@@ -116,6 +119,10 @@ const Category = () => {
 			render: (row) => (
 				<span className="font-medium text-foreground">{row.name}</span>
 			)
+		},
+		{
+			header: "Prefix",
+			accessor: "prefix"
 		},
 		{
 			header: "Product Count",

@@ -117,7 +117,7 @@ const CreateProduct = () => {
 			}
 			setTimeout(() => navigate("/products"), 1200);
 		} catch (err) {
-			const errorMsg = err?.response?.data?.message || err?.message || 'Failed to save product';
+			const errorMsg = err?.response?.data && Object.values(err.response.data)[0] || err?.message || 'Failed to save product';
 			setToast({ show: true, message: errorMsg, type: "error" });
 		}
 	};
@@ -167,7 +167,7 @@ const CreateProduct = () => {
 						<div>
 							<label className="text-sm font-medium flex justify-between">
 								<span>Category <span className="text-destructive">*</span></span>
-								<span onClick={() => navigate("/category")} className="text-accent text-xs cursor-pointer flex items-center gap-1 hover:underline"><PlusCircle className="w-3 h-3" /> Add New</span>
+								<span onClick={() => navigate("/category", {state: true})} className="text-accent text-xs cursor-pointer flex items-center gap-1 hover:underline"><PlusCircle className="w-3 h-3" /> Add New</span>
 							</label>
 							<select name="categoryId" value={formData.categoryId} onChange={handleChange} required
 								disabled={categoriesLoading}

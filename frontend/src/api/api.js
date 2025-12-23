@@ -55,7 +55,8 @@ API.interceptors.response.use(
 		}
 
 		// Other response errors
-		alert("Unhandled error")
+		// alert("Unhandled error")
+		// alert(JSON.stringify(error?.response))
 		return Promise.reject(error);
 	}
 );

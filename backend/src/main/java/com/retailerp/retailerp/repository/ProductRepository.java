@@ -29,7 +29,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
         AND (:search IS NULL 
             OR LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%'))
             OR LOWER(p.sku) LIKE LOWER(CONCAT('%', :search, '%')))
-      AND (:categoryId IS NULL OR p.category.id = :categoryId)
+		AND (p.category.inactive = FALSE)
+      	AND (:categoryId IS NULL OR p.category.id = :categoryId)
     """)
     Page<Product> findLowStock(String search, Long categoryId, Pageable pageable);
 
@@ -42,6 +43,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
         AND (:search IS NULL 
             OR LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%'))
             OR LOWER(p.sku) LIKE LOWER(CONCAT('%', :search, '%')))
+		AND (p.category.inactive = FALSE)
         AND (:categoryId IS NULL OR p.category.id = :categoryId)
     """)
     Page<Product> findOutOfStock(String search, Long categoryId, Pageable pageable);

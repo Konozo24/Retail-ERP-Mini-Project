@@ -21,6 +21,7 @@ const LowStocks = () => {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
 	const [selectedCategory, setSelectedCategory] = useState("All");
+	const [categoryId, setCategoryId] = useState(null);
 	const [debouncedCategory] = useDebounce(selectedCategory, 300);
 
 	const [toast, setToast] = useState({ show: false, message: "", type: "success" });
@@ -139,7 +140,6 @@ const LowStocks = () => {
 				onClose={() => setIsEditModalOpen(false)}
 				onSave={handleSaveEdit}
 				product={selectedItem}
-				categories={categories}
 			/>
 			<DeleteModal
 				isOpen={isDeleteModalOpen}

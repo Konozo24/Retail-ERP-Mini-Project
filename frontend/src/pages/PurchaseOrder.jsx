@@ -371,8 +371,9 @@ const PurchaseOrderList = ({ showToast }) => {
 				purchaseOrderId: purchaseOrderId,
 				payload: { status: newStatus }
 			})
+			showToast("Purchase order has been delievered", "success");
 		} catch (error) {
-
+			showToast(error?.response?.data?.message || error, "error");
 		}
 	};
 
