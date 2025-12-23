@@ -1,0 +1,291 @@
+-- Email: user@gmail.com
+-- Password: password
+-- USERS
+INSERT INTO `USERS` (EMAIL, PASSWD_CIPHERTEXT, ROLE, CREATED_AT) VALUES 
+('user@gmail.com', '$2a$10$X.Io2jJen9TuigZ2Y5RrBuCulYLSYnAL1cRPId8Y8lWwsmgLurn26', 'CASHIER', '2025-01-10 10:00:00'),
+('manager@gmail.com', '$2a$10$X.Io2jJen9TuigZ2Y5RrBuCulYLSYnAL1cRPId8Y8lWwsmgLurn26', 'ADMIN', '2025-01-12 12:00:00'),
+('yay@gmail.com', '$2a$10$X.Io2jJen9TuigZ2Y5RrBuCulYLSYnAL1cRPId8Y8lWwsmgLurn26', 'CASHIER', '2025-02-05 09:30:00'),
+('gyat@gmail.com', '$2a$10$X.Io2jJen9TuigZ2Y5RrBuCulYLSYnAL1cRPId8Y8lWwsmgLurn26', 'CASHIER', '2025-02-20 14:45:00');
+
+-- CUSTOMERS
+INSERT INTO CUSTOMERS (NAME, PHONE, EMAIL, CREATED_AT) VALUES
+('John Doe', '0123456789', 'john.doe@example.com', CURRENT_TIMESTAMP),
+('Jane Smith', '0138765432', 'jane.smith@example.com', CURRENT_TIMESTAMP),
+('Michael Johnson', '0141234567', 'michael.johnson@example.com', CURRENT_TIMESTAMP),
+('Emily Davis', '0167654321', 'emily.davis@example.com', CURRENT_TIMESTAMP),
+('William Brown', '0172345678', 'william.brown@example.com', CURRENT_TIMESTAMP),
+('Olivia Wilson', '0188765432', 'olivia.wilson@example.com', CURRENT_TIMESTAMP),
+('James Taylor', '0191234567', 'james.taylor@example.com', CURRENT_TIMESTAMP),
+('Sophia Moore', '0128765432', 'sophia.moore@example.com', CURRENT_TIMESTAMP),
+('Benjamin Anderson', '0132345678', 'benjamin.anderson@example.com', CURRENT_TIMESTAMP),
+('Ava Thomas', '0148765432', 'ava.thomas@example.com', CURRENT_TIMESTAMP),
+('Elijah Jackson', '0161234567', 'elijah.jackson@example.com', CURRENT_TIMESTAMP),
+('Isabella White', '0178765432', 'isabella.white@example.com', CURRENT_TIMESTAMP),
+('Lucas Harris', '0181234567', 'lucas.harris@example.com', CURRENT_TIMESTAMP),
+('Mia Martin', '0198765432', 'mia.martin@example.com', CURRENT_TIMESTAMP),
+('Alexander Thompson', '0122345678', 'alexander.thompson@example.com', CURRENT_TIMESTAMP),
+('Charlotte Garcia', '0138765431', 'charlotte.garcia@example.com', CURRENT_TIMESTAMP),
+('Daniel Martinez', '0141234568', 'daniel.martinez@example.com', CURRENT_TIMESTAMP),
+('Amelia Robinson', '0167654322', 'amelia.robinson@example.com', CURRENT_TIMESTAMP),
+('Matthew Clark', '0172345679', 'matthew.clark@example.com', CURRENT_TIMESTAMP),
+('Harper Rodriguez', '0188765431', 'harper.rodriguez@example.com', CURRENT_TIMESTAMP);
+
+-- SUPPLIERS
+INSERT INTO SUPPLIERS (NAME, PHONE, EMAIL, ADDRESS) VALUES
+('Alpha Supplies', '0123456789', 'alpha@example.com', '123 Alpha Street'),
+('Beta Traders', '0138765432', 'beta@example.com', '456 Beta Avenue'),
+('Gamma Corp', '0141234567', 'gamma@example.com', '789 Gamma Road'),
+('Delta Distributors', '0167654321', 'delta@example.com', '101 Delta Blvd'),
+('Epsilon Ltd', '0172345678', 'epsilon@example.com', '202 Epsilon Lane'),
+('Zeta Enterprises', '0188765432', 'zeta@example.com', '303 Zeta Street'),
+('Eta Solutions', '0191234567', 'eta@example.com', '404 Eta Avenue'),
+('Theta Suppliers', '0128765432', 'theta@example.com', '505 Theta Road'),
+('Iota Inc', '0132345678', 'iota@example.com', '606 Iota Blvd'),
+('Kappa Co', '0148765432', 'kappa@example.com', '707 Kappa Lane'),
+('Lambda Logistics', '0161234567', 'lambda@example.com', '808 Lambda Street'),
+('Mu Merchants', '0178765432', 'mu@example.com', '909 Mu Avenue'),
+('Nu Networks', '0181234567', 'nu@example.com', '111 Nu Road'),
+('Xi Exporters', '0198765432', 'xi@example.com', '222 Xi Blvd'),
+('Omicron Suppliers', '0122345678', 'omicron@example.com', '333 Omicron Lane'),
+('Pi Products', '0138765431', 'pi@example.com', '444 Pi Street'),
+('Rho Retailers', '0141234568', 'rho@example.com', '555 Rho Avenue'),
+('Sigma Services', '0167654322', 'sigma@example.com', '666 Sigma Road'),
+('Tau Traders', '0172345679', 'tau@example.com', '777 Tau Blvd'),
+('Upsilon Unlimited', '0188765431', 'upsilon@example.com', '888 Upsilon Lane');
+
+-- CATEGORIES
+INSERT INTO CATEGORIES (NAME, PREFIX, COLOR) VALUES
+('Smartphone', 'PHONE', '#4F46E5'),
+('Tablet',     'TAB',   '#1F2937'),
+('Laptop',     'LAP',   '#EAB308'),
+('Desktop',    'DESK',  '#F97316'),
+('Wearable',   'WEAR',  '#8B5CF6'),
+('Audio',      'AUD',   '#3C81AC');
+
+-- PRODUCTS with diverse categories
+INSERT INTO PRODUCTS (CREATED_BY, SKU, NAME, CATEGORY_ID, UNIT_PRICE, COST_PRICE, STOCK_QTY, REORDER_LEVEL, CREATED_AT, UPDATED_AT) VALUES
+-- Smartphones (CATEGORY_ID = 1)
+(1, 'IP14-128GB-BLK', 'iPhone 14 128GB Black', 1, 999.99, 799.99, 50, 10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(1, 'IP14-256GB-WHT', 'iPhone 14 256GB White', 1, 1099.99, 879.99, 50, 10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 'IP14PRO-128GB-SLV', 'iPhone 14 Pro 128GB Silver', 1, 1199.99, 949.99, 40, 10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 'IP14PRO-256GB-GLD', 'iPhone 14 Pro 256GB Gold', 1, 1299.99, 1049.99, 40, 10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(3, 'IP14PROMAX-128GB-BLK', 'iPhone 14 Pro Max 128GB Black', 1, 1299.99, 1049.99, 30, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(3, 'IP14PROMAX-256GB-WHT', 'iPhone 14 Pro Max 256GB White', 1, 1399.99, 1149.99, 30, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(4, 'IP15-128GB-BLK', 'iPhone 15 128GB Black', 1, 1099.99, 849.99, 50, 10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(4, 'IP15-256GB-WHT', 'iPhone 15 256GB White', 1, 1199.99, 949.99, 50, 10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(1, 'IP15PRO-128GB-SLV', 'iPhone 15 Pro 128GB Silver', 1, 1299.99, 1049.99, 40, 10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(1, 'IP15PRO-256GB-GRD', 'iPhone 15 Pro 256GB Gradient', 1, 1399.99, 1149.99, 40, 10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 'IP15PROMAX-128GB-BLK', 'iPhone 15 Pro Max 128GB Black', 1, 1399.99, 1149.99, 30, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 'IP15PROMAX-256GB-WHT', 'iPhone 15 Pro Max 256GB White', 1, 1499.99, 1249.99, 30, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+-- Tablets (CATEGORY_ID = 2)
+(3, 'IPAD10-64GB-SLV', 'iPad 10th Gen 64GB Silver', 2, 499.99, 399.99, 60, 10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(3, 'IPAD10-256GB-GRY', 'iPad 10th Gen 256GB Gray', 2, 599.99, 479.99, 60, 10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(4, 'IPADPRO11-128GB-SLV', 'iPad Pro 11-inch 128GB Silver', 2, 799.99, 649.99, 40, 10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(4, 'IPADPRO11-256GB-GRY', 'iPad Pro 11-inch 256GB Gray', 2, 899.99, 749.99, 40, 10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(1, 'IPADPRO12-512GB-GRD', 'iPad Pro 12.9-inch 512GB Gradient', 2, 1299.99, 1049.99, 30, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+-- Laptops (CATEGORY_ID = 3)
+(1, 'MACBOOKAIRM2-256GB-SLV', 'MacBook Air M2 256GB Silver', 3, 1199.99, 949.99, 25, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 'MACBOOKAIRM2-512GB-GRY', 'MacBook Air M2 512GB Gray', 3, 1399.99, 1149.99, 25, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 'MACBOOKPROM2-512GB-SLV', 'MacBook Pro M2 512GB Silver', 3, 1999.99, 1599.99, 20, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(3, 'MACBOOKPROM2-1TB-GRY', 'MacBook Pro M2 1TB Gray', 3, 2299.99, 1849.99, 20, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+-- Desktops (CATEGORY_ID = 4)
+(3, 'MACMINIM2-256GB-SLV', 'Mac Mini M2 256GB Silver', 4, 699.99, 549.99, 15, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(4, 'MACMINIM2-512GB-GRY', 'Mac Mini M2 512GB Gray', 4, 899.99, 749.99, 15, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+-- Wearables (CATEGORY_ID = 5)
+(4, 'APPLEWATCHSE-GRY', 'Apple Watch SE Gray', 5, 279.99, 199.99, 50, 10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(1, 'APPLEWATCHULTRA-BLK', 'Apple Watch Ultra Black', 5, 799.99, 649.99, 40, 10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+-- Audio (CATEGORY_ID = 6)
+(1, 'AIRPODSPRO2', 'AirPods Pro 2nd Gen', 6, 249.99, 199.99, 60, 10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 'AIRPODS3', 'AirPods 3rd Gen', 6, 179.99, 149.99, 60, 10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 'HOMEPODMINI-WHT', 'HomePod mini White', 6, 99.99, 79.99, 30, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(3, 'IPODTOUCH7-32GB', 'iPod Touch 7th Gen 32GB', 6, 199.99, 149.99, 25, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(3, 'IPODTOUCH7-128GB', 'iPod Touch 7th Gen 128GB', 6, 299.99, 249.99, 25, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- PURCHASE ORDERS
+INSERT INTO PURCHASE_ORDER (SUPP_ID, USER_ID, STATUS, CREATED_AT) VALUES
+(1, 1, 'DELIVERED', '2025-01-11'),
+(2, 2, 'DELIVERED', '2025-01-16'),
+(3, 3, 'DELIVERED', '2025-02-02'),
+(4, 4, 'DELIVERED', '2025-02-11'),
+(5, 1, 'DELIVERED', '2025-03-05'),
+(6, 2, 'DELIVERED', '2025-03-12'),
+(7, 3, 'DELIVERED', '2025-04-18'),
+(8, 4, 'DELIVERED', '2025-04-22'),
+(9, 1, 'DELIVERED', '2025-05-08'),
+(10, 2, 'DELIVERED', '2025-05-15'),
+(11, 3, 'DELIVERED', '2025-06-01'),
+(12, 4, 'DELIVERED', '2025-06-10'),
+(13, 1, 'DELIVERED', '2025-07-05'),
+(14, 2, 'DELIVERED', '2025-07-12'),
+(15, 3, 'DELIVERED', '2025-08-09'),
+(16, 4, 'DELIVERED', '2025-08-18'),
+(17, 1, 'DELIVERED', '2025-09-03'),
+(18, 2, 'DELIVERED', '2025-09-11'),
+(19, 3, 'DELIVERED', '2025-10-07'),
+(20, 4, 'DELIVERED', '2025-10-15');
+
+-- PURCHASE ORDER ITEMS (spread across products & months)
+INSERT INTO PURCHASE_ORDER_ITEM (PO_ID, PROD_ID, QUANTITY, UNIT_COST, SUBTOTAL) VALUES
+-- Jan-Feb (existing)
+(1, 1, 50, 799.99, 799.99*50),
+(2, 2, 60, 399.99, 399.99*60),
+(3, 3, 25, 949.99, 949.99*25),
+(4, 4, 50, 199.99, 199.99*50),
+(2, 6, 40, 749.99, 749.99*40),
+(1, 1, 50, 799.99, 799.99*50),
+(2, 2, 60, 399.99, 399.99*60),
+(3, 3, 25, 949.99, 949.99*25),
+(4, 4, 50, 199.99, 199.99*50),
+(2, 6, 40, 749.99, 749.99*40),
+
+-- March
+(5, 5, 30, 349.99, 349.99*30),
+(5, 7, 20, 849.99, 849.99*20),
+(6, 8, 15, 1049.99, 1049.99*15),
+(6, 9, 25, 1199.99, 1199.99*25),
+
+-- April
+(7, 10, 40, 1299.99, 1299.99*40),
+(7, 11, 10, 599.99, 599.99*10),
+(8, 12, 20, 699.99, 699.99*20),
+(8, 13, 30, 499.99, 499.99*30),
+
+-- May
+(9, 14, 25, 899.99, 899.99*25),
+(9, 15, 15, 399.99, 399.99*15),
+(10, 16, 10, 749.99, 749.99*10),
+(10, 17, 20, 279.99, 279.99*20),
+
+-- June
+(11, 18, 30, 179.99, 179.99*30),
+(11, 19, 12, 199.99, 199.99*10),
+(12, 20, 25, 499.99, 499.99*25),
+(12, 1, 15, 799.99, 799.99*15),
+
+-- July
+(13, 2, 20, 399.99, 399.99*20),
+(13, 3, 15, 949.99, 949.99*15),
+(14, 4, 25, 199.99, 199.99*25),
+(14, 5, 30, 349.99, 349.99*30),
+
+-- August
+(15, 6, 20, 749.99, 749.99*20),
+(15, 7, 15, 849.99, 849.99*15),
+(16, 8, 25, 1049.99, 1049.99*25),
+(16, 9, 10, 1199.99, 1199.99*10),
+
+-- September
+(17, 10, 12, 1299.99, 1299.99*12),
+(17, 11, 20, 599.99, 599.99*20),
+(18, 12, 15, 699.99, 699.99*15),
+(18, 13, 18, 499.99, 499.99*18),
+
+-- October
+(19, 14, 25, 899.99, 899.99*25),
+(19, 15, 20, 399.99, 399.99*20),
+(20, 16, 15, 749.99, 749.99*15),
+(20, 17, 10, 279.99, 279.99*10);
+
+-- SALES ORDERS with diverse products and dates
+INSERT INTO SALES_ORDER (USER_ID, CUST_ID, TOTAL_AMOUNT, PAYMENT_METHOD, CREATED_AT) VALUES
+(1, 1, 30000, 'CARD', '2025-01-20'),
+(2, 2, 20000, 'CASH', '2025-01-25'),
+(3, 3, 15000, 'CARD', '2025-02-10'),
+(4, 4, 10000, 'CARD', '2025-02-15'),
+(1, 5, 18000, 'CASH', '2025-03-05'),
+(2, 6, 22000, 'CARD', '2025-03-12'),
+(3, 7, 25000, 'CARD', '2025-04-18'),
+(4, 8, 27000, 'CASH', '2025-04-22'),
+(1, 9, 19000, 'CARD', '2025-05-08'),
+(2, 10, 21000, 'CARD', '2025-05-15'),
+(3, 11, 23000, 'CASH', '2025-06-01'),
+(4, 12, 24000, 'CARD', '2025-06-10'),
+(1, 13, 20000, 'CARD', '2025-07-05'),
+(2, 14, 26000, 'CASH', '2025-07-12'),
+(3, 15, 28000, 'CARD', '2025-08-09'),
+(4, 16, 30000, 'CARD', '2025-08-18'),
+(1, 17, 15000, 'CASH', '2025-09-03'),
+(2, 18, 17000, 'CARD', '2025-09-11'),
+(3, 19, 19000, 'CARD', '2025-10-07'),
+(4, 20, 21000, 'CASH', '2025-10-15'),
+(1, 1, 22000, 'CARD', '2025-11-02'),
+(2, 2, 25000, 'CARD', '2025-11-18'),
+(3, 3, 27000, 'CASH', '2025-12-05'),
+(4, 4, 30000, 'CARD', '2025-12-12');
+
+-- SALES ORDER ITEMS
+INSERT INTO SALES_ORDER_ITEM (SO_ID, PROD_ID, QUANTITY, UNIT_PRICE, SUBTOTAL) VALUES
+-- January
+(1, 1, 20, 999.99, 999.99*20),
+(1, 5, 15, 249.99, 249.99*15),
+(2, 2, 25, 1099.99, 1099.99*25),
+-- February
+(3, 3, 10, 1199.99, 1199.99*10),
+(4, 4, 20, 1299.99, 1299.99*20),
+-- March
+(5, 6, 15, 1399.99, 1399.99*15),
+(5, 13, 20, 599.99, 599.99*20),
+(6, 7, 10, 849.99, 849.99*10),
+(6, 14, 15, 899.99, 899.99*15),
+-- April
+(7, 8, 10, 1049.99, 1049.99*10),
+(7, 15, 12, 799.99, 799.99*12),
+(8, 9, 15, 1099.99, 1099.99*15),
+(8, 16, 8, 699.99, 699.99*8),
+-- May
+(9, 10, 18, 1199.99, 1199.99*18),
+(9, 17, 10, 279.99, 279.99*10),
+(10, 11, 12, 1299.99, 1299.99*12),
+(10, 18, 10, 199.99, 199.99*10),
+-- June
+(11, 12, 10, 1399.99, 1399.99*10),
+(11, 19, 11, 179.99, 179.99*15),
+(12, 13, 18, 599.99, 599.99*18),
+(12, 20, 5, 899.99, 899.99*5),
+-- July
+(13, 14, 12, 899.99, 899.99*12),
+(13, 1, 8, 999.99, 999.99*8),
+(14, 2, 10, 1099.99, 1099.99*10),
+(14, 5, 15, 249.99, 249.99*15),
+-- August
+(15, 6, 10, 1399.99, 1399.99*10),
+(15, 7, 12, 849.99, 849.99*12),
+(16, 8, 15, 1049.99, 1049.99*15),
+(16, 9, 10, 1099.99, 1099.99*10),
+-- September
+(17, 10, 8, 1199.99, 1199.99*8),
+(17, 15, 10, 799.99, 799.99*10),
+(18, 11, 12, 1299.99, 1299.99*12),
+(18, 16, 8, 699.99, 699.99*8),
+-- October
+(19, 12, 10, 1399.99, 1399.99*10),
+(19, 17, 5, 279.99, 279.99*5),
+(20, 13, 12, 599.99, 599.99*12),
+(20, 18, 8, 199.99, 199.99*8),
+-- November
+(21, 14, 15, 899.99, 899.99*15),
+(21, 1, 10, 999.99, 999.99*10),
+(22, 2, 12, 1099.99, 1099.99*12),
+(22, 5, 10, 249.99, 249.99*10),
+-- December
+(23, 6, 18, 1399.99, 1399.99*18),
+(23, 7, 12, 849.99, 849.99*12),
+(24, 8, 20, 1049.99, 1049.99*20),
+(24, 9, 15, 1099.99, 1099.99*15);
+
+-- UPDATE product stock accordingly
+UPDATE PRODUCTS p
+JOIN (
+    SELECT p2.PROD_ID, COALESCE(SUM(po_item.QUANTITY),0) - COALESCE(SUM(so_item.QUANTITY),0) AS qty
+    FROM PRODUCTS p2
+    LEFT JOIN PURCHASE_ORDER_ITEM po_item ON p2.PROD_ID = po_item.PROD_ID
+    LEFT JOIN SALES_ORDER_ITEM so_item ON p2.PROD_ID = so_item.PROD_ID
+    GROUP BY p2.PROD_ID
+) t ON p.PROD_ID = t.PROD_ID
+SET p.STOCK_QTY = t.qty;
+

@@ -12,26 +12,51 @@
 #      Normal run:
 #      $ docker compose up
 #
-#      Selected service run:
+#      Selected service run (add -d after up, for detached mode):
 #      $ docker compose up <backend / frontend>
 #
-#      Allow it to run in the background (Detached mode):
-#      $ docker compose up -d <backend / frontend>
-#
-#   3. Stop all running services
+#   3. Stop all running services (add -v, to clear persist data):
 #      $ docker compose down
 #
+# Login MySQL
+#   1. Make sure container is up (docker compose up)
+#   2. Open Docker Desktop, and select to open the container
+#   3. Go to MySQL and click on the three dots, then click "open in terminal"
+#
+#   4. Enter credentials and select database
+#      mysql -u user -p
+#      (Enter password afterward, default = password)
+#      use retailerpdb;
+#
+#   5. Use commands
+#      show tables;
+#      desc <table>
+#
 # Notes:
-#   - Backend runs on http://localhost:8080
+#   - Backend runs on http://localhost:8080 (Takes time for initial startup)
 #   - Frontend runs on http://localhost:5173
 #   - Volumes are mounted for live code changes (hot reload)
 #   - Maven dependencies are cached in ./.m2
 #   - Node dependencies are cached in node_modules volume
 # =======================================================
 
-version: '3.8'
-
 services:
+  mysql:
+    image: mysql:8
+    container_name: retailerp-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: retailerpdb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: secret
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./backend/src/main/resources/schema-mysql.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./backend/src/main/resources/data-mysql.sql:/docker-entrypoint-initdb.d/02-data.sql
+
   backend:
     build:
       context: ./backend
@@ -39,10 +64,11 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./backend:/app
-      - ./backend/.m2:/root/.m2
+      - ./backend/.m2:/root/.m2 # Mount only Maven cache to speed up builds
     environment:
-      SPRING_DEVTOOLS_RESTART_ENABLED: "false"
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      - mysql
     restart: always
 
   frontend:
@@ -56,8 +82,10 @@ services:
     volumes:
       - ./frontend:/app
       - node_modules:/app/node_modules
+    # Install node_modules if missing and start dev server
     command: sh -c "if [ ! -d node_modules ]; then npm install; fi && npm run dev -- --host 0.0.0.0"
     restart: always
 
 volumes:
   node_modules: {}
+  db-data: {}
