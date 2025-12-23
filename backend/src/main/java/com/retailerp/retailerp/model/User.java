@@ -13,6 +13,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
@@ -41,6 +42,9 @@ public class User {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "ROLE", nullable = false)
 	private UserRoleEnum role = UserRoleEnum.CASHIER;
+
+	@OneToOne(mappedBy = "user", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+	private ForgotPassword forgotPassword;
 
 	@Column(name = "PASSWD_CIPHERTEXT", nullable = false)
 	private String cipherText;

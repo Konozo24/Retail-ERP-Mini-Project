@@ -12,6 +12,7 @@ import PageLoader from "./components/ui/PageLoader";
 // Components
 import Layout from "./components/Layout";
 import LoginPage from './pages/LoginPage'
+import ForgotPassword from "./pages/ForgotPassword";
 import Customers from "./pages/Customers";
 import Products from "./pages/Products";
 import CreateProduct from "./pages/CreateProduct";
@@ -109,6 +110,16 @@ function App() {
 							element={
 								<PublicRoute>
 									<LoginPage />
+								</PublicRoute>
+							}
+						/>
+
+						{/* Public Route: Forgot Password */}
+						<Route
+							path="/forgot-password"
+							element={
+								<PublicRoute>
+									<ForgotPassword />
 								</PublicRoute>
 							}
 						/>

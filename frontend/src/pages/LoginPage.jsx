@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext'; // Import hook
 
@@ -140,9 +140,9 @@ export default function LoginPage() {
                                 Remember me
                             </label>
                         </div>
-                        <a href="#" className="text-sm text-primary hover:text-primary/80 transition">
+                        <Link to="/forgot-password" className="text-sm text-primary hover:text-primary/80 transition">
                             Forgot password?
-                        </a>
+                        </Link>
                     </div>
 
                     <button

@@ -14,34 +14,61 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @AllArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtUtil jwtUtil;
-    private final AuthUserService authUserService;
+	private final JwtUtil jwtUtil;
+	private final AuthUserService authUserService;
 
-    private Optional<String> getTokenFromRequest(HttpServletRequest request) {
-        //request.getHeaderNames().asIterator().forEachRemaining(c -> {System.out.println(request.getHeader(c));});
-        String header = request.getHeader("Authorization");
-        return (header != null && header.startsWith("Bearer ")) ? Optional.of(header.substring(7)) : Optional.empty();
-    }
+	private Optional<String> getTokenFromRequest(HttpServletRequest request) {
+		// request.getHeaderNames().asIterator().forEachRemaining(c ->
+		// {System.out.println(request.getHeader(c));});
+		String header = request.getHeader("Authorization");
+		return (header != null && header.startsWith("Bearer ")) ? Optional.of(header.substring(7)) : Optional.empty();
+	}
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-            throws ServletException, IOException {
-        getTokenFromRequest(request).ifPresent(token -> {
-            if (jwtUtil.validateToken(token)) {
-                Long userId = jwtUtil.extractUserId(token);
-                AuthUser authUser = authUserService.loadUserByUserId(userId);
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        authUser, null, authUser.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
-        });
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws ServletException, IOException {
+		String requestPath = request.getRequestURI();
 
-        chain.doFilter(request, response);
-    }
+		// Skip JWT validation for public endpoints
+		if (isPublicPath(requestPath)) {
+			log.info("JWT filter skip for public path: {}", requestPath);
+			chain.doFilter(request, response);
+			return;
+		}
+
+		getTokenFromRequest(request).ifPresent(token -> {
+			if (jwtUtil.validateToken(token)) {
+				log.debug("JWT filter authenticated path: {}", requestPath);
+				Long userId = jwtUtil.extractUserId(token);
+				AuthUser authUser = authUserService.loadUserByUserId(userId);
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+						authUser, null, authUser.getAuthorities());
+				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+			} else {
+				log.warn("JWT filter token invalid for path: {}", requestPath);
+			}
+		});
+
+		if (!getTokenFromRequest(request).isPresent()) {
+			log.info("JWT filter no token for protected path: {}", requestPath);
+		}
+
+		chain.doFilter(request, response);
+	}
+
+	private boolean isPublicPath(String requestPath) {
+		return requestPath.startsWith("/auth/") ||
+				requestPath.startsWith("/swagger-ui") ||
+				requestPath.startsWith("/v3/api-docs") ||
+				requestPath.startsWith("/h2-console") ||
+				requestPath.startsWith("/forgot-password/");
+	}
 }
