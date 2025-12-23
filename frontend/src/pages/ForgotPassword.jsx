@@ -38,7 +38,13 @@ export default function ForgotPassword() {
 			await sendMail.mutateAsync(email.trim());
 			setStep(Step.OTP);
 		} catch (err) {
-			setError(err?.response?.data || "Failed to send OTP.");
+			const data = err?.response?.data;
+			let message = "Failed to send OTP.";
+			if (typeof data === "string") message = data;
+			else if (data?.message && typeof data.message === "string") message = data.message;
+			else if (data && typeof data === "object") message = Object.values(data).join(", ");
+			else if (err?.message) message = err.message;
+			setError(message);
 		}
 	};
 
@@ -53,7 +59,13 @@ export default function ForgotPassword() {
 			await verifyOtp.mutateAsync({ email: email.trim(), otp: otp.trim() });
 			setStep(Step.RESET);
 		} catch (err) {
-			setError(err?.response?.data || "Invalid or expired OTP.");
+			const data = err?.response?.data;
+			let message = "Invalid or expired OTP.";
+			if (typeof data === "string") message = data;
+			else if (data?.message && typeof data.message === "string") message = data.message;
+			else if (data && typeof data === "object") message = Object.values(data).join(", ");
+			else if (err?.message) message = err.message;
+			setError(message);
 		}
 	};
 
@@ -76,7 +88,13 @@ export default function ForgotPassword() {
 			await changePwd.mutateAsync({ email: email.trim(), password, repeatPassword });
 			setStep(Step.DONE);
 		} catch (err) {
-			setError(err?.response?.data || "Failed to update password.");
+			const data = err?.response?.data;
+			let message = "Failed to update password.";
+			if (typeof data === "string") message = data;
+			else if (data?.message && typeof data.message === "string") message = data.message;
+			else if (data && typeof data === "object") message = Object.values(data).join(", ");
+			else if (err?.message) message = err.message;
+			setError(message);
 		}
 	};
 

@@ -22,35 +22,39 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class StatisticsService {
-    
-    private final SalesOrderRepository salesOrderRepository;
 
-    @Transactional(readOnly = true)
-    public StatisticDTO getSalesSatistics(String category, Pageable pageable, StatisticRequestDTO request) {
-        if (category != null && category.trim().isEmpty() || category.equalsIgnoreCase("ALL")) {
-            category = null;
-        }
+	private final SalesOrderRepository salesOrderRepository;
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	@Transactional(readOnly = true)
+	public StatisticDTO getSalesSatistics(String category, Pageable pageable, StatisticRequestDTO request) {
+		if (category == null || category.trim().isEmpty() || "ALL".equalsIgnoreCase(category)) {
+			category = null;
+		}
 
-        LocalDate startLocal = LocalDate.parse(request.getStartDate(), formatter);
-        LocalDate endLocal = LocalDate.parse(request.getEndDate(), formatter);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-        OffsetDateTime startDate = startLocal.atStartOfDay().atOffset(ZoneOffset.ofHours(8)); // Malaysia UTC+8
-        OffsetDateTime endDate = endLocal.atTime(23, 59, 59).atOffset(ZoneOffset.ofHours(8));
+		LocalDate startLocal = LocalDate.parse(request.getStartDate(), formatter);
+		LocalDate endLocal = LocalDate.parse(request.getEndDate(), formatter);
 
-        BigDecimal totalRevenue = salesOrderRepository.getRevenueBetween(category, startDate, endDate).orElse(BigDecimal.ZERO);
-        Long totalOrders = salesOrderRepository.countOrdersBetween(category, startDate, endDate);
-        Long totalItemSold = salesOrderRepository.getItemsSoldBetween(category, startDate, endDate);
-        BigDecimal averageOrderValue = (totalOrders > 0) ? totalRevenue.divide(new BigDecimal(totalOrders), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO;
-    
-        Page<StatisticProductDTO> productsStatistic = salesOrderRepository.getProductSalesSummary(category, startDate, endDate, pageable);
-        return StatisticDTO.builder()
-            .totalRevenue(totalRevenue)
-            .totalOrders(totalOrders)
-            .totalItemSold(totalItemSold)
-            .averageOrderValue(averageOrderValue)
-            .productsStatistic(productsStatistic)
-            .build();
-    }
+		OffsetDateTime startDate = startLocal.atStartOfDay().atOffset(ZoneOffset.ofHours(8)); // Malaysia UTC+8
+		OffsetDateTime endDate = endLocal.atTime(23, 59, 59).atOffset(ZoneOffset.ofHours(8));
+
+		BigDecimal totalRevenue = salesOrderRepository.getRevenueBetween(category, startDate, endDate)
+				.orElse(BigDecimal.ZERO);
+		Long totalOrders = salesOrderRepository.countOrdersBetween(category, startDate, endDate);
+		Long totalItemSold = salesOrderRepository.getItemsSoldBetween(category, startDate, endDate);
+		BigDecimal averageOrderValue = (totalOrders > 0)
+				? totalRevenue.divide(new BigDecimal(totalOrders), 2, RoundingMode.HALF_UP)
+				: BigDecimal.ZERO;
+
+		Page<StatisticProductDTO> productsStatistic = salesOrderRepository.getProductSalesSummary(category, startDate,
+				endDate, pageable);
+		return StatisticDTO.builder()
+				.totalRevenue(totalRevenue)
+				.totalOrders(totalOrders)
+				.totalItemSold(totalItemSold)
+				.averageOrderValue(averageOrderValue)
+				.productsStatistic(productsStatistic)
+				.build();
+	}
 }

@@ -50,6 +50,7 @@ services:
       MYSQL_USER: user
       MYSQL_PASSWORD: password
       MYSQL_ROOT_PASSWORD: secret
+      TZ: Asia/Kuala_Lumpur
     ports:
       - "3306:3306"
     volumes:
@@ -67,6 +68,7 @@ services:
       - ./backend/.m2:/root/.m2 # Mount only Maven cache to speed up builds
     environment:
       SPRING_PROFILES_ACTIVE: prod
+      TZ: Asia/Kuala_Lumpur
     depends_on:
       - mysql
     restart: always

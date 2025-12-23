@@ -10,10 +10,12 @@ import {
 	CircleDollarSign,
 	Filter,
 	Calendar as CalendarIcon,
-	Download
+	Download,
+	RefreshCw
 } from "lucide-react";
 import { useGetSalesStatistics } from "../api/dashboard.api";
 import { useGetCategoriesName } from "../api/categories.api";
+import { useQueryClient } from '@tanstack/react-query';
 
 const currencyFormatter = new Intl.NumberFormat("en-MY", {
 	style: "currency",
@@ -26,13 +28,15 @@ const dateFormatter = (date) => {
 };
 
 const Sales = () => {
+	const queryClient = useQueryClient();
 
 	// State
 	const [selectedCategory, setSelectedCategory] = useState("All");
 	const [startDate, setStartDate] = useState("2024-01-01");
-	const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
+	const [endDate, setEndDate] = useState(new Date().toLocaleDateString('en-CA')); // YYYY-MM-DD
 	const [currentPage, setCurrentPage] = useState(1);
 	const [itemsPerPage, setItemsPerPage] = useState(10);
+	const [isRefreshing, setIsRefreshing] = useState(false);
 
 	// Debounced Dates
 	const [fromDate, toDate] = useMemo(() => {
@@ -54,6 +58,53 @@ const Sales = () => {
 	const categoriesName = ["All", ...(categoriesNameData || [])];
 
 	const totalPages = statisticData?.productsStatistic?.totalPages ?? 0;
+
+	// Handler: Manual Refresh
+	const handleRefresh = async () => {
+		setIsRefreshing(true);
+		await queryClient.invalidateQueries({ queryKey: ['salesStatistic'] });
+		await queryClient.refetchQueries({ queryKey: ['salesStatistic'] });
+		setIsRefreshing(false);
+	};
+
+	// Handler: Date Presets
+	const setDatePreset = (preset) => {
+		const today = new Date();
+		// Use local date instead of UTC to avoid timezone issues
+		const year = today.getFullYear();
+		const month = String(today.getMonth() + 1).padStart(2, '0');
+		const day = String(today.getDate()).padStart(2, '0');
+		const endDateStr = `${year}-${month}-${day}`;
+		let startDateStr;
+
+		switch (preset) {
+			case 'today':
+				startDateStr = endDateStr;
+				break;
+			case 'week':
+				const weekAgo = new Date(today);
+				weekAgo.setDate(weekAgo.getDate() - 7);
+				const wYear = weekAgo.getFullYear();
+				const wMonth = String(weekAgo.getMonth() + 1).padStart(2, '0');
+				const wDay = String(weekAgo.getDate()).padStart(2, '0');
+				startDateStr = `${wYear}-${wMonth}-${wDay}`;
+				break;
+			case 'month':
+				const monthAgo = new Date(today);
+				monthAgo.setDate(monthAgo.getDate() - 30);
+				const mYear = monthAgo.getFullYear();
+				const mMonth = String(monthAgo.getMonth() + 1).padStart(2, '0');
+				const mDay = String(monthAgo.getDate()).padStart(2, '0');
+				startDateStr = `${mYear}-${mMonth}-${mDay}`;
+				break;
+			default:
+				return;
+		}
+
+		setStartDate(startDateStr);
+		setEndDate(endDateStr);
+		setCurrentPage(1);
+	};
 
 	// Handler: Generate PDF Report
 	const handleGenerateReport = () => {
@@ -204,6 +255,33 @@ const Sales = () => {
 
 			<div className="bg-card p-4 rounded-lg border border-border shadow-sm">
 				<div className="flex flex-col lg:flex-row gap-4 lg:items-end">
+					{/* Date Presets */}
+					<div className="flex-none">
+						<label className="text-xs font-semibold text-muted-foreground uppercase mb-1 block">
+							Quick Select
+						</label>
+						<div className="flex gap-2">
+							<button
+								onClick={() => setDatePreset('today')}
+								className="px-3 h-10 text-sm font-medium rounded-md border border-input bg-background hover:bg-muted transition-colors"
+							>
+								Today
+							</button>
+							<button
+								onClick={() => setDatePreset('week')}
+								className="px-3 h-10 text-sm font-medium rounded-md border border-input bg-background hover:bg-muted transition-colors"
+							>
+								7 Days
+							</button>
+							<button
+								onClick={() => setDatePreset('month')}
+								className="px-3 h-10 text-sm font-medium rounded-md border border-input bg-background hover:bg-muted transition-colors"
+							>
+								30 Days
+							</button>
+						</div>
+					</div>
+
 					<div className="flex-1">
 						<label className="text-xs font-semibold text-muted-foreground uppercase mb-1 block">
 							Date Range
@@ -238,12 +316,22 @@ const Sales = () => {
 
 					<div className="flex-none">
 						<label className="text-xs font-semibold text-transparent uppercase mb-1 block select-none">
-							Action
+							Actions
 						</label>
-						<button onClick={handleGenerateReport} className="w-full lg:w-auto bg-accent hover:bg-accent/90 text-white px-6 h-10 rounded-md font-medium text-sm transition-colors shadow-sm whitespace-nowrap flex items-center justify-center gap-2">
-							<Download className="w-4 h-4" />
-							Generate Report
-						</button>
+						<div className="flex gap-2">
+							<button
+								onClick={handleRefresh}
+								disabled={isRefreshing}
+								className="px-4 h-10 rounded-md font-medium text-sm transition-colors shadow-sm whitespace-nowrap flex items-center justify-center gap-2 border border-input bg-background hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+							>
+								<RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+								Refresh
+							</button>
+							<button onClick={handleGenerateReport} className="bg-accent hover:bg-accent/90 text-white px-6 h-10 rounded-md font-medium text-sm transition-colors shadow-sm whitespace-nowrap flex items-center justify-center gap-2">
+								<Download className="w-4 h-4" />
+								Generate Report
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>

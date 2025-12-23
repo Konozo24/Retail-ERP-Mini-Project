@@ -4,7 +4,7 @@
 INSERT INTO `USERS` (EMAIL, PASSWD_CIPHERTEXT, ROLE, CREATED_AT) VALUES 
 ('user@gmail.com', '$2a$10$X.Io2jJen9TuigZ2Y5RrBuCulYLSYnAL1cRPId8Y8lWwsmgLurn26', 'CASHIER', '2025-01-10 10:00:00'),
 ('manager@gmail.com', '$2a$10$X.Io2jJen9TuigZ2Y5RrBuCulYLSYnAL1cRPId8Y8lWwsmgLurn26', 'ADMIN', '2025-01-12 12:00:00'),
-('yay@gmail.com', '$2a$10$X.Io2jJen9TuigZ2Y5RrBuCulYLSYnAL1cRPId8Y8lWwsmgLurn26', 'CASHIER', '2025-02-05 09:30:00'),
+('mingwei12242021@gmail.com', '$2a$10$X.Io2jJen9TuigZ2Y5RrBuCulYLSYnAL1cRPId8Y8lWwsmgLurn26', 'CASHIER', '2025-02-05 09:30:00'),
 ('gyat@gmail.com', '$2a$10$X.Io2jJen9TuigZ2Y5RrBuCulYLSYnAL1cRPId8Y8lWwsmgLurn26', 'CASHIER', '2025-02-20 14:45:00');
 
 -- CUSTOMERS
