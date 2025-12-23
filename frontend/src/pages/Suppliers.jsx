@@ -80,19 +80,15 @@ const Suppliers = () => {
 			address: formData.address,
 		};
 
-		try {
-			if (currentSupplier) {
-				await updateSupplier({
-					supplierId: currentSupplier.id,
-					payload: payload
-				});
-				showToast("Supplier details updated successfully!", "success");
-			} else {
-				await createSupplier(payload);
-				showToast("New supplier added successfully!", "success");
-			}
-		} catch (error) {
-			showToast("Failed to create supplier.", "error");
+		if (currentSupplier) {
+			await updateSupplier({
+				supplierId: currentSupplier.id,
+				payload: payload
+			});
+			showToast("Supplier details updated successfully!", "success");
+		} else {
+			await createSupplier(payload);
+			showToast("New supplier added successfully!", "success");
 		}
 	};
 
