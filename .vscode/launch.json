@@ -21,7 +21,8 @@
             "name": "RetailerpApplication",
             "request": "launch",
             "mainClass": "com.retailerp.retailerp.RetailerpApplication",
-            "projectName": "retailerp"
+            "projectName": "retailerp",
+			"vmArgs": "-Dspring.profiles.active=dev"
         }
     ]
 }

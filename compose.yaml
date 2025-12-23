@@ -79,13 +79,9 @@ services:
       - "5173:5173"
     depends_on:
       - backend
-    volumes:
-      - ./frontend:/app
-      - node_modules:/app/node_modules
     # Install node_modules if missing and start dev server
     command: sh -c "if [ ! -d node_modules ]; then npm install; fi && npm run dev -- --host 0.0.0.0"
     restart: always
 
 volumes:
-  node_modules: {}
   db-data: {}
