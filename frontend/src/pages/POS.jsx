@@ -15,7 +15,7 @@ import { useCreateSalesOrder } from '../api/sales-order.api';
 import { getImageUrlByProduct } from '../data/categoryImages';
 import EditCustomersModal from '../components/ui/EditCustomersModal';
 
-// --- HELPERS ---
+// Helpers
 const mapProductToPosItem = (product) => {
 	if (!product) return null;
 	const rawPrice = product.unitPrice ?? product.unit_price ?? product.price ?? 0;
@@ -46,7 +46,7 @@ const getCategoryIcon = (category) => {
 	return ShoppingBag;
 };
 
-// --- COMPONENTS ---
+// Components
 
 const Header = ({ search, setSearch, onDashboardClick, user, onLogout }) => (
 
@@ -116,7 +116,7 @@ const Header = ({ search, setSearch, onDashboardClick, user, onLogout }) => (
 	</header>
 );
 
-// Sidebar - Structure kept as requested, style updated to theme
+// Sidebar
 const CategorySidebar = ({ categories, selectedCategory, onSelectCategory }) => {
 	const allButton = { key: 'All', label: 'All', icon: LayoutGrid };
 	const items = [allButton, ...categories.map((cat) => ({ key: cat, label: cat, icon: getCategoryIcon(cat) }))];
@@ -226,7 +226,7 @@ const ProductGrid = ({ products, search, setSearch, selectedCategory, isLoading,
 	);
 };
 
-// --- CART / ORDER DETAILS ---
+// Cart / Order Details
 
 const OrderDetails = ({ cart, selectedCustomer, onSelectCustomer, customers, customerSearch, setCustomerSearch, onUpdateCartQty, onRemoveFromCart, onClearCart }) => {
 	const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
@@ -235,7 +235,7 @@ const OrderDetails = ({ cart, selectedCustomer, onSelectCustomer, customers, cus
 	const [submitting, setSubmitting] = useState(false);
 	const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
 
-	// Handle
+	// Handlers
 	const handleAddCustomer = () => {
 		setIsAddCustomerOpen(true);
 	};
@@ -509,8 +509,7 @@ const OrderDetails = ({ cart, selectedCustomer, onSelectCustomer, customers, cus
 	);
 };
 
-// --- MAIN LAYOUT ---
-
+// Main Layout
 const POS = () => {
 	const navigate = useNavigate();
 	const { user, logout } = useAuth();

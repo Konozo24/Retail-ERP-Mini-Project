@@ -3,6 +3,7 @@ import { Mail, Hash, Lock, ArrowLeft } from "lucide-react";
 import { useSendForgotEmail, useVerifyOtp, useChangePassword } from "../api/forgot-password.api";
 import { useNavigate } from "react-router-dom";
 
+// Define steps for the forgot password process
 const Step = {
 	EMAIL: "email",
 	OTP: "otp",
@@ -11,6 +12,8 @@ const Step = {
 };
 
 export default function ForgotPassword() {
+
+	// State
 	const [email, setEmail] = useState("");
 	const [otp, setOtp] = useState("");
 	const [password, setPassword] = useState("");
@@ -19,6 +22,7 @@ export default function ForgotPassword() {
 	const [error, setError] = useState("");
 	const navigate = useNavigate();
 
+	// API Hooks
 	const sendMail = useSendForgotEmail();
 	const verifyOtp = useVerifyOtp();
 	const changePwd = useChangePassword();

@@ -9,7 +9,7 @@ import DeleteModal from '../components/ui/DeleteModal';
 import Toast from '../components/ui/Toast';
 
 const PrintBarcode = () => {
-	// --- State ---
+	// State
 	const [searchTerm, setSearchTerm] = useState('');
 	const [searchResults, setSearchResults] = useState([]);
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -28,7 +28,7 @@ const PrintBarcode = () => {
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 	const [productToDelete, setProductToDelete] = useState(null);
 
-	// --- Data fetching ---
+	// Data fetching
 	const [debouncedSearch] = useDebounce(searchTerm, 300);
 	const { data: productsPage, isLoading } = useGetProductsPage(debouncedSearch, 0, 50, '');
 
@@ -60,7 +60,7 @@ const PrintBarcode = () => {
 		setSearchResults(mappedResults);
 	}, [mappedResults]);
 
-	// --- Search & Add Logic ---
+	// Search & Add Logic
 	const handleSearchChange = (e) => {
 		const value = e.target.value;
 		setSearchTerm(value);
@@ -70,7 +70,8 @@ const PrintBarcode = () => {
 	const addProduct = (product) => {
 		const existing = selectedProducts.find(p => p.id === product.id);
 		if (existing) {
-			// Keep real inventory qty once selected; avoid inflating on re-select
+			// Keep real inventory qty once selected
+			// avoid inflating on re-select
 			setSelectedProducts(selectedProducts);
 		} else {
 			// Use real stock quantity from backend
@@ -80,7 +81,7 @@ const PrintBarcode = () => {
 		setIsDropdownOpen(false);
 	};
 
-	// --- Delete Logic ---
+	// Delete Logic
 	const initiateDelete = (id) => {
 		setProductToDelete(id);
 		setIsDeleteModalOpen(true);
@@ -93,7 +94,7 @@ const PrintBarcode = () => {
 		}
 	};
 
-	// --- Settings Logic ---
+	// Settings Logic
 	const toggleSetting = (key) => {
 		setSettings(prev => ({ ...prev, [key]: !prev[key] }));
 	};
