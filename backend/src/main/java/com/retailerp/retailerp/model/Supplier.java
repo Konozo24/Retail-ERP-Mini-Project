@@ -1,5 +1,9 @@
 package com.retailerp.retailerp.model;
 
+import java.time.OffsetDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -57,6 +61,10 @@ public class Supplier {
     @Column(name = "ADDRESS", nullable = false, length = 60)
     private String address;
     
+	@CreationTimestamp
+    @Column(name = "CREATED_AT", nullable = false, updatable = false)
+    private OffsetDateTime createdAt;
+	
     @Column(name = "INACTIVE", nullable = false)
     private boolean inactive = false;
 
