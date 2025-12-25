@@ -59,14 +59,15 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
+				.formLogin(form -> form.disable())
 				.csrf(csrf -> csrf.disable())
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-						.requestMatchers(publicEndpoints.getPaths().toArray(String[]::new))
-						.permitAll()
-						.anyRequest().authenticated())
+						.requestMatchers(publicEndpoints.getPaths().toArray(String[]::new)).permitAll()
+						.requestMatchers("/api/**").authenticated()
+						.anyRequest().permitAll())
 				.exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authenticationProvider(authenticationProvider())

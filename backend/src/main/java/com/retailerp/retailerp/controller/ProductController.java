@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.retailerp.retailerp.dto.PageDTO;
 import com.retailerp.retailerp.dto.product.ProductCreationDTO;
 import com.retailerp.retailerp.dto.product.ProductDTO;
 import com.retailerp.retailerp.dto.product.ProductUpdateDTO;
@@ -37,14 +38,14 @@ public class ProductController {
 
 	@GetMapping
 	@PreAuthorize("hasAnyAuthority('ADMIN','CASHIER')")
-	public ResponseEntity<Page<ProductDTO>> getProducts(
+	public ResponseEntity<PageDTO<ProductDTO>> getProducts(
 			@RequestParam(defaultValue = "") String search,
 			@RequestParam(defaultValue = "") String category,
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size) {
 		Pageable pageable = PageRequest.of(page, size);
 		Page<ProductDTO> dtoPage = productService.getProducts(search, category, pageable);
-		return ResponseEntity.ok(dtoPage);
+		return ResponseEntity.ok(PageDTO.fromEntity(dtoPage));
 	}
 
 	@GetMapping("/{productId}")
@@ -57,26 +58,26 @@ public class ProductController {
 
 	// Get all low stock products
 	@GetMapping("/low-stock")
-	public ResponseEntity<Page<ProductDTO>> getLowStockProducts(
+	public ResponseEntity<PageDTO<ProductDTO>> getLowStockProducts(
 			@RequestParam(defaultValue = "") String search,
 			@RequestParam(defaultValue = "") String category,
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size) {
 		Pageable pageable = PageRequest.of(page, size);
 		Page<ProductDTO> dtoPage = productService.getLowStockProducts(search, category, pageable);
-		return ResponseEntity.ok(dtoPage);
+		return ResponseEntity.ok(PageDTO.fromEntity(dtoPage));
 	}
 
 	// Get all out of stock products
 	@GetMapping("/out-of-stock")
-	public ResponseEntity<Page<ProductDTO>> getOutOfStockProducts(
+	public ResponseEntity<PageDTO<ProductDTO>> getOutOfStockProducts(
 			@RequestParam(defaultValue = "") String search,
 			@RequestParam(defaultValue = "") String category,
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size) {
 		Pageable pageable = PageRequest.of(page, size);
 		Page<ProductDTO> dtoPage = productService.getOutOfStockProducts(search, category, pageable);
-		return ResponseEntity.ok(dtoPage);
+		return ResponseEntity.ok(PageDTO.fromEntity(dtoPage));
 	}
 
 	@GetMapping("/generate-sku")

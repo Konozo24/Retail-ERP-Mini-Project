@@ -110,7 +110,7 @@ const Sidebar = ({ isCollapsed }) => {
 									<Link
 										to={item.path}
 										key={item.name}
-										onClick={() => setActiveItem(item.name)}
+										onClick={() => {}}
 										className={`
                       flex items-center rounded-md text-sm font-medium transition-colors duration-200
                       ${isCollapsed ? "justify-center px-2 py-2.5" : "justify-between px-3 py-2.5"}

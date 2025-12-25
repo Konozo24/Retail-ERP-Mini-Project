@@ -7,6 +7,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
@@ -24,6 +25,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final JwtUtil jwtUtil;
 	private final PublicEndpoints publicEndpoints;
 	private final AuthUserService authUserService;
+
+	private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
 	private Optional<String> getTokenFromRequest(HttpServletRequest request) {
 		// request.getHeaderNames().asIterator().forEachRemaining(c ->
@@ -68,6 +71,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private boolean isPublicPath(String requestPath) {
 		return publicEndpoints.getPaths()
 				.stream()
-				.anyMatch(requestPath::startsWith);
+				.anyMatch(pattern -> pathMatcher.match(pattern, requestPath));
 	}
 }

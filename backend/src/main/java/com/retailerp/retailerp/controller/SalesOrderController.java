@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.retailerp.retailerp.dto.PageDTO;
 import com.retailerp.retailerp.dto.sales.SalesOrderCreationDTO;
 import com.retailerp.retailerp.dto.sales.SalesOrderDTO;
 import com.retailerp.retailerp.service.SalesOrderService;
@@ -32,7 +33,7 @@ public class SalesOrderController {
 	private final SalesOrderService salesOrderService;
 
 	@GetMapping
-	public ResponseEntity<Page<SalesOrderDTO>> getSalesOrders(
+	public ResponseEntity<PageDTO<SalesOrderDTO>> getSalesOrders(
 			@RequestParam(defaultValue = "") String search,
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size,
@@ -40,7 +41,7 @@ public class SalesOrderController {
 			@RequestParam(required = false) String endDate) {
 		Pageable pageable = PageRequest.of(page, size);
 		Page<SalesOrderDTO> dtoPage = salesOrderService.getSalesOrders(search, pageable, startDate, endDate);
-		return ResponseEntity.ok(dtoPage);
+		return ResponseEntity.ok(PageDTO.fromEntity(dtoPage));
 	}
 
 	@GetMapping("/{salesOrderId}")

@@ -16,8 +16,8 @@ export function useLogoutUser() {
     mutationFn: () => API.post('/auth/logout'),
     onSuccess: () => {
         localStorage.removeItem('user');
+		sessionStorage.removeItem('user');
         localStorage.removeItem('access_token');
-        sessionStorage.removeItem('user');
         sessionStorage.removeItem('access_token');
       // optionally, reset React Query cache or redirect user
     },

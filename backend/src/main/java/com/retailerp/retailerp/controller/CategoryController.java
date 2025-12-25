@@ -35,8 +35,8 @@ public class CategoryController {
 	@GetMapping
 	@PreAuthorize("hasAnyAuthority('ADMIN','CASHIER')")
 	public ResponseEntity<List<CategoryDTO>> getCategories() {
-		List<CategoryDTO> dtoPage = categoryService.getCategories();
-		return ResponseEntity.ok(dtoPage);
+		List<CategoryDTO> dto = categoryService.getCategories();
+		return ResponseEntity.ok(dto);
 	}
 
 	@GetMapping("/name-list")

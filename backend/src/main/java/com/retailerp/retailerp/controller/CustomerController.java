@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.retailerp.retailerp.dto.PageDTO;
 import com.retailerp.retailerp.dto.customer.CustomerDTO;
 import com.retailerp.retailerp.dto.customer.CustomerRequestDTO;
 import com.retailerp.retailerp.service.CustomerService;
@@ -36,13 +37,13 @@ public class CustomerController {
 
 	@GetMapping
 	@PreAuthorize("hasAnyAuthority('ADMIN','CASHIER')")
-	public ResponseEntity<Page<CustomerDTO>> getCustomers(
+	public ResponseEntity<PageDTO<CustomerDTO>> getCustomers(
 			@RequestParam(defaultValue = "") String search,
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size) {
 		Pageable pageable = PageRequest.of(page, size);
 		Page<CustomerDTO> dtoPage = customerService.getCustomers(search, pageable);
-		return ResponseEntity.ok(dtoPage);
+		return ResponseEntity.ok(PageDTO.fromEntity(dtoPage));
 	}
 
 	@GetMapping("/{customerId}")

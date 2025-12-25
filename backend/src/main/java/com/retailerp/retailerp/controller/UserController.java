@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.retailerp.retailerp.dto.PageDTO;
 import com.retailerp.retailerp.dto.auth.AuthRequestDTO;
 import com.retailerp.retailerp.dto.user.UserDTO;
 import com.retailerp.retailerp.service.UserService;
@@ -31,13 +32,13 @@ public class UserController {
 	private final UserService userService;
 
 	@GetMapping
-	public ResponseEntity<Page<UserDTO>> getUsers(
+	public ResponseEntity<PageDTO<UserDTO>> getUsers(
 			@RequestParam(defaultValue = "") String search,
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size) {
 		Pageable pageable = PageRequest.of(page, size);
 		Page<UserDTO> dtoPage = userService.getUsers(search, pageable);
-		return ResponseEntity.ok(dtoPage);
+		return ResponseEntity.ok(PageDTO.fromEntity(dtoPage));
 	}
 
 	@GetMapping("/{userId}")

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.retailerp.retailerp.dto.PageDTO;
 import com.retailerp.retailerp.dto.purchases.PurchaseOrderCreationDTO;
 import com.retailerp.retailerp.dto.purchases.PurchaseOrderDTO;
 import com.retailerp.retailerp.dto.purchases.PurchaseOrderItemDTO;
@@ -36,13 +37,13 @@ public class PurchaseOrderController {
 	private final PurchaseOrderService purchaseOrderService;
 
 	@GetMapping
-	public ResponseEntity<Page<PurchaseOrderDTO>> getPurchaseOrders(
+	public ResponseEntity<PageDTO<PurchaseOrderDTO>> getPurchaseOrders(
 			@RequestParam(defaultValue = "") String search,
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size) {
 		Pageable pageable = PageRequest.of(page, size);
 		Page<PurchaseOrderDTO> dtoPage = purchaseOrderService.getPurchaseOrders(search, pageable);
-		return ResponseEntity.ok(dtoPage);
+		return ResponseEntity.ok(PageDTO.fromEntity(dtoPage));
 	}
 
 	@GetMapping("/{purchaseOrderId}")

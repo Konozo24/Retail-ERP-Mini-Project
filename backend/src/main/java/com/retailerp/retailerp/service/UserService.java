@@ -84,7 +84,7 @@ public class UserService {
 
 			ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
 					.httpOnly(true)
-					.secure(true) // set false for local dev if not https, !isLocalEnvironment()
+					.secure(false) // TODO: set false for local dev if not https, !isLocalEnvironment()
 					.path("/auth")
 					.maxAge(7 * 24 * 60 * 60) // 7 days
 					.sameSite("Strict")

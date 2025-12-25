@@ -7,16 +7,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class PublicEndpoints {
 
-	private List<String> publicPaths = List.of(
+	private final List<String> publicPaths = List.of(
 			// PUBLIC API PATHS
-			"api/auth/**",
-			"api/forgot-password/**",
+			"/api/auth/**",
+			"/api/forgot-password/**",
 
 			// FRONTEND PATHS
-			"/",
 			"/index.html",
 			"/favicon.ico",
 			"/assets/**",
+			"/images/**",
 			"/static/**",
 
 			// SAWGGER UI PATHS

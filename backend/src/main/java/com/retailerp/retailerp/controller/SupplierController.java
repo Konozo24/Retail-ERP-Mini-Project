@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.retailerp.retailerp.dto.PageDTO;
 import com.retailerp.retailerp.dto.supplier.SupplierDTO;
 import com.retailerp.retailerp.dto.supplier.SupplierRequestDTO;
 import com.retailerp.retailerp.service.SupplierService;
@@ -34,13 +35,13 @@ public class SupplierController {
 	private final SupplierService supplierService;
 
 	@GetMapping
-	public ResponseEntity<Page<SupplierDTO>> getSuppliers(
+	public ResponseEntity<PageDTO<SupplierDTO>> getSuppliers(
 			@RequestParam(defaultValue = "") String search,
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size) {
 		Pageable pageable = PageRequest.of(page, size);
 		Page<SupplierDTO> dtoPage = supplierService.getSuppliers(search, pageable);
-		return ResponseEntity.ok(dtoPage);
+		return ResponseEntity.ok(PageDTO.fromEntity(dtoPage));
 	}
 
 	@GetMapping("/{supplierId}")
