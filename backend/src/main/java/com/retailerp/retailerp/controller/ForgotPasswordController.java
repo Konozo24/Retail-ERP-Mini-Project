@@ -7,6 +7,9 @@ import com.retailerp.retailerp.repository.UserRepository;
 import com.retailerp.retailerp.repository.ForgotPasswordRepository;
 import com.retailerp.retailerp.service.EmailService;
 import com.retailerp.retailerp.utils.ChangePassword;
+
+import lombok.RequiredArgsConstructor;
+
 import com.retailerp.retailerp.model.ForgotPassword;
 import com.retailerp.retailerp.model.User;
 import com.retailerp.retailerp.dto.email.MailBody;
@@ -28,23 +31,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/forgot-password")
+@RequiredArgsConstructor
 public class ForgotPasswordController {
 
 	private final UserRepository userRepository;
 	private final ForgotPasswordRepository forgotPasswordRepository;
 	private final EmailService emailService;
 	private final PasswordEncoder passwordEncoder;
-
-	public ForgotPasswordController(
-			UserRepository userRepository,
-			ForgotPasswordRepository forgotPasswordRepository,
-			EmailService emailService,
-			PasswordEncoder passwordEncoder) {
-		this.userRepository = userRepository;
-		this.forgotPasswordRepository = forgotPasswordRepository;
-		this.emailService = emailService;
-		this.passwordEncoder = passwordEncoder;
-	}
 
 	// send mail for email verification
 	@PostMapping("/verifyMail/{email}")
@@ -82,7 +75,7 @@ public class ForgotPasswordController {
 				.orElseThrow(() -> new RuntimeException("Invalid OTP for email: " + email));
 
 		if (fp.getExpirationTime().before(Timestamp.from(Instant.now()))) {
-			forgotPasswordRepository.deleteById(fp.getFpid());
+			forgotPasswordRepository.deleteById(fp.getId());
 			return new ResponseEntity<>("OTP has expired!", HttpStatus.EXPECTATION_FAILED);
 		}
 

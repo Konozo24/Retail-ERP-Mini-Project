@@ -31,27 +31,27 @@ INSERT INTO CUSTOMERS (NAME, PHONE, EMAIL, CREATED_AT) VALUES
 ('Harper Rodriguez', '0188765431', 'harper.rodriguez@example.com', CURRENT_TIMESTAMP);
 
 -- SUPPLIERS
-INSERT INTO SUPPLIERS (NAME, PHONE, EMAIL, ADDRESS) VALUES
-('Alpha Supplies', '0123456789', 'alpha@example.com', '123 Alpha Street'),
-('Beta Traders', '0138765432', 'beta@example.com', '456 Beta Avenue'),
-('Gamma Corp', '0141234567', 'gamma@example.com', '789 Gamma Road'),
-('Delta Distributors', '0167654321', 'delta@example.com', '101 Delta Blvd'),
-('Epsilon Ltd', '0172345678', 'epsilon@example.com', '202 Epsilon Lane'),
-('Zeta Enterprises', '0188765432', 'zeta@example.com', '303 Zeta Street'),
-('Eta Solutions', '0191234567', 'eta@example.com', '404 Eta Avenue'),
-('Theta Suppliers', '0128765432', 'theta@example.com', '505 Theta Road'),
-('Iota Inc', '0132345678', 'iota@example.com', '606 Iota Blvd'),
-('Kappa Co', '0148765432', 'kappa@example.com', '707 Kappa Lane'),
-('Lambda Logistics', '0161234567', 'lambda@example.com', '808 Lambda Street'),
-('Mu Merchants', '0178765432', 'mu@example.com', '909 Mu Avenue'),
-('Nu Networks', '0181234567', 'nu@example.com', '111 Nu Road'),
-('Xi Exporters', '0198765432', 'xi@example.com', '222 Xi Blvd'),
-('Omicron Suppliers', '0122345678', 'omicron@example.com', '333 Omicron Lane'),
-('Pi Products', '0138765431', 'pi@example.com', '444 Pi Street'),
-('Rho Retailers', '0141234568', 'rho@example.com', '555 Rho Avenue'),
-('Sigma Services', '0167654322', 'sigma@example.com', '666 Sigma Road'),
-('Tau Traders', '0172345679', 'tau@example.com', '777 Tau Blvd'),
-('Upsilon Unlimited', '0188765431', 'upsilon@example.com', '888 Upsilon Lane');
+INSERT INTO SUPPLIERS (NAME, PHONE, EMAIL, ADDRESS, CREATED_AT) VALUES
+('Alpha Supplies', '0123456789', 'alpha@example.com', '123 Alpha Street', CURRENT_TIMESTAMP),
+('Beta Traders', '0138765432', 'beta@example.com', '456 Beta Avenue', CURRENT_TIMESTAMP),
+('Gamma Corp', '0141234567', 'gamma@example.com', '789 Gamma Road', CURRENT_TIMESTAMP),
+('Delta Distributors', '0167654321', 'delta@example.com', '101 Delta Blvd', CURRENT_TIMESTAMP),
+('Epsilon Ltd', '0172345678', 'epsilon@example.com', '202 Epsilon Lane', CURRENT_TIMESTAMP),
+('Zeta Enterprises', '0188765432', 'zeta@example.com', '303 Zeta Street', CURRENT_TIMESTAMP),
+('Eta Solutions', '0191234567', 'eta@example.com', '404 Eta Avenue', CURRENT_TIMESTAMP),
+('Theta Suppliers', '0128765432', 'theta@example.com', '505 Theta Road', CURRENT_TIMESTAMP),
+('Iota Inc', '0132345678', 'iota@example.com', '606 Iota Blvd', CURRENT_TIMESTAMP),
+('Kappa Co', '0148765432', 'kappa@example.com', '707 Kappa Lane', CURRENT_TIMESTAMP),
+('Lambda Logistics', '0161234567', 'lambda@example.com', '808 Lambda Street', CURRENT_TIMESTAMP),
+('Mu Merchants', '0178765432', 'mu@example.com', '909 Mu Avenue', CURRENT_TIMESTAMP),
+('Nu Networks', '0181234567', 'nu@example.com', '111 Nu Road', CURRENT_TIMESTAMP),
+('Xi Exporters', '0198765432', 'xi@example.com', '222 Xi Blvd', CURRENT_TIMESTAMP),
+('Omicron Suppliers', '0122345678', 'omicron@example.com', '333 Omicron Lane', CURRENT_TIMESTAMP),
+('Pi Products', '0138765431', 'pi@example.com', '444 Pi Street', CURRENT_TIMESTAMP),
+('Rho Retailers', '0141234568', 'rho@example.com', '555 Rho Avenue', CURRENT_TIMESTAMP),
+('Sigma Services', '0167654322', 'sigma@example.com', '666 Sigma Road', CURRENT_TIMESTAMP),
+('Tau Traders', '0172345679', 'tau@example.com', '777 Tau Blvd', CURRENT_TIMESTAMP),
+('Upsilon Unlimited', '0188765431', 'upsilon@example.com', '888 Upsilon Lane', CURRENT_TIMESTAMP);
 
 -- CATEGORIES
 INSERT INTO CATEGORIES (NAME, PREFIX, COLOR) VALUES
