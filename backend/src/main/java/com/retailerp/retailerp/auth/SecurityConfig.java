@@ -26,6 +26,7 @@ public class SecurityConfig {
 
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final AuthUserService authUserService;
+	private final PublicEndpoints publicEndpoints;
 	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
 	@Bean
@@ -63,13 +64,7 @@ public class SecurityConfig {
 				.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-						.requestMatchers(
-								"/auth/**",
-								"/v3/api-docs/**",
-								"/swagger-ui/**",
-								"/swagger-ui.html",
-								"/h2-console/**",
-								"/forgot-password/**")
+						.requestMatchers(publicEndpoints.getPaths().toArray(String[]::new))
 						.permitAll()
 						.anyRequest().authenticated())
 				.exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))

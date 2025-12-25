@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtUtil jwtUtil;
+	private final PublicEndpoints publicEndpoints;
 	private final AuthUserService authUserService;
 
 	private Optional<String> getTokenFromRequest(HttpServletRequest request) {
@@ -65,10 +66,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	private boolean isPublicPath(String requestPath) {
-		return requestPath.startsWith("/auth/") ||
-				requestPath.startsWith("/swagger-ui") ||
-				requestPath.startsWith("/v3/api-docs") ||
-				requestPath.startsWith("/h2-console") ||
-				requestPath.startsWith("/forgot-password/");
+		return publicEndpoints.getPaths()
+				.stream()
+				.anyMatch(requestPath::startsWith);
 	}
 }
