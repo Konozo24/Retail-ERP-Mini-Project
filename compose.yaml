@@ -1,0 +1,89 @@
+# =======================================================
+# Quick Start Guide
+# =======================================================
+# Prerequisites:
+#   - Install Docker Desktop: https://www.docker.com/products/docker-desktop
+#
+# First-time setup / running the project:
+#   1. Build Docker images for backend and frontend
+#      $ docker compose build
+#
+#   2. Start all services (Normal or in detached mode):
+#      Normal run:
+#      $ docker compose up
+#
+#      Selected service run (add -d after up, for detached mode):
+#      $ docker compose up <backend / frontend>
+#
+#   3. Stop all running services (add -v, to clear persist data):
+#      $ docker compose down
+#
+# Login MySQL
+#   1. Make sure container is up (docker compose up)
+#   2. Open Docker Desktop, and select to open the container
+#   3. Go to MySQL and click on the three dots, then click "open in terminal"
+#
+#   4. Enter credentials and select database
+#      mysql -u user -p
+#      (Enter password afterward, default = password)
+#      use retailerpdb;
+#
+#   5. Use commands
+#      show tables;
+#      desc <table>
+#
+# Notes:
+#   - Backend runs on http://localhost:8080 (Takes time for initial startup)
+#   - Frontend runs on http://localhost:5173
+#   - Volumes are mounted for live code changes (hot reload)
+#   - Maven dependencies are cached in ./.m2
+#   - Node dependencies are cached in node_modules volume
+# =======================================================
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: retailerp-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: retailerpdb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: secret
+      TZ: Asia/Kuala_Lumpur
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./backend/src/main/resources/schema-mysql.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./backend/src/main/resources/data-mysql.sql:/docker-entrypoint-initdb.d/02-data.sql
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend/.m2:/root/.m2 # Mount only Maven cache to speed up builds
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      TZ: Asia/Kuala_Lumpur
+    depends_on:
+      - mysql
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    # Install node_modules if missing and start dev server
+    command: sh -c "if [ ! -d node_modules ]; then npm install; fi && npm run dev -- --host 0.0.0.0"
+    restart: always
+
+volumes:
+  db-data: {}

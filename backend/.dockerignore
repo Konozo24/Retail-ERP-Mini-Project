@@ -1,0 +1,25 @@
+# Maven / Java build artifacts
+target/
+build/
+*.log
+
+# Maven wrapper (already in repo)
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# Local Maven repo (mounted via Docker volume)
+.m2/
+
+# OS artifacts
+.DS_Store
+Thumbs.db

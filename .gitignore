@@ -1,0 +1,67 @@
+# ==============================
+# Maven / Java
+# ==============================
+
+# Maven build folders
+target/
+build/
+
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Eclipse / STS
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# Maven local repository (handled by Docker)
+.m2/
+
+# ==============================
+# Node / Frontend
+# ==============================
+node_modules/
+
+# ==============================
+# Docker
+# ==============================
+# Docker-compose volumes and temporary files
+**/docker-compose.override.yml
+**/Dockerfile*.tmp
+
+# ==============================
+# Environment / Secrets
+# ==============================
+.env
+.env.local
+.env.*.local
+
+# ==============================
+# Logs
+# ==============================
+logs/
+*.log
+
+# ==============================
+# OS / Editor artifacts
+# ==============================
+.DS_Store        # macOS
+Thumbs.db        # Windows
+*.swp            # Vim swap files
