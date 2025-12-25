@@ -28,21 +28,20 @@ public class RetailerpApplication {
 					}
 				}
 
-				if (!isDev) { // Only open browser if NOT dev
-					browserOpened = true;
-					try {
-						String url = "http://localhost:8080";
-						String os = System.getProperty("os.name").toLowerCase();
-						if (os.contains("win")) {
-							new ProcessBuilder("cmd", "/c", "start", url).start();
-						} else if (os.contains("mac")) {
-							new ProcessBuilder("open", url).start();
-						} else if (os.contains("nix") || os.contains("nux")) {
-							new ProcessBuilder("xdg-open", url).start();
-						}
-					} catch (Exception e) {
-						System.err.println("Failed to open browser: " + e.getMessage());
+				if (!isDev) return;
+				browserOpened = true;
+				try {
+					String url = "http://localhost:8080";
+					String os = System.getProperty("os.name").toLowerCase();
+					if (os.contains("win")) {
+						new ProcessBuilder("cmd", "/c", "start", url).start();
+					} else if (os.contains("mac")) {
+						new ProcessBuilder("open", url).start();
+					} else if (os.contains("nix") || os.contains("nux")) {
+						new ProcessBuilder("xdg-open", url).start();
 					}
+				} catch (Exception e) {
+					System.err.println("Failed to open browser: " + e.getMessage());
 				}
 			}
 		});
