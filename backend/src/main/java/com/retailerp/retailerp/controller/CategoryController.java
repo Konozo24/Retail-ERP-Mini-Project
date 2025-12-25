@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 
 @SecurityRequirement(name = "JWTAuth")
 @RestController
-@RequestMapping("/categories")
+@RequestMapping("/api/categories")
 @RequiredArgsConstructor
 @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ADMIN')")
 public class CategoryController {

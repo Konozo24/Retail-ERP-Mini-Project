@@ -19,41 +19,38 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserService userService;
+	private final UserService userService;
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(
-        @Valid @RequestBody AuthRequestDTO request,
-        HttpServletResponse response    
-    ) throws LoginException {
-        AuthResponseDTO dto = userService.loginUser(request, response);
-        return ResponseEntity.ok(dto);
-    }
+	@PostMapping("/login")
+	public ResponseEntity<AuthResponseDTO> login(
+			@Valid @RequestBody AuthRequestDTO request,
+			HttpServletResponse response) throws LoginException {
+		AuthResponseDTO dto = userService.loginUser(request, response);
+		return ResponseEntity.ok(dto);
+	}
 
-    @PostMapping("/register")
-    public ResponseEntity<AuthResponseDTO> register(
-            @Valid @RequestBody AuthRequestDTO request) {
-        AuthResponseDTO dto = userService.registerUser(request);
-        return ResponseEntity.ok(dto);
-    }
+	@PostMapping("/register")
+	public ResponseEntity<AuthResponseDTO> register(
+			@Valid @RequestBody AuthRequestDTO request) {
+		AuthResponseDTO dto = userService.registerUser(request);
+		return ResponseEntity.ok(dto);
+	}
 
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletResponse response) {
-        userService.logoutUser(response);
-        return ResponseEntity.ok("Logged out");
-    }
+	@PostMapping("/logout")
+	public ResponseEntity<String> logout(HttpServletResponse response) {
+		userService.logoutUser(response);
+		return ResponseEntity.ok("Logged out");
+	}
 
-    @PostMapping("/refresh")
-    public ResponseEntity<AuthResponseDTO> refreshToken(
-        @Parameter(hidden = true)
-        @CookieValue("refreshToken") String refreshToken
-    ) {
-        AuthResponseDTO dto = userService.refreshUserToken(refreshToken);
-        return ResponseEntity.ok(dto);
-    }
+	@PostMapping("/refresh")
+	public ResponseEntity<AuthResponseDTO> refreshToken(
+			@Parameter(hidden = true) @CookieValue("refreshToken") String refreshToken) {
+		AuthResponseDTO dto = userService.refreshUserToken(refreshToken);
+		return ResponseEntity.ok(dto);
+	}
 
 }

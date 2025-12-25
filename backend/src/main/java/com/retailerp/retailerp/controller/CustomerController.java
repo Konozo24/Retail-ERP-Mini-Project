@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 
 @SecurityRequirement(name = "JWTAuth")
 @RestController
-@RequestMapping("/customers")
+@RequestMapping("/api/customers")
 @RequiredArgsConstructor
 @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ADMIN')")
 public class CustomerController {

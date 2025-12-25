@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 
 @SecurityRequirement(name = "JWTAuth")
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ADMIN')")
 public class UserController {

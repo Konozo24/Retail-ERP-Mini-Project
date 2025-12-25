@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @SecurityRequirement(name = "JWTAuth")
 @RestController
-@RequestMapping("/dashboard")
+@RequestMapping("/api/dashboard")
 @RequiredArgsConstructor
 @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ADMIN')")
 public class DashboardController {

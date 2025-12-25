@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 
 @SecurityRequirement(name = "JWTAuth")
 @RestController
-@RequestMapping("/sales-order")
+@RequestMapping("/api/sales-order")
 @RequiredArgsConstructor
 @org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('ADMIN', 'CASHIER')")
 public class SalesOrderController {

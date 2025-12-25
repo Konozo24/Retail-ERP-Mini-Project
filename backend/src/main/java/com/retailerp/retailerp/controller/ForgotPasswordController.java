@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-@RequestMapping("/forgot-password")
+@RequestMapping("/api/forgot-password")
 @RequiredArgsConstructor
 public class ForgotPasswordController {
 
